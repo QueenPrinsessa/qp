@@ -4,38 +4,38 @@
 
 class qpString {
 public:
-	qpString();
-	explicit qpString( int capacity );
-	qpString( char c );
-	qpString( const char * string );
-	qpString( const qpString & other );
-	qpString( qpString && other ) noexcept;
-	~qpString();
+	qpString ();
+	explicit qpString ( int capacity );
+	qpString ( char c );
+	qpString ( const char * string );
+	qpString ( const qpString & other );
+	qpString ( qpString && other ) noexcept;
+	~qpString ();
 
-	qpString & Assign( const char * string, int length );
-	qpString & Assign( char c );
-	qpString & Assign( const char * string );
-	qpString & Assign( const qpString & string );
+	qpString & Assign ( const char * string, int length );
+	qpString & Assign ( char c );
+	qpString & Assign ( const char * string );
+	qpString & Assign ( const qpString & string );
 
-	int Compare( const char * string ) const;
-	int Compare( const qpString & string ) const;
+	int Compare ( const char * string ) const;
+	int Compare ( const qpString & string ) const;
 
-	void Resize( int newLength, char charToInsert );
-	void Resize( int newLength );
-	void Reserve( int newCapacity );
-	void ShrinkToFit();
+	void Resize ( int newLength, char charToInsert );
+	void Resize ( int newLength );
+	void Reserve ( int newCapacity );
+	void ShrinkToFit ();
 
-	void Clear();
+	void Clear ();
 
-	char At( int index );
-	char At( int index ) const;
+	char At ( int index );
+	char At ( int index ) const;
 
-	int Length() const { return m_length; }
-	int Capacity() const { return m_capacity; }
-	bool IsEmpty() const { return m_length == 0; }
+	int Length () const { return m_length; }
+	int Capacity () const { return m_capacity; }
+	bool IsEmpty () const { return m_length == 0; }
 
-	const char * Data() const { return m_data; }
-	const char * c_str() const { return m_data; }
+	const char * Data () const { return m_data; }
+	const char * c_str () const { return m_data; }
 
 	qpString & operator+= ( char rhs );
 	qpString & operator+= ( const char * rhs );
@@ -62,11 +62,11 @@ public:
 	friend bool operator<= ( const char * lhs, const qpString & rhs );
 	friend bool operator<= ( const qpString & lhs, const char * rhs );
 	friend bool operator<= ( const qpString & lhs, const qpString & rhs );
-	friend qpString operator+( char lhs, const qpString & rhs );
-	friend qpString operator+( const qpString & lhs, char rhs );
-	friend qpString operator+( const char * lhs, const qpString & rhs );
-	friend qpString operator+( const qpString & lhs, const char * rhs );
-	friend qpString operator+( const qpString & lhs, const qpString & rhs );
+	friend qpString operator+ ( char lhs, const qpString & rhs );
+	friend qpString operator+ ( const qpString & lhs, char rhs );
+	friend qpString operator+ ( const char * lhs, const qpString & rhs );
+	friend qpString operator+ ( const qpString & lhs, const char * rhs );
+	friend qpString operator+ ( const qpString & lhs, const qpString & rhs );
 	friend std::ostream & operator<< ( std::ostream & out, const qpString & string );
 private:
 	int m_capacity = 0;

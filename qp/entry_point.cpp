@@ -1,12 +1,31 @@
-#include <vulkan/vulkan.hpp>
+#include "engine/qp_app.h"
+#include "tools/string/qp_string.h"
 #include <iostream>
 
-int main() {
+int main () {
 
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, nullptr );
+	class qpTestApp : public qpApp {
+	public:
+		virtual void OnInit () override {
 
-    std::cout << extensionCount << " extensions supported\n";
+		}
 
-    return 0;
+		virtual void OnUpdate () override {
+			//std::cout << __FUNCTION__ << std::endl;
+		}
+
+		virtual void OnCleanup () override {
+
+		}
+	};
+
+	qpTestApp app;
+
+	try {
+		app.Run ();
+	} catch ( const std::exception & e ) {
+		std::cerr << e.what () << std::endl;
+	}
+
+	return 0;
 }

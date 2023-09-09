@@ -143,10 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="engine\qp_app.cpp" />
     <ClCompile Include="entry_point.cpp" />
     <ClCompile Include="tools\string\qp_string.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="engine\qp_app.h" />
     <ClInclude Include="tools\debug\qp_debug.h" />
     <ClInclude Include="tools\math\qp_math.h" />
     <ClInclude Include="tools\string\qp_string.h" />
