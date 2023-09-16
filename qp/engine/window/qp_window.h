@@ -1,5 +1,5 @@
 #pragma once
-#include "qp/tools/common/qp_types.h"
+#include "qp/common/core/qp_types.h"
 #include "qp/tools/string/qp_string.h"
 
 enum class qpWindowMode_t {

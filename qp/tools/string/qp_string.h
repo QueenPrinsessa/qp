@@ -1,13 +1,13 @@
 #pragma once
 #include "qp/tools/allocation/qp_allocation_util.h"
-#include "qp/tools/debug/qp_debug.h"
+#include "qp/common/debug/qp_debug.h"
 #include "qp/tools/math/qp_math.h"
 #include <cstddef>
 #include <ostream>
 #include <compare>
 
 #ifdef QP_PLATFORM_WINDOWS
-#include "qp/engine/platform/windows/qp_windows.h"
+#include "qp/common/platform/windows/qp_windows.h"
 #endif
 
 template< typename T = char >

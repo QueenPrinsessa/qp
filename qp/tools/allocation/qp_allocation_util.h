@@ -1,5 +1,5 @@
 #pragma once
-#include "qp/tools/common/qp_types.h"
+#include "qp/common/core/qp_types.h"
 
 class qpAllocationUtil {
 public:

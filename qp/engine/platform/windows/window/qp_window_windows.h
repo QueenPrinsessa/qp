@@ -1,7 +1,7 @@
 #pragma once
 #ifdef QP_PLATFORM_WINDOWS
 
-#include "qp/engine/platform/windows/qp_windows.h"
+#include "qp/common/platform/windows/qp_windows.h"
 #include "qp/engine/window/qp_window.h"
 
 struct qpWindowPropertiesWindows_t {

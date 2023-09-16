@@ -1,5 +1,5 @@
 #pragma once
-#include "qp/tools/debug/qp_debug.h"
+#include "qp/common/debug/qp_debug.h"
 #include <cmath>
 
 class qpMath {
