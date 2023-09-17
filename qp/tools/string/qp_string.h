@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <ostream>
 #include <compare>
+#include <type_traits>
 
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/common/platform/windows/qp_windows.h"
@@ -21,10 +22,10 @@ static inline int qpStrLen( const T * string ) {
 	return length;
 }
 
-template< typename T = char >
+template< typename T = char, typename UNSIGNED_T = std::make_unsigned_t< T > >
 static inline bool qpStrCmp( const T * a, const T * b ) {
-	auto ua = std::make_unsigned< const T * >( a );
-	auto ub = std::make_unsigned< const T * >( b );
+	const UNSIGNED_T * ua = reinterpret_cast< const UNSIGNED_T * > ( a );
+	const UNSIGNED_T * ub = reinterpret_cast< const UNSIGNED_T * > ( b );
 
 	while ( *ua && ( *ua == *ub ) ) {
 		++ua;
@@ -75,6 +76,7 @@ public:
 	qpTString< T > & operator=( const T rhs );
 	qpTString< T > & operator=( const T * rhs );
 	qpTString< T > & operator=( const qpTString< T > & rhs );
+	qpTString< T > & operator=( qpTString< T > && rhs ) noexcept;
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
 
@@ -326,6 +328,21 @@ qpTString< T > & qpTString<T>::operator=( const qpTString<T> & rhs ) {
 	return *this;
 }
 
+template< typename T >
+qpTString<T> & qpTString<T>::operator=( qpTString<T> && rhs ) noexcept {
+	delete m_data;
+
+	m_length = rhs.m_length;
+	m_capacity = rhs.m_capacity;
+	m_data = rhs.m_data;
+
+	rhs.m_length = 0;
+	rhs.m_capacity = 0;
+	rhs.m_data = NULL;
+
+	return *this;
+}
+
 template < typename T >
 T & qpTString< T >::operator[]( const int index ) {
 	return At( index );
@@ -348,7 +365,7 @@ auto qpTString<T>::operator<=>( const T * rhs ) const {
 
 template< typename T >
 bool qpTString<T>::operator==( const qpTString<T> & rhs ) const {
-	return ( m_length == rhs.m_length ) && ( m_data[ 0 ] != rhs.m_data[ 0 ] ) && Compare( rhs );
+	return ( m_length == rhs.m_length ) && ( m_data[ 0 ] == rhs.m_data[ 0 ] ) && Compare( rhs );
 }
 
 static inline qpWString qpUTF8ToWide( const qpString & string );
@@ -359,8 +376,8 @@ static inline qpString qpWideToUTF8( const qpWString & string );
 static inline qpWString qpUTF8ToWide( const qpString & string ) {
 	int length = ::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), NULL, 0 );
 
-	if( length == 0 ) {
-		return qpWString{};
+	if ( length == 0 ) {
+		return qpWString {};
 	}
 
 	qpWString convertedString( string.Length() + 1 );
