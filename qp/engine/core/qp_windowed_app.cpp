@@ -1,5 +1,4 @@
 #include "qp_windowed_app.h"
-#include "qp/engine/rendering/qp_vulkan.h"
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/engine/platform/windows/window/qp_window_windows.h"
 #endif

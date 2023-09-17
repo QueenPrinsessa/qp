@@ -1,9 +1,8 @@
 #pragma once
 #include "qp_app.h"
 #include "qp/common/core/qp_unique_ptr.h"
+#include "qp/engine/rendering/qp_vulkan.h"
 #include "qp/engine/window/qp_window.h"
-
-class qpVulkan;
 
 class qpWindowedApp : public qpApp {
 public:
