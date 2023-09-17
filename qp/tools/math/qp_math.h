@@ -29,7 +29,16 @@ public:
 	static T Rad2Deg( const T & n );
 
 	template < typename T >
-	static T RoundToPow2( const T & n );
+	static T Pow( const T & a, const T & b );
+
+	template < typename T >
+	static T Ceil( const T & n ) requires ( std::is_floating_point_v< T > );
+
+	template < typename T >
+	static T Log( const T & n ) requires ( std::is_floating_point_v< T > );
+
+	template < typename T >
+	static T RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > );
 private:
 };
 
@@ -70,7 +79,22 @@ T qpMath::Rad2Deg( const T & n ) {
 	return static_cast< T > ( n * ( Pi / 180.0f ) );
 }
 
+template< typename T >
+T qpMath::Pow( const T & a, const T & b ) {
+	return std::pow< T >( a, b );
+}
+
+template< typename T >
+T qpMath::Ceil( const T & n ) requires ( std::is_floating_point_v<T> ) {
+	return std::ceil( n );
+}
+
+template< typename T >
+T qpMath::Log( const T & n ) requires (std::is_floating_point_v<T>) {
+	return std::log( n );
+}
+
 template < typename T >
-T qpMath::RoundToPow2( const T & n ) {
-	return std::pow( static_cast < T >( 2 ), std::ceil( std::log( n ) / std::log( 2 ) ) );
+T qpMath::RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > ) {
+	return qpMath::Pow( static_cast< T >( 2 ), qpMath::Ceil( qpMath::Log( n ) / qpMath::Log( static_cast< T >( 2 ) ) ) );
 }

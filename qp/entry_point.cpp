@@ -3,6 +3,7 @@
 #include "tools/string/qp_string.h"
 #include <chrono>
 #include <iostream>
+#include "common/core/qp_smart_pointers.h"
 
 #ifdef QP_PLATFORM_WINDOWS
 

@@ -67,8 +67,7 @@ public:
 	int Capacity() const { return m_capacity; }
 	bool IsEmpty() const { return m_length == 0; }
 
-	T * Data() { return m_data; }
-	const T * Data() const { return m_data; }
+	T * Data() const { return m_data; }
 	const T * c_str() const { return m_data; }
 
 	qpTString< T > & operator+=( const T rhs );
@@ -131,30 +130,30 @@ using qpString = qpTString< char >;
 using qpWString = qpTString< wchar_t >;
 
 template < typename T >
-qpTString<T>::qpTString() {
+qpTString< T >::qpTString() {
 	m_capacity = 16;
 	m_length = 0;
 	m_data = new T[ m_capacity ] { };
 }
 
 template < typename T >
-qpTString<T>::qpTString( const int capacity ) {
+qpTString< T >::qpTString( const int capacity ) {
 	QP_ASSERT_MSG( capacity >= 0, "Capacity can't be less than 0." );
 	Reserve( capacity );
 }
 
 template < typename T >
-qpTString<T>::qpTString( T c ) {
+qpTString< T >::qpTString( T c ) {
 	Assign( c );
 }
 
 template < typename T >
-qpTString<T>::qpTString( const T * string ) {
+qpTString< T >::qpTString( const T * string ) {
 	Assign( string );
 }
 
 template < typename T >
-qpTString<T>::qpTString( const qpTString< T > & other ) {
+qpTString< T >::qpTString( const qpTString< T > & other ) {
 	m_length = other.m_length;
 	m_capacity = other.m_length + 1;
 	m_data = new T[ m_capacity ] { };
@@ -162,7 +161,7 @@ qpTString<T>::qpTString( const qpTString< T > & other ) {
 }
 
 template < typename T >
-qpTString<T>::qpTString( qpTString< T > && other ) noexcept {
+qpTString< T >::qpTString( qpTString< T > && other ) noexcept {
 	m_length = other.m_length;
 	m_capacity = other.m_capacity;
 	m_data = other.m_data;
@@ -173,12 +172,12 @@ qpTString<T>::qpTString( qpTString< T > && other ) noexcept {
 }
 
 template < typename T >
-qpTString<T>::~qpTString() {
+qpTString< T >::~qpTString() {
 	delete m_data;
 }
 
 template < typename T >
-qpTString<T> & qpTString<T>::Assign( const T * string, const int length ) {
+qpTString< T > & qpTString< T >::Assign( const T * string, const int length ) {
 	Reserve( length + 1 );
 	memcpy( m_data, string, length * sizeof( T ) );
 	m_length = length;
@@ -186,17 +185,17 @@ qpTString<T> & qpTString<T>::Assign( const T * string, const int length ) {
 }
 
 template < typename T >
-qpTString<T> & qpTString<T>::Assign( const T c ) {
+qpTString< T > & qpTString< T >::Assign( const T c ) {
 	return Assign( &c, sizeof( c ) );
 }
 
 template < typename T >
-qpTString<T> & qpTString<T>::Assign( const T * string ) {
+qpTString< T > & qpTString< T >::Assign( const T * string ) {
 	return Assign( string, qpStrLen( string ) );
 }
 
 template < typename T >
-qpTString<T> & qpTString<T>::Assign( const qpTString<T> & string ) {
+qpTString< T > & qpTString< T >::Assign( const qpTString< T > & string ) {
 	return Assign( string.m_data, string.m_length );
 }
 
@@ -206,7 +205,7 @@ int qpTString< T >::Compare( const T * string ) const {
 }
 
 template < typename T >
-int qpTString< T >::Compare( const qpTString<T> & string ) const {
+int qpTString< T >::Compare( const qpTString< T > & string ) const {
 	return Compare( string.m_data );
 }
 
@@ -280,13 +279,13 @@ T & qpTString< T >::At( const int index ) {
 }
 
 template < typename T >
-const T & qpTString<T>::At( const int index ) const {
+const T & qpTString< T >::At( const int index ) const {
 	QP_ASSERT_MSG( index < m_length, "Index out of bounds." );
 	return m_data[ index ];
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator+=( const T rhs ) {
+qpTString< T > & qpTString< T >::operator+=( const T rhs ) {
 	constexpr int rhsLength = 1;
 	Reserve( m_length + rhsLength + 1 );
 	memcpy( m_data + m_length, &rhs, rhsLength * sizeof( T ) );
@@ -295,7 +294,7 @@ qpTString< T > & qpTString<T>::operator+=( const T rhs ) {
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator+=( const T * rhs ) {
+qpTString< T > & qpTString< T >::operator+=( const T * rhs ) {
 	const int rhsLength = qpStrLen( rhs );
 	Reserve( m_length + rhsLength + 1 );
 	memcpy( m_data + m_length, rhs, rhsLength * sizeof( T ) );
@@ -304,7 +303,7 @@ qpTString< T > & qpTString<T>::operator+=( const T * rhs ) {
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator+=( const qpTString<T> & rhs ) {
+qpTString< T > & qpTString< T >::operator+=( const qpTString< T > & rhs ) {
 	Reserve( m_length + rhs.m_length + 1 );
 	memcpy( m_data + m_length, rhs.m_data, rhs.m_length * sizeof( T ) );
 	m_length += rhs.m_length;
@@ -312,25 +311,25 @@ qpTString< T > & qpTString<T>::operator+=( const qpTString<T> & rhs ) {
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator=( const T rhs ) {
+qpTString< T > & qpTString< T >::operator=( const T rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator=( const T * rhs ) {
+qpTString< T > & qpTString< T >::operator=( const T * rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
 template < typename T >
-qpTString< T > & qpTString<T>::operator=( const qpTString<T> & rhs ) {
+qpTString< T > & qpTString< T >::operator=( const qpTString< T > & rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
 template< typename T >
-qpTString<T> & qpTString<T>::operator=( qpTString<T> && rhs ) noexcept {
+qpTString< T > & qpTString< T >::operator=( qpTString< T > && rhs ) noexcept {
 	delete m_data;
 
 	m_length = rhs.m_length;
@@ -355,17 +354,17 @@ const T & qpTString< T >::operator[]( const int index ) const {
 }
 
 template< typename T >
-auto qpTString<T>::operator<=>( const qpTString<T> & rhs ) const {
+auto qpTString< T >::operator<=>( const qpTString< T > & rhs ) const {
 	return Compare( rhs );
 }
 
 template< typename T >
-auto qpTString<T>::operator<=>( const T * rhs ) const {
+auto qpTString< T >::operator<=>( const T * rhs ) const {
 	return Compare( rhs );
 }
 
 template< typename T >
-bool qpTString<T>::operator==( const qpTString<T> & rhs ) const {
+bool qpTString< T >::operator==( const qpTString< T > & rhs ) const {
 	return ( m_length == rhs.m_length ) && ( m_data[ 0 ] == rhs.m_data[ 0 ] ) && Compare( rhs );
 }
 

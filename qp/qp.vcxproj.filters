@@ -62,5 +62,11 @@
     <ClInclude Include="common\core\qp_unique_ptr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\core\qp_smart_pointers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\core\qp_intrusive_ref_ptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
