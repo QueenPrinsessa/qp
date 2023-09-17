@@ -37,17 +37,17 @@ private:
 };
 
 template< typename T >
-qpList<T>::qpList() {
+qpList< T >::qpList() {
 	Reserve( 1 );
 }
 
 template< typename T >
-qpList<T>::qpList( int capacity ) {
+qpList< T >::qpList( int capacity ) {
 	Reserve( capacity );
 }
 
 template< typename T >
-qpList<T>::qpList( std::initializer_list<T> initializerList ) {
+qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( initializerList.size() );
 	m_length = initializerList.size();
 
@@ -62,18 +62,18 @@ qpList<T>::qpList( std::initializer_list<T> initializerList ) {
 }
 
 template< typename T >
-void qpList<T>::Push( const T & item ) {
+void qpList< T >::Push( const T & item ) {
 	Emplace( item );
 }
 
 template< typename T >
-void qpList<T>::Push( T && item ) {
+void qpList< T >::Push( T && item ) {
 	Emplace( item );
 }
 
 template< typename T >
 template< typename ... ARGS >
-T & qpList<T>::Emplace( ARGS &&... args ) {
+T & qpList< T >::Emplace( ARGS &&... args ) {
 	if ( ( m_length + 1 ) > m_capacity ) {
 		Reserve( m_capacity * 2 );
 	}
@@ -82,30 +82,30 @@ T & qpList<T>::Emplace( ARGS &&... args ) {
 }
 
 template< typename T >
-void qpList<T>::Pop() {
+void qpList< T >::Pop() {
 	if ( m_length > 0 ) {
 		m_length--;
 	}
 }
 
 template< typename T >
-T & qpList<T>::First() {
+T & qpList< T >::First() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
 template< typename T >
-T & qpList<T>::Last() {
+T & qpList< T >::Last() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
 template< typename T >
-void qpList<T>::ShrinkToFit() {
+void qpList< T >::ShrinkToFit() {
 }
 
 template< typename T >
-void qpList<T>::Reserve( int capacity ) {
+void qpList< T >::Reserve( int capacity ) {
 	if ( m_capacity < capacity ) {
 		T * newData = new T[ capacity ] {};
 		memcpy( newData, m_data, m_length * sizeof( T ) );
@@ -116,7 +116,7 @@ void qpList<T>::Reserve( int capacity ) {
 }
 
 template< typename T >
-void qpList<T>::Resize( int length ) {
+void qpList< T >::Resize( int length ) {
 	Reserve( length );
 	int lengthDiff = m_length - length;
 
@@ -134,18 +134,18 @@ void qpList<T>::Resize( int length ) {
 }
 
 template< typename T >
-void qpList<T>::Clear() {
+void qpList< T >::Clear() {
 	m_length = 0;
 }
 
 template< typename T >
-T & qpList<T>::operator[]( int index ) {
+T & qpList< T >::operator[]( int index ) {
 	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
 template< typename T >
-const T & qpList<T>::operator[]( int index ) const {
+const T & qpList< T >::operator[]( int index ) const {
 	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
