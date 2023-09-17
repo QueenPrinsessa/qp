@@ -21,10 +21,16 @@
     <ClCompile Include="tools\string\qp_string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="engine\qp_app.cpp">
+    <ClCompile Include="engine\core\qp_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\platform\windows\window\qp_window_windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\core\qp_windowed_app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\rendering\qp_vulkan.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +44,7 @@
     <ClInclude Include="common\debug\qp_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="engine\qp_app.h">
+    <ClInclude Include="engine\core\qp_app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tools\allocation\qp_allocation_util.h">
@@ -66,6 +72,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\core\qp_intrusive_ref_ptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\core\qp_windowed_app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\qp_vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
