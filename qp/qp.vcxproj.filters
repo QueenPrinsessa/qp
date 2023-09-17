@@ -80,5 +80,8 @@
     <ClInclude Include="engine\rendering\qp_vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tools\containers\qp_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

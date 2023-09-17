@@ -1,4 +1,5 @@
 #include "qp_vulkan.h"
+#include "qp/tools/containers/qp_list.h"
 #include "vulkan/vulkan.h"
 #include <stdexcept>
 #include <iostream>
@@ -24,7 +25,7 @@ void qpVulkan::CreateInstance() {
     appInfo.pNext = NULL;
     appInfo.pApplicationName = "qpVulkanApp";
     appInfo.pEngineName = "qp";
-    appInfo.apiVersion = VK_MAKE_VERSION( 1, 0, 3 );
+    appInfo.apiVersion = VK_API_VERSION_1_3;
 
     VkInstanceCreateInfo createInfo {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -32,16 +33,17 @@ void qpVulkan::CreateInstance() {
     createInfo.flags = 0;
     createInfo.pApplicationInfo = &appInfo;
 
-    const char * enabledExtensions[] {
+    qpList< const char * > enabledExtensions {
         VK_KHR_SURFACE_EXTENSION_NAME,
-#ifdef QP_PLATFORM_WINDOWS
-        VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-#endif
-        VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
+        VK_EXT_DEBUG_REPORT_EXTENSION_NAME
     };
 
-    createInfo.enabledExtensionCount = sizeof( enabledExtensions ) / sizeof( const char * );
-    createInfo.ppEnabledExtensionNames = enabledExtensions;
+#ifdef QP_PLATFORM_WINDOWS
+    enabledExtensions.Push( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
+#endif
+
+    createInfo.enabledExtensionCount = enabledExtensions.Length();
+    createInfo.ppEnabledExtensionNames = enabledExtensions.Data();
 
     const char * validationLayers[] {
         "VK_LAYER_KHRONOS_validation"
