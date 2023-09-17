@@ -35,7 +35,7 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 
 	DWORD windowStyle = WS_OVERLAPPEDWINDOW | WS_POPUP | WS_VISIBLE;
 
-	if( !properties.allowResize ) {
+	if ( !properties.allowResize ) {
 		windowStyle &= ~WS_THICKFRAME;
 	}
 
@@ -49,7 +49,7 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 
 	HINSTANCE instanceHandle = NULL;
 
-	if( properties.platformData != NULL ) {
+	if ( properties.platformData != NULL ) {
 		qpWindowPropertiesWindows_t * windowsProperties = static_cast< qpWindowPropertiesWindows_t * >( properties.platformData );
 		instanceHandle = windowsProperties->instanceHandle;
 	}
@@ -58,6 +58,8 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 	m_handle = CreateWindow( windowClassName, wTitle.c_str(), windowStyle, windowLeft, windowTop, m_width, m_height, NULL, NULL, instanceHandle, this );
 
 	SetForegroundWindow( m_handle );
+
+	GetWindowPlacement( m_handle, &m_lastWindowPlacement );
 
 	m_windowMode = properties.mode;
 	ApplyWindowMode( m_windowMode );
@@ -71,12 +73,16 @@ void qpWindowsWindow::ApplyWindowMode( const qpWindowMode_t windowMode ) {
 		{
 			SetWindowLong( m_handle, GWL_STYLE, windowStyle | WS_OVERLAPPEDWINDOW );
 			SetWindowPlacement( m_handle, &m_lastWindowPlacement );
-			SetWindowPos( m_handle, NULL, 0, 0, static_cast< int >( m_width ), static_cast< int >( m_height ),
+
+			RECT clientRect;
+			GetClientRect( m_handle, &clientRect );
+			int clientWidth = clientRect.right - clientRect.left;
+			int clientHeight = clientRect.bottom - clientRect.top;
+			SetWindowPos( m_handle, NULL, 0, 0, clientWidth, clientHeight,
 						  SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED );
 			SetForegroundWindow( m_handle );
 			break;
 		}
-
 		case qpWindowMode_t::BORDERLESS:
 		{
 			MONITORINFO monitorInfo = { sizeof( monitorInfo ) };
@@ -100,21 +106,25 @@ LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_
 	static qpWindowsWindow * window = NULL;
 
 	switch ( msg ) {
-		case WM_DESTROY: {
+		case WM_DESTROY:
+		{
 			DestroyWindow( handle );
 			PostQuitMessage( 0 );
 			break;
 		}
-		case WM_PAINT: {
+		case WM_PAINT:
+		{
 			ValidateRect( handle, NULL );
 			break;
 		}
-		case WM_CREATE: {
+		case WM_CREATE:
+		{
 			const CREATESTRUCT * createdStruct = reinterpret_cast< CREATESTRUCT * >( lparam );
 			window = static_cast< qpWindowsWindow * >( createdStruct->lpCreateParams );
 			break;
 		}
-		default: {
+		default:
+		{
 			return DefWindowProc( handle, msg, wparam, lparam );
 		}
 	}
