@@ -30,8 +30,6 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 			windowProperties = props;
 		}
 
-
-
 		std::unique_ptr< qpWindowsWindow > def;
 		virtual void OnInit() override {
 			window = qpCreateUnique< qpWindowsWindow >( windowProperties );
