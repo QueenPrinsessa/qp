@@ -59,5 +59,8 @@
     <ClInclude Include="engine\platform\windows\window\qp_window_windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\core\qp_unique_ptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

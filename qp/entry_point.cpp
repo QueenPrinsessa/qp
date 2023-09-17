@@ -1,3 +1,4 @@
+#include "common/core/qp_unique_ptr.h"
 #include "engine/qp_app.h"
 #include "tools/string/qp_string.h"
 #include <chrono>
@@ -22,15 +23,18 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	class qpTestApp : public qpApp {
 	public:
-		qpWindow * window = NULL;
+		qpUniquePtr< qpWindow > window = NULL;
 		qpWindowProperties_t windowProperties;
 
 		qpTestApp( const qpWindowProperties_t & props ) {
 			windowProperties = props;
 		}
 
+
+
+		std::unique_ptr< qpWindowsWindow > def;
 		virtual void OnInit() override {
-			window = new qpWindowsWindow( windowProperties );
+			window = qpCreateUnique< qpWindowsWindow >( windowProperties );
 		}
 
 		virtual void OnUpdate() override {
@@ -39,7 +43,6 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 		}
 
 		virtual void OnCleanup() override {
-			delete window;
 		}
 	};
 
