@@ -15,8 +15,8 @@ public:
 
 	virtual void OnUpdate() override;
 
-	virtual uint32 GetWidth() override { return m_width; }
-	virtual uint32 GetHeight() override { return m_height; }
+	virtual int GetWidth() override { return m_width; }
+	virtual int GetHeight() override { return m_height; }
 	virtual void * GetHandle() const override { return m_handle; }
 	virtual qpWindowMode_t GetWindowMode() const override { return m_windowMode; }
 
@@ -26,8 +26,8 @@ private:
 	void Init( const qpWindowProperties_t & properties );
 	void ApplyWindowMode( const qpWindowMode_t windowMode );
 
-	uint32 m_width = 1280;
-	uint32 m_height = 720;
+	int m_width = 1280;
+	int m_height = 720;
 	qpWindowMode_t m_windowMode = qpWindowMode_t::WINDOWED;
 	HWND m_handle = NULL;
 	WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };

@@ -10,8 +10,8 @@ enum class qpWindowMode_t {
 
 struct qpWindowProperties_t {
 	qpString title = "qpApp";
-	uint32 width = 1280;
-	uint32 height = 720;
+	int width = 1280;
+	int height = 720;
 	qpWindowMode_t mode = qpWindowMode_t::WINDOWED;
 	bool allowResize = true;
 	void * platformData = NULL;
@@ -23,8 +23,8 @@ public:
 
 	virtual void OnUpdate() = 0;
 
-	virtual uint32 GetWidth() = 0;
-	virtual uint32 GetHeight() = 0;
+	virtual int GetWidth() = 0;
+	virtual int GetHeight() = 0;
 
 	virtual qpWindowMode_t GetWindowMode() const = 0;
 

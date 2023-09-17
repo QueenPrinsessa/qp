@@ -41,8 +41,8 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 
 	uint32_t primaryMonitorWidth = GetSystemMetrics( SM_CXSCREEN );
 	uint32_t primaryMonitorHeight = GetSystemMetrics( SM_CYSCREEN );
-	LONG windowLeft = static_cast< LONG >( ( primaryMonitorWidth - properties.width ) / 2 );
-	LONG windowTop = static_cast< LONG >( ( primaryMonitorHeight - properties.height ) / 2 );
+	LONG windowLeft = ( primaryMonitorWidth - properties.width ) / 2;
+	LONG windowTop = ( primaryMonitorHeight - properties.height ) / 2;
 
 	m_width = properties.width;
 	m_height = properties.height;
