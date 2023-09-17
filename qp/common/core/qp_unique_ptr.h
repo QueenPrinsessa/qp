@@ -134,13 +134,3 @@ template < typename T, typename ... ARGS >
 constexpr static inline qpUniquePtr< T > qpCreateUnique( ARGS&&... args ) {
 	return qpUniquePtr< T >( new T( std::forward< ARGS >( args )... ) );
 }
-
-template < typename T, typename D >
-constexpr static inline qpUniquePtr< T > qpIntrusiveRefStaticCast( const qpUniquePtr< D > & intrusivePtr ) {
-	return qpUniquePtr< T >( static_cast< T * >( intrusivePtr.Raw() ) );
-}
-
-template < typename T, typename D >
-constexpr static inline qpUniquePtr< T > qpIntrusiveRefDynamicCast( const qpUniquePtr< D > & intrusivePtr ) {
-	return qpUniquePtr< T >( dynamic_cast< T * >( intrusivePtr.Raw() ) );
-}
