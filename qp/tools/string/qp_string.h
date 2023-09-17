@@ -67,6 +67,7 @@ public:
 	int Capacity() const { return m_capacity; }
 	bool IsEmpty() const { return m_length == 0; }
 
+	T * Data() { return m_data; }
 	const T * Data() const { return m_data; }
 	const T * c_str() const { return m_data; }
 
@@ -380,8 +381,8 @@ static inline qpWString qpUTF8ToWide( const qpString & string ) {
 		return qpWString {};
 	}
 
-	qpWString convertedString( string.Length() + 1 );
-	::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), const_cast< wchar_t * >( convertedString.Data() ), convertedString.Length() );
+	qpWString convertedString( length + 1 );
+	::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length);
 	return convertedString;
 }
 
@@ -393,7 +394,7 @@ static inline qpString qpWideToUTF8( const qpWString & string ) {
 	}
 
 	qpString convertedString( string.Length() + 1 );
-	::WideCharToMultiByte( CP_UTF8, 0, string.Data(), string.Length(), const_cast< char * >( convertedString.Data() ), convertedString.Length(), NULL, NULL );
+	::WideCharToMultiByte( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length, NULL, NULL );
 	return convertedString;
 }
 
