@@ -1,4 +1,5 @@
 #pragma once
+#include <atomic>
 #include <cstdint>
 
 using int8 = int8_t;
@@ -9,3 +10,6 @@ using uint8 = uint64_t;
 using uint16 = uint64_t;
 using uint32 = uint64_t;
 using uint64 = uint64_t;
+
+template< typename T >
+using qpAtomic = std::atomic< T >;
