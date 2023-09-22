@@ -47,7 +47,7 @@ qpList< T >::qpList( int capacity ) {
 
 template< typename T >
 qpList< T >::qpList( std::initializer_list< T > initializerList ) : qpList( qpMath::Max( static_cast< int >( initializerList.size() ), 1 ) ) {
-	m_length = initializerList.size();
+	m_length = static_cast< int >( initializerList.size() );
 
 	if constexpr ( std::is_trivially_copyable_v < T > ) {
 		memcpy( m_data, initializerList.begin(), initializerList.size() * sizeof( T ) );
