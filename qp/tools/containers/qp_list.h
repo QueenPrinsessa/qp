@@ -37,18 +37,16 @@ private:
 };
 
 template< typename T >
-qpList< T >::qpList() {
-	Reserve( 1 );
+qpList< T >::qpList() : qpList( 1 ) {
 }
 
 template< typename T >
 qpList< T >::qpList( int capacity ) {
-	Reserve( capacity );
+	Reserve( qpMath::Max( capacity, 1 ) );
 }
 
 template< typename T >
-qpList< T >::qpList( std::initializer_list< T > initializerList ) {
-	Reserve( initializerList.size() );
+qpList< T >::qpList( std::initializer_list< T > initializerList ) : qpList( qpMath::Max( static_cast< int >( initializerList.size() ), 1 ) ) {
 	m_length = initializerList.size();
 
 	if constexpr ( std::is_trivially_copyable_v < T > ) {
