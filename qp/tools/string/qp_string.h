@@ -460,6 +460,7 @@ static inline qpString qpFormat( const char * const format, ARGS&&... args ) {
 
 template < typename... ARGS >
 static inline qpWString qpFormat( const wchar_t * const format, ARGS&&... args ) {
+	// prevent allocation and let Format allocate the correct size directly.
 	qpWString formatted( 0 );
 	formatted.Format( format, std::forward< ARGS >( args )... );
 	return formatted;
