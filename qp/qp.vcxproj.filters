@@ -89,5 +89,8 @@
     <ClInclude Include="common\core\qp_macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tools\containers\qp_array_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

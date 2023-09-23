@@ -6,6 +6,7 @@
 
 template< typename T >
 class qpList {
+	friend class qpArrayView< T >;
 public:
 	struct Iterator
 	{
@@ -38,7 +39,7 @@ public:
 	};
 
 	qpList();
-	qpList( int capacity );
+	qpList( int size );
 	qpList( std::initializer_list< T > initializerList );
 
 	void Push( const T & item );
@@ -67,8 +68,12 @@ public:
 
 	Iterator Begin() { return Iterator( &m_data[ 0 ]); }
 	Iterator End() { return Iterator( &m_data[ m_length ] ); }
+	Iterator Begin() const { return Iterator( &m_data[ 0 ]); }
+	Iterator End() const { return Iterator( &m_data[ m_length ] ); }
 	Iterator begin() { return Begin(); }
 	Iterator end() { return End(); }
+	Iterator begin() const { return Begin(); }
+	Iterator end() const { return End(); }
 private:
 	int m_capacity = 0;
 	int m_length = 0;
@@ -76,19 +81,19 @@ private:
 };
 
 template< typename T >
-qpList< T >::qpList() : qpList( 1 ) {
+qpList< T >::qpList() {
 }
 
 template< typename T >
-qpList< T >::qpList( int capacity ) {
-	Reserve( qpMath::Max( capacity, 1 ) );
+qpList< T >::qpList( int size ) {
+	Resize( size );
 }
 
 template< typename T >
-qpList< T >::qpList( std::initializer_list< T > initializerList ) : qpList( qpMath::Max( static_cast< int >( initializerList.size() ), 1 ) ) {
-	m_length = static_cast< int >( initializerList.size() );
-
+qpList< T >::qpList( std::initializer_list< T > initializerList ) {
+	Reserve( static_cast< int >( initializerList.size() ) );
 	if constexpr ( std::is_trivially_copyable_v < T > ) {
+		m_length = static_cast< int >( initializerList.size() );
 		memcpy( m_data, initializerList.begin(), initializerList.size() * sizeof( T ) );
 	} else {
 		for ( auto it = initializerList.begin(); it != initializerList.end(); it++ ) {
@@ -159,7 +164,7 @@ void qpList< T >::Reserve( int capacity ) {
 	if ( m_capacity < capacity ) {
 		T * newData = new T[ capacity ] {};
 		memcpy( newData, m_data, m_length * sizeof( T ) );
-		delete m_data;
+		delete[] m_data;
 		m_data = newData;
 		m_capacity = capacity;
 	}
@@ -170,12 +175,12 @@ void qpList< T >::Resize( int length ) {
 	Reserve( length );
 	int lengthDiff = m_length - length;
 
-	if ( lengthDiff > 0 ) {
-		for ( int index = 0; index < lengthDiff; index++ ) {
+	if ( lengthDiff < 0 ) {
+		for ( int index = 0; index < qpMath::Abs( lengthDiff ); index++ ) {
 			m_data[ m_length + index ] = T();
 		}
-	} else if ( lengthDiff < 0 ) {
-		for ( int index = 0; index < qpMath::Abs( lengthDiff ); index++ ) {
+	} else if ( lengthDiff > 0 ) {
+		for ( int index = 0; index < lengthDiff; index++ ) {
 			m_data[ m_length - index ] = T();
 		}
 	}

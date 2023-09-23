@@ -34,6 +34,11 @@ static inline bool qpStrCmp( const T * a, const T * b ) {
 	return ( *ua > *ub ) - ( *ub > *ua );
 }
 
+template < typename T = char >
+static inline bool qpStrEquals( const T * a, const T * b ) {
+	return ( qpStrCmp( a, b ) == 0 );
+}
+
 template< typename T >
 class qpTString
 {
@@ -105,8 +110,12 @@ public:
 
 	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
 	Iterator End() { return Iterator( &m_data[ m_length ] ); }
+	Iterator Begin() const { return Iterator( &m_data[ 0 ] ); }
+	Iterator End() const { return Iterator( &m_data[ m_length ] ); }
 	Iterator begin() { return Begin(); }
 	Iterator end() { return End(); }
+	Iterator begin() const { return Begin(); }
+	Iterator end() const { return End(); }
 
 	qpTString< T > & operator+=( const T rhs );
 	qpTString< T > & operator+=( const T * rhs );
@@ -211,7 +220,7 @@ qpTString< T >::qpTString( qpTString< T > && other ) noexcept {
 
 template < typename T >
 qpTString< T >::~qpTString() {
-	delete m_data;
+	delete[] m_data;
 }
 
 template < typename T >

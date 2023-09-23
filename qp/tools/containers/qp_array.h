@@ -8,6 +8,7 @@ template < typename T, int SIZE >
 class qpArray {
 public:
 	static_assert( SIZE > 0, "qpArray: " QP_STRINGIFY( SIZE ) " needs to be greater than 0." );
+	friend class qpArrayView< T >;
 	struct Iterator
 	{
 	public:
@@ -48,15 +49,20 @@ public:
 
 	int Length() const { return SIZE; }
 
-	T * Data() const { return &m_data[ 0 ]; }
+	T * Data() { return &m_data[ 0 ]; }
+	const T * Data() const { return &m_data[ 0 ]; }
 
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
 
 	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
 	Iterator End() { return Iterator( &m_data[ SIZE ] ); }
+	Iterator Begin() const { return Iterator( &m_data[ 0 ] ); }
+	Iterator End() const { return Iterator( &m_data[ SIZE ] ); }
 	Iterator begin() { return Begin(); }
 	Iterator end() { return End(); }
+	Iterator begin() const { return Begin(); }
+	Iterator end() const { return End(); }
 private:
 	T m_data[ SIZE ] {};
 };

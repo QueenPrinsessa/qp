@@ -117,6 +117,7 @@
     <ClInclude Include="common\core\qp_types.h" />
     <ClInclude Include="common\debug\qp_debug.h" />
     <ClInclude Include="tools\containers\qp_array.h" />
+    <ClInclude Include="tools\containers\qp_array_view.h" />
     <ClInclude Include="tools\containers\qp_list.h" />
     <ClInclude Include="tools\math\qp_math.h" />
     <ClInclude Include="tools\string\qp_string.h" />
