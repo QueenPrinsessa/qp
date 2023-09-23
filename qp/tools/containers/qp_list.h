@@ -31,6 +31,8 @@ public:
 			return it;
 		}
 
+		auto operator<=>( const qpList< T >::Iterator & ) const = default;
+		bool operator==( const qpList< T >::Iterator & ) const = default;
 	private:
 		pointer m_ptr = NULL;
 	};
