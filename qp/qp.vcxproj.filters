@@ -83,7 +83,7 @@
     <ClInclude Include="tools\containers\qp_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\containers\qpArray.h">
+    <ClInclude Include="tools\containers\qp_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\core\qp_macros.h">
