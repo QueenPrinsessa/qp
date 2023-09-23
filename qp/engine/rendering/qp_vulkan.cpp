@@ -1,4 +1,5 @@
 #include "qp_vulkan.h"
+#include "qp/engine/debug/qp_debug.h"
 #include "qp/tools/containers/qp_array.h"
 #include "qp/tools/containers/qp_list.h"
 #include "vulkan/vulkan.h"
@@ -73,6 +74,8 @@ void qpVulkan::CreateInstance() {
 	} else if ( result != VK_SUCCESS ) {
 		ThrowOnError( "vkCreateInstance failed." );
 	}
+
+	qpDebug::Log( "Successfully initialized Vulkan." );
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {
@@ -104,7 +107,7 @@ void qpVulkan::ThrowOnError( const qpString & msg ) {
 #ifdef QP_PLATFORM_WINDOWS
 	MessageBox( NULL, qpUTF8ToWide( msg ).c_str(), L"qp", MB_ICONERROR );
 #else
-	std::cerr << msg << std::endl;
+	qpDebug::Error( "%s", msg.c_str() );
 #endif
 	throw std::runtime_error( msg.c_str() );
 }

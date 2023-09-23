@@ -95,6 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\core\qp_windowed_app.cpp" />
+    <ClCompile Include="engine\debug\qp_debug.cpp" />
     <ClCompile Include="engine\platform\windows\window\qp_window_windows.cpp" />
     <ClCompile Include="engine\core\qp_app.cpp" />
     <ClCompile Include="engine\rendering\qp_vulkan.cpp" />
@@ -109,6 +110,7 @@
     <ClInclude Include="engine\core\qp_core.h" />
     <ClInclude Include="common\platform\windows\qp_windows.h" />
     <ClInclude Include="engine\core\qp_windowed_app.h" />
+    <ClInclude Include="engine\debug\qp_debug.h" />
     <ClInclude Include="engine\platform\windows\window\qp_window_windows.h" />
     <ClInclude Include="engine\core\qp_app.h" />
     <ClInclude Include="engine\rendering\qp_vulkan.h" />

@@ -1,4 +1,5 @@
 #include "qp_windowed_app.h"
+#include "qp/engine/debug/qp_debug.h"
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/engine/platform/windows/window/qp_window_windows.h"
 #endif
@@ -8,6 +9,8 @@ qpWindowedApp::qpWindowedApp( const qpWindowProperties_t & windowProperties ) {
 }
 
 void qpWindowedApp::OnInit() {
+	qpDebug::InitializeConsole();
+
 #ifdef QP_PLATFORM_WINDOWS
 	m_window = qpCreateUnique< qpWindowsWindow >( m_windowProperties );
 #endif
