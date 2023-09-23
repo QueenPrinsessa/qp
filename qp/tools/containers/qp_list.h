@@ -3,9 +3,38 @@
 #include "qp/tools/math/qp_math.h"
 #include <initializer_list>
 #include <type_traits>
+
 template< typename T >
 class qpList {
 public:
+	struct Iterator
+	{
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type = std::ptrdiff_t;
+		using value_type = T;
+		using pointer = T *;
+		using reference = T &;
+
+		Iterator( pointer ptr ) : m_ptr( ptr ) {
+		}
+
+		reference operator *() const { return *m_ptr; }
+
+		pointer operator->() { return m_ptr; }
+		Iterator & operator++() {
+			m_ptr++;
+			return *this;
+		}
+		Iterator operator++( int ) {
+			Iterator it = m_ptr++;
+			return it;
+		}
+
+	private:
+		pointer m_ptr = NULL;
+	};
+
 	qpList();
 	qpList( int capacity );
 	qpList( std::initializer_list< T > initializerList );
@@ -30,6 +59,11 @@ public:
 
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
+
+	Iterator Begin() { return Iterator( &m_data[ 0 ]); }
+	Iterator End() { return Iterator( &m_data[ m_length ] ); }
+	Iterator begin() { return Begin(); }
+	Iterator end() { return End(); }
 private:
 	int m_capacity = 0;
 	int m_length = 0;
