@@ -1,6 +1,8 @@
 #include "qp_vulkan.h"
+#include "qp/tools/containers/qpArray.h"
 #include "qp/tools/containers/qp_list.h"
 #include "vulkan/vulkan.h"
+#include <array>
 #include <stdexcept>
 #include <iostream>
 
@@ -45,14 +47,14 @@ void qpVulkan::CreateInstance() {
     createInfo.enabledExtensionCount = enabledExtensions.Length();
     createInfo.ppEnabledExtensionNames = enabledExtensions.Data();
 
-    const char * validationLayers[] {
+    qpArray< const char *, 1 > validationLayers {
         "VK_LAYER_KHRONOS_validation"
     };
 
 #ifdef NDEBUG
-    constexpr bool enableValidationLayers = false;
+    const bool enableValidationLayers = false;
 #else
-    constexpr bool enableValidationLayers = true;
+    const bool enableValidationLayers = true;
 #endif
     
     VkResult result = vkCreateInstance( &createInfo, NULL, &m_instance );
