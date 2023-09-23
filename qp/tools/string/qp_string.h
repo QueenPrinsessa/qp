@@ -35,8 +35,39 @@ static inline bool qpStrCmp( const T * a, const T * b ) {
 }
 
 template< typename T >
-class qpTString {
+class qpTString
+{
 public:
+	struct Iterator
+	{
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type = std::ptrdiff_t;
+		using value_type = T;
+		using pointer = T *;
+		using reference = T &;
+
+		Iterator( pointer ptr ) : m_ptr( ptr ) { }
+
+		reference operator *() const { return *m_ptr; }
+
+		pointer operator->() { return m_ptr; }
+		Iterator & operator++() {
+			m_ptr++;
+			return *this;
+		}
+		Iterator operator++( int ) {
+			Iterator it = m_ptr++;
+			return it;
+		}
+
+		auto operator<=>( const qpTString< T >::Iterator & ) const = default;
+		bool operator==( const qpTString< T >::Iterator & ) const = default;
+
+	private:
+		pointer m_ptr = NULL;
+	};
+
 	qpTString();
 	explicit qpTString( int capacity );
 	qpTString( const T c );
@@ -49,6 +80,8 @@ public:
 	qpTString< T > & Assign( const T c );
 	qpTString< T > & Assign( const T * string );
 	qpTString< T > & Assign( const qpTString< T > & string );
+
+	qpTString< T > & Format( const T * const format, ... );
 
 	int Compare( const T * string ) const;
 	int Compare( const qpTString< T > & string ) const;
@@ -69,6 +102,11 @@ public:
 
 	T * Data() const { return m_data; }
 	const T * c_str() const { return m_data; }
+
+	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
+	Iterator End() { return Iterator( &m_data[ m_length ] ); }
+	Iterator begin() { return Begin(); }
+	Iterator end() { return End(); }
 
 	qpTString< T > & operator+=( const T rhs );
 	qpTString< T > & operator+=( const T * rhs );
@@ -197,6 +235,50 @@ qpTString< T > & qpTString< T >::Assign( const T * string ) {
 template < typename T >
 qpTString< T > & qpTString< T >::Assign( const qpTString< T > & string ) {
 	return Assign( string.m_data, string.m_length );
+}
+
+template<>
+inline qpTString< char > & qpTString< char >::Format( const char * const format, ... ) {
+	QP_ASSERT( format != NULL );
+
+	va_list args = NULL;
+	va_start( args, format );
+	int length = vsnprintf( NULL, 0, format, args );
+	va_end( args );
+
+	Reserve( length + 1 );
+
+	va_start( args, format );
+	length = vsnprintf( m_data, m_capacity, format, args );
+	va_end( args );
+
+	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
+
+	m_length = length;
+
+	return *this;
+}
+
+template<>
+inline qpTString< wchar_t > & qpTString< wchar_t >::Format( const wchar_t * const format, ... ) {
+	QP_ASSERT( format != NULL );
+
+	va_list args = NULL;
+	va_start( args, format );
+	int length = _vsnwprintf( NULL, 0, format, args );
+	va_end( args );
+
+	Reserve( length + 1 );
+
+	va_start( args, format );
+	length = _vsnwprintf( m_data, length, format, args );
+	va_end( args );
+
+	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
+
+	m_length = length;
+
+	return *this;
 }
 
 template < typename T >
@@ -368,6 +450,21 @@ bool qpTString< T >::operator==( const qpTString< T > & rhs ) const {
 	return ( m_length == rhs.m_length ) && ( m_data[ 0 ] == rhs.m_data[ 0 ] ) && Compare( rhs );
 }
 
+template < typename... ARGS >
+static inline qpString qpFormat( const char * const format, ARGS&&... args ) {
+	// prevent allocation and let Format allocate the correct size directly.
+	qpString formatted( 0 ); 
+	formatted.Format( format, std::forward< ARGS >( args )... );
+	return formatted;
+}
+
+template < typename... ARGS >
+static inline qpWString qpFormat( const wchar_t * const format, ARGS&&... args ) {
+	qpWString formatted( 0 );
+	formatted.Format( format, std::forward< ARGS >( args )... );
+	return formatted;
+}
+
 static inline qpWString qpUTF8ToWide( const qpString & string );
 static inline qpString qpWideToUTF8( const qpWString & string );
 
@@ -381,7 +478,7 @@ static inline qpWString qpUTF8ToWide( const qpString & string ) {
 	}
 
 	qpWString convertedString( length + 1 );
-	::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length);
+	::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length );
 	return convertedString;
 }
 
