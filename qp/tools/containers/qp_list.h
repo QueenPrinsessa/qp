@@ -49,6 +49,8 @@ public:
 
 	T & First();
 	T & Last();
+	const T & First() const;
+	const T & Last() const;
 
 	T * Data() const { return m_data; }
 
@@ -58,6 +60,7 @@ public:
 	void Clear();
 
 	int Length() const { return m_length; }
+	bool IsEmpty() const { return m_length == 0; }
 
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
@@ -133,6 +136,19 @@ T & qpList< T >::Last() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
+
+template< typename T >
+const T & qpList< T >::First() const {
+	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
+	return m_data[ 0 ];
+}
+
+template< typename T >
+const T & qpList< T >::Last() const {
+	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
+	return m_data[ m_length - 1 ];
+}
+
 
 template< typename T >
 void qpList< T >::ShrinkToFit() {
