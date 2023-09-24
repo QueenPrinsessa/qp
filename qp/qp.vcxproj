@@ -107,6 +107,7 @@
     <ClInclude Include="common\core\qp_macros.h" />
     <ClInclude Include="common\core\qp_smart_pointers.h" />
     <ClInclude Include="common\core\qp_unique_ptr.h" />
+    <ClInclude Include="common\utilities\qp_optional.h" />
     <ClInclude Include="engine\core\qp_core.h" />
     <ClInclude Include="common\platform\windows\qp_windows.h" />
     <ClInclude Include="engine\core\qp_windowed_app.h" />
