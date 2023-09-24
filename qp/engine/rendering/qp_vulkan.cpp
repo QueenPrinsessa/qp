@@ -5,6 +5,7 @@
 #include "vulkan/vulkan.h"
 #include <stdexcept>
 #include <iostream>
+#include <qp/common/utilities/qp_optional.h>
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -22,12 +23,14 @@ void qpVulkan::Init() {
 	CreateInstance();
 	SetupDebugMessenger();
 	PickPhysicalDevice();
+	CreateLogicalDevice();
 }
 
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
 
 void qpVulkan::Cleanup() {
 	vkDestroyInstance( m_instance, NULL );
+	vkDestroyDevice( m_device, NULL );
 
 	if ( enableValidationLayers ) {
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debugMessenger, NULL );
@@ -158,15 +161,19 @@ void qpVulkan::SetupDebugMessenger() {
 	}
 }
 
-bool IsDeviceSuitable( VkPhysicalDevice device ) {
+bool qpVulkan::IsDeviceSuitable( VkPhysicalDevice device ) {
 	UNUSED_PARAMETER( device );
 	//VkPhysicalDeviceProperties deviceProperties;
 	//vkGetPhysicalDeviceProperties( device, &deviceProperties );
 
 	//VkPhysicalDeviceFeatures deviceFeatures;
 	//vkGetPhysicalDeviceFeatures( device, &deviceFeatures );
+	queueFamilyIndices_t indices = FindQueueFamilies( device );
+	return indices.graphicsFamily.HasValue();
+}
 
-	return true;
+bool qpVulkan::HasAllQueueFamilyIndices( const queueFamilyIndices_t & indices ) const {
+	return indices.graphicsFamily.HasValue();
 }
 
 void qpVulkan::PickPhysicalDevice() {
@@ -190,6 +197,58 @@ void qpVulkan::PickPhysicalDevice() {
 	if( m_physicalDevice == NULL ) {
 		ThrowOnError( "Couldn't find a suitable GPU!" );
 	}
+}
+
+void qpVulkan::CreateLogicalDevice() {
+	queueFamilyIndices_t indices = FindQueueFamilies( m_physicalDevice );
+
+	VkDeviceQueueCreateInfo queueCreateInfo {};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.GetValue();
+	queueCreateInfo.queueCount = 1;
+
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	VkPhysicalDeviceFeatures deviceFeatures {};
+
+	VkDeviceCreateInfo createInfo {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.pQueueCreateInfos = &queueCreateInfo;
+	createInfo.queueCreateInfoCount = 1;
+	createInfo.pEnabledFeatures = &deviceFeatures;
+	createInfo.enabledExtensionCount = 0;
+
+	if( vkCreateDevice( m_physicalDevice, &createInfo, NULL, &m_device ) ) {
+		ThrowOnError( "Failed to create logical device!" );
+	}
+
+	if( indices.graphicsFamily.HasValue() ) {
+		vkGetDeviceQueue( m_device, indices.graphicsFamily.GetValue(), 0, &m_graphicsQueue );
+	}
+}
+
+qpVulkan::queueFamilyIndices_t qpVulkan::FindQueueFamilies( VkPhysicalDevice device ) {
+	queueFamilyIndices_t indices;
+
+	uint32 queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties( device, &queueFamilyCount, NULL );
+
+	qpList< VkQueueFamilyProperties > queueFamilies( queueFamilyCount );
+	vkGetPhysicalDeviceQueueFamilyProperties( device, &queueFamilyCount, queueFamilies.Data() );
+
+	for ( int index = 0; index < queueFamilies.Length(); index++ ) {
+		const VkQueueFamilyProperties & queueFamily = queueFamilies[ index ];
+		if( queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT ) {
+			indices.graphicsFamily = index;
+		}
+
+		if( HasAllQueueFamilyIndices( indices ) ) {
+			break;
+		}
+	}
+
+	return indices;
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {
