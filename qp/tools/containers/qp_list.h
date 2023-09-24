@@ -94,7 +94,9 @@ qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
 	if constexpr ( std::is_trivially_copyable_v < T > ) {
 		m_length = static_cast< int >( initializerList.size() );
-		memcpy( m_data, initializerList.begin(), initializerList.size() * sizeof( T ) );
+		if( m_data != NULL ) {
+			memcpy( m_data, initializerList.begin(), initializerList.size() * sizeof( T ) );
+		}
 	} else {
 		for ( auto it = initializerList.begin(); it != initializerList.end(); it++ ) {
 			Push( *it );
