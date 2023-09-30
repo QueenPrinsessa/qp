@@ -1,6 +1,7 @@
 #pragma once
 #include "qp/common/debug/qp_debug.h"
 #include "qp/tools/math/qp_math.h"
+#include "qp/common/utilities/qp_algorithms.h"
 #include <initializer_list>
 #include <type_traits>
 
@@ -31,6 +32,8 @@ public:
 			Iterator it = m_ptr++;
 			return it;
 		}
+
+		operator pointer ( ) { return m_ptr; }
 
 		auto operator<=>( const qpList< T >::Iterator & ) const = default;
 		bool operator==( const qpList< T >::Iterator & ) const = default;
@@ -82,6 +85,7 @@ private:
 
 template< typename T >
 qpList< T >::qpList() {
+	Reserve( 1 );
 }
 
 template< typename T >
@@ -92,17 +96,7 @@ qpList< T >::qpList( int size ) {
 template< typename T >
 qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
-	if constexpr ( std::is_trivially_copyable_v < T > ) {
-		m_length = static_cast< int >( initializerList.size() );
-		if( m_data != NULL ) {
-			memcpy( m_data, initializerList.begin(), initializerList.size() * sizeof( T ) );
-		}
-	} else {
-		for ( auto it = initializerList.begin(); it != initializerList.end(); it++ ) {
-			Push( *it );
-		}
-	}
-
+	m_length = qpCopy( m_data, m_capacity, initializerList.begin(), initializerList.size() );
 }
 
 template< typename T >

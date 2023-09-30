@@ -101,5 +101,11 @@
     <ClInclude Include="common\utilities\qp_optional.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tools\containers\qp_set.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\utilities\qp_algorithms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

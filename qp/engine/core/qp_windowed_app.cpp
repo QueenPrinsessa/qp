@@ -16,7 +16,7 @@ void qpWindowedApp::OnInit() {
 #endif
 	m_vulkan = qpCreateUnique< qpVulkan >();
 
-	m_vulkan->Init();
+	m_vulkan->Init( m_window->GetHandle() );
 }
 
 void qpWindowedApp::OnUpdate() {

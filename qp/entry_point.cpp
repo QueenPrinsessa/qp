@@ -3,8 +3,10 @@
 #include <chrono>
 #include <iostream>
 #include "common/core/qp_smart_pointers.h"
+#include "common/utilities/qp_algorithms.h"
 #include "engine/core/qp_app.h"
 #include "engine/core/qp_windowed_app.h"
+#include "engine/debug/qp_debug.h"
 
 #ifdef QP_PLATFORM_WINDOWS
 

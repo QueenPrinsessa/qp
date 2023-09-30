@@ -107,6 +107,7 @@
     <ClInclude Include="common\core\qp_macros.h" />
     <ClInclude Include="common\core\qp_smart_pointers.h" />
     <ClInclude Include="common\core\qp_unique_ptr.h" />
+    <ClInclude Include="common\utilities\qp_algorithms.h" />
     <ClInclude Include="common\utilities\qp_optional.h" />
     <ClInclude Include="engine\core\qp_core.h" />
     <ClInclude Include="common\platform\windows\qp_windows.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="tools\containers\qp_array.h" />
     <ClInclude Include="tools\containers\qp_array_view.h" />
     <ClInclude Include="tools\containers\qp_list.h" />
+    <ClInclude Include="tools\containers\qp_set.h" />
     <ClInclude Include="tools\math\qp_math.h" />
     <ClInclude Include="tools\string\qp_string.h" />
   </ItemGroup>
