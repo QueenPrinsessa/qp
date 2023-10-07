@@ -43,7 +43,7 @@ void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEX
 
 void qpVulkan::Cleanup() {
 	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
-		vkDestroyFramebuffer( m_device, framebuffer, nullptr );
+		vkDestroyFramebuffer( m_device, framebuffer, NULL );
 	}
 
 	vkDestroyPipeline( m_device, m_graphicsPipeline, NULL );
