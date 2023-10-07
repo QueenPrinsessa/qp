@@ -96,7 +96,7 @@ qpList< T >::qpList( int size ) {
 template< typename T >
 qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
-	m_length = qpCopy( m_data, m_capacity, initializerList.begin(), initializerList.size() );
+	m_length = qpCopy( m_data, m_capacity, initializerList.begin(), static_cast< int >( initializerList.size() ) );
 }
 
 template< typename T >
