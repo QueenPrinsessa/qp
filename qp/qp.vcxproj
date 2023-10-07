@@ -94,6 +94,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\platform\windows\filesystem\qp_windows_file.cpp" />
     <ClCompile Include="engine\core\qp_windowed_app.cpp" />
     <ClCompile Include="engine\debug\qp_debug.cpp" />
     <ClCompile Include="engine\platform\windows\window\qp_window_windows.cpp" />
@@ -107,6 +108,9 @@
     <ClInclude Include="common\core\qp_macros.h" />
     <ClInclude Include="common\core\qp_smart_pointers.h" />
     <ClInclude Include="common\core\qp_unique_ptr.h" />
+    <ClInclude Include="common\filesystem\qp_file.h" />
+    <ClInclude Include="common\filesystem\qp_filesystem.h" />
+    <ClInclude Include="common\filesystem\qp_file_path.h" />
     <ClInclude Include="common\utilities\qp_algorithms.h" />
     <ClInclude Include="common\utilities\qp_optional.h" />
     <ClInclude Include="engine\core\qp_core.h" />
@@ -126,6 +130,10 @@
     <ClInclude Include="tools\containers\qp_set.h" />
     <ClInclude Include="tools\math\qp_math.h" />
     <ClInclude Include="tools\string\qp_string.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
