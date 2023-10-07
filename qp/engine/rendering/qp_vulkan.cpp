@@ -36,6 +36,11 @@ void qpVulkan::Init( void * windowHandle ) {
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
 
 void qpVulkan::Cleanup() {
+
+	for ( auto imageView : m_swapchainImageViews ) {
+		vkDestroyImageView( m_device, imageView, NULL );
+	}
+
 	vkDestroySwapchainKHR( m_device, m_swapchain, NULL );
 
 	vkDestroyDevice( m_device, NULL );
@@ -450,6 +455,31 @@ void qpVulkan::CreateSwapchain() {
 
 	m_swapchainImageFormat = surfaceFormat.format;
 	m_swapchainExtent = extent;
+}
+
+void qpVulkan::CreateImageViews() {
+	m_swapchainImageViews.Resize( m_swapchainImages.Length() );
+
+	for( int index = 0; index < m_swapchainImages.Length(); index++ ) {
+		VkImageViewCreateInfo createInfo {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = m_swapchainImages[ index ];
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_swapchainImageFormat;
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		if ( vkCreateImageView( m_device, &createInfo, NULL, &m_swapchainImageViews[ index ] ) != VK_SUCCESS ) {
+			ThrowOnError( "Failed to create image views!" );
+		}
+	}
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {

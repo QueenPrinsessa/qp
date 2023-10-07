@@ -35,6 +35,7 @@ private:
 	VkPresentModeKHR ChooseSwapchainPresentMode( const qpList< VkPresentModeKHR > & availablePresentModes );
 	VkExtent2D ChooseSwapchainExtent( const VkSurfaceCapabilitiesKHR & capabilities );
 	void CreateSwapchain();
+	void CreateImageViews();
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
 	void ThrowOnError( const qpString & msg );
 	VkInstance m_instance = NULL;
@@ -44,6 +45,7 @@ private:
 	VkDebugUtilsMessengerEXT m_debugMessenger = NULL;
 	VkSwapchainKHR m_swapchain = NULL;
 	qpList< VkImage > m_swapchainImages;
+	qpList< VkImageView > m_swapchainImageViews;
 	VkFormat m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
 	VkExtent2D m_swapchainExtent = { 0, 0 };
 	VkQueue m_graphicsQueue = NULL;
