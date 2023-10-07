@@ -56,7 +56,7 @@ void qpSet< T >::Clear() {
 template< typename T >
 template< typename ... ARGS >
 void qpSet< T >::Emplace( ARGS &&... args ) {
-	m_set.emplace( std::forward< ARGS >( args )... );
+	m_set.emplace( qpForward< ARGS >( args )... );
 }
 
 template< typename T >

@@ -6,7 +6,7 @@
 
 class qpWindowedApp : public qpApp {
 public:
-	qpWindowedApp( const qpWindowProperties_t & windowProperties );
+	explicit qpWindowedApp( const qpWindowProperties_t & windowProperties );
 	virtual void OnInit() override;
 	virtual void OnUpdate() override;
 	virtual void OnCleanup() override;

@@ -106,6 +106,12 @@ LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_
 	switch ( msg ) {
 		case WM_DESTROY: {
 			DestroyWindow( handle );
+
+			window->m_handle = NULL;
+			if( window->m_destroyCallback ) {
+				window->m_destroyCallback();
+			}
+
 			PostQuitMessage( 0 );
 			break;
 		}

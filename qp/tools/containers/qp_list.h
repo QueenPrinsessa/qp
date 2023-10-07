@@ -117,7 +117,7 @@ T & qpList< T >::Emplace( ARGS &&... args ) {
 		Reserve( m_capacity * 2 );
 	}
 
-	return m_data[ m_length++ ] = std::move( T( std::forward<ARGS>( args )... ) );
+	return m_data[ m_length++ ] = qpMove( T( qpForward<ARGS>( args )... ) );
 }
 
 template< typename T >

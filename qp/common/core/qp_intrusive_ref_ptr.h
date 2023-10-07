@@ -208,7 +208,7 @@ void qpIntrusiveRefPtr< T >::DecrementRef() {
 
 template < typename T, typename ... ARGS >
 constexpr static inline qpIntrusiveRefPtr< T > qpCreateIntrusiveRef( ARGS&&... args ) {
-	return qpIntrusiveRefPtr< T >( new T( std::forward< ARGS >( args )... ) );
+	return qpIntrusiveRefPtr< T >( new T( qpForward< ARGS >( args )... ) );
 }
 
 template < typename T, typename D >

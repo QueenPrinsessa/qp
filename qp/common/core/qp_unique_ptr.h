@@ -1,4 +1,5 @@
 #pragma once
+#include "qp/common/utilities/qp_utility.h"
 #include <cstddef>
 #include <compare>
 
@@ -132,5 +133,5 @@ void qpUniquePtr< T >::Reset( T * data ) {
 
 template < typename T, typename ... ARGS >
 constexpr static inline qpUniquePtr< T > qpCreateUnique( ARGS&&... args ) {
-	return qpUniquePtr< T >( new T( std::forward< ARGS >( args )... ) );
+	return qpUniquePtr< T >( new T( qpForward< ARGS >( args )... ) );
 }

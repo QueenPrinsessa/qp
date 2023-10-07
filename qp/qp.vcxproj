@@ -112,7 +112,9 @@
     <ClInclude Include="common\filesystem\qp_filesystem.h" />
     <ClInclude Include="common\filesystem\qp_file_path.h" />
     <ClInclude Include="common\utilities\qp_algorithms.h" />
+    <ClInclude Include="common\utilities\qp_function.h" />
     <ClInclude Include="common\utilities\qp_optional.h" />
+    <ClInclude Include="common\utilities\qp_utility.h" />
     <ClInclude Include="engine\core\qp_core.h" />
     <ClInclude Include="common\platform\windows\qp_windows.h" />
     <ClInclude Include="engine\core\qp_windowed_app.h" />

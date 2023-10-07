@@ -12,6 +12,7 @@ public:
 	~qpVulkan();
 	void Init( void * windowHandle );
 	void Cleanup();
+	void DrawFrame();
 private:
 	struct queueFamilyIndices_t {
 		Optional< uint32 > graphicsFamily;
@@ -26,7 +27,7 @@ private:
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
-	void CreateSurface( void * m_windowHandle );
+	void CreateSurface( void * windowHandle );
 	bool IsDeviceSuitable( VkPhysicalDevice device );
 	bool HasAllQueueFamilyIndices( const queueFamilyIndices_t & indices ) const;
 	queueFamilyIndices_t FindQueueFamilies( VkPhysicalDevice device );
@@ -41,6 +42,7 @@ private:
 	void CreateFrameBuffers();
 	void CreateCommandPool();
 	void CreateCommandBuffer();
+	void CreateSyncObjects();
 	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
@@ -63,7 +65,9 @@ private:
 	VkExtent2D m_swapchainExtent = { 0, 0 };
 	VkQueue m_graphicsQueue = NULL;
 	VkQueue m_presentQueue = NULL;
-	
+	VkSemaphore m_imageAvailableSemaphore = NULL;
+	VkSemaphore m_renderFinishedSemaphore = NULL;
+	VkFence m_inFlightFence = NULL;
 
 	void * m_windowHandle = NULL;
 };

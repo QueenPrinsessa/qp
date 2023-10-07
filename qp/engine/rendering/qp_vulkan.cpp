@@ -39,11 +39,18 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateFrameBuffers();
 	CreateCommandPool();
 	CreateCommandBuffer();
+	CreateSyncObjects();
 }
 
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
 
 void qpVulkan::Cleanup() {
+	vkDeviceWaitIdle( m_device );
+
+	vkDestroySemaphore( m_device, m_imageAvailableSemaphore, NULL );
+	vkDestroySemaphore( m_device, m_renderFinishedSemaphore, NULL );
+	vkDestroyFence( m_device, m_inFlightFence, NULL );
+
 	vkDestroyCommandPool( m_device, m_commandPool, NULL );
 
 	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
@@ -300,16 +307,16 @@ void qpVulkan::CreateLogicalDevice() {
 	}
 
 	if ( indices.presentFamily.HasValue() ) {
-		vkGetDeviceQueue( m_device, indices.presentFamily.GetValue(), 0, &m_graphicsQueue );
+		vkGetDeviceQueue( m_device, indices.presentFamily.GetValue(), 0, &m_presentQueue );
 	}
 }
 
-void qpVulkan::CreateSurface( void * m_windowHandle ) {
+void qpVulkan::CreateSurface( void * windowHandle ) {
 
 #ifdef QP_PLATFORM_WINDOWS
 	VkWin32SurfaceCreateInfoKHR createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.hwnd = static_cast< HWND >( m_windowHandle );
+	createInfo.hwnd = static_cast< HWND >( windowHandle );
 	createInfo.hinstance = GetModuleHandle( NULL );
 
 	if ( vkCreateWin32SurfaceKHR( m_instance, &createInfo, NULL, &m_surface ) != VK_SUCCESS ) {
@@ -519,12 +526,22 @@ void qpVulkan::CreateRenderPass() {
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
 
+	VkSubpassDependency dependency {};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 	VkRenderPassCreateInfo renderPassInfo {};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.attachmentCount = 1;
 	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 
 	if ( vkCreateRenderPass( m_device, &renderPassInfo, NULL, &m_renderPass ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to create render pass!" );
@@ -535,7 +552,7 @@ VkShaderModule qpVulkan::CreateShaderModule( const qpList< byte > & shaderCode )
 	VkShaderModuleCreateInfo createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = shaderCode.Length();
-	createInfo.pCode = reinterpret_cast< const uint32_t * >( shaderCode.Data() );
+	createInfo.pCode = reinterpret_cast< const uint32 * >( shaderCode.Data() );
 
 	VkShaderModule shaderModule;
 	if ( vkCreateShaderModule( m_device, &createInfo, NULL, &shaderModule ) != VK_SUCCESS ) {
@@ -599,7 +616,7 @@ void qpVulkan::CreateGraphicsPipeline() {
 
 	VkPipelineDynamicStateCreateInfo dynamicState {};
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicState.dynamicStateCount = static_cast< uint32_t >( dynamicStates.Length() );
+	dynamicState.dynamicStateCount = static_cast< uint32 >( dynamicStates.Length() );
 	dynamicState.pDynamicStates = dynamicStates.Data();
 
 	VkPipelineViewportStateCreateInfo viewportState {};
@@ -735,6 +752,27 @@ void qpVulkan::CreateCommandBuffer() {
 	}
 }
 
+void qpVulkan::CreateSyncObjects() {
+	VkSemaphoreCreateInfo semaphoreInfo {};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo {};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+	if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_imageAvailableSemaphore ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create semaphore!" );
+	}
+
+	if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_renderFinishedSemaphore ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create semaphore!" );
+	}
+
+	if ( vkCreateFence( m_device, &fenceInfo, NULL, &m_inFlightFence ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create fence!" );
+	}
+}
+
 void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex ) {
 	VkCommandBufferBeginInfo beginInfo {};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -780,6 +818,58 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 	if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to record command buffer!" );
 	}
+}
+
+void qpVulkan::DrawFrame() {
+	vkWaitForFences( m_device, 1, &m_inFlightFence, VK_TRUE, UINT64_MAX );
+	vkResetFences( m_device, 1, &m_inFlightFence );
+
+	uint32 imageIndex;
+	vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex );
+
+	vkResetCommandBuffer( m_commandBuffer, 0 );
+
+	RecordCommandBuffer( m_commandBuffer, imageIndex );
+
+	VkSubmitInfo submitInfo {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	qpArray< VkSemaphore, 1 > waitSemaphores {
+		m_imageAvailableSemaphore
+	};
+
+	qpArray< VkPipelineStageFlags, 1 > waitStages {
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+	};
+	submitInfo.waitSemaphoreCount = waitSemaphores.Length();
+	submitInfo.pWaitSemaphores = waitSemaphores.Data();
+	submitInfo.pWaitDstStageMask = waitStages.Data();
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_commandBuffer;
+
+	qpArray< VkSemaphore, 1 > signalSemaphores {
+		m_renderFinishedSemaphore
+	};
+	submitInfo.signalSemaphoreCount = signalSemaphores.Length();
+	submitInfo.pSignalSemaphores = signalSemaphores.Data();
+
+	if ( vkQueueSubmit( m_graphicsQueue, 1, &submitInfo, m_inFlightFence ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to submit draw command buffer!" );
+	}
+
+	VkPresentInfoKHR presentInfo {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = signalSemaphores.Length();
+	presentInfo.pWaitSemaphores = signalSemaphores.Data();
+
+	VkSwapchainKHR swapChains[] = { m_swapchain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = NULL;
+
+	vkQueuePresentKHR( m_presentQueue, &presentInfo );
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {

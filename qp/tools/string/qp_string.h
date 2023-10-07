@@ -1,6 +1,7 @@
 #pragma once
 #include "qp/tools/allocation/qp_allocation_util.h"
 #include "qp/common/debug/qp_debug.h"
+#include "qp/common/utilities/qp_utility.h"
 #include "qp/tools/math/qp_math.h"
 #include <cstddef>
 #include <ostream>
@@ -463,7 +464,7 @@ template < typename... ARGS >
 static inline qpString qpFormat( const char * const format, ARGS&&... args ) {
 	// prevent allocation and let Format allocate the correct size directly.
 	qpString formatted( 0 ); 
-	formatted.Format( format, std::forward< ARGS >( args )... );
+	formatted.Format( format, qpForward< ARGS >( args )... );
 	return formatted;
 }
 
@@ -471,7 +472,7 @@ template < typename... ARGS >
 static inline qpWString qpFormat( const wchar_t * const format, ARGS&&... args ) {
 	// prevent allocation and let Format allocate the correct size directly.
 	qpWString formatted( 0 );
-	formatted.Format( format, std::forward< ARGS >( args )... );
+	formatted.Format( format, qpForward< ARGS >( args )... );
 	return formatted;
 }
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "qp_utility.h"
 #include <utility>
 
 template < typename T >
@@ -103,7 +104,7 @@ template< typename T >
 template< typename ... ARGS >
 void Optional< T >::Emplace( ARGS... args ) {
 	Reset();
-	new ( &m_value[ 0 ] ) T( std::forward< ARGS >( args )... );
+	new ( &m_value[ 0 ] ) T( qpForward< ARGS >( args )... );
 	m_hasValue = true;
 }
 
@@ -117,5 +118,5 @@ void Optional< T >::Reset() {
 
 template < typename T, typename ... ARGS >
 Optional< T > qpCreateOptional( ARGS... args ) {
-	return Optional< T >( std::move( T( args ) ) );
+	return Optional< T >( qpMove( T( args ) ) );
 }
