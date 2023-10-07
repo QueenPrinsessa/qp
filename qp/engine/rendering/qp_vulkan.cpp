@@ -31,6 +31,8 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateSurface( windowHandle );
 	PickPhysicalDevice();
 	CreateLogicalDevice();
+	CreateSwapchain();
+	CreateImageViews();
 }
 
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
