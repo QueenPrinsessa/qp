@@ -39,6 +39,9 @@ private:
 	void CreateRenderPass();
 	void CreateGraphicsPipeline();
 	void CreateFrameBuffers();
+	void CreateCommandPool();
+	void CreateCommandBuffer();
+	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
 	void ThrowOnError( const qpString & msg );
@@ -51,6 +54,8 @@ private:
 	VkRenderPass m_renderPass = NULL;
 	VkPipelineLayout m_pipelineLayout = NULL;
 	VkPipeline m_graphicsPipeline = NULL;
+	VkCommandPool m_commandPool = NULL;
+	VkCommandBuffer m_commandBuffer = NULL;
 	qpList< VkImage > m_swapchainImages;
 	qpList< VkImageView > m_swapchainImageViews;
 	qpList< VkFramebuffer > m_swapchainFramebuffers;

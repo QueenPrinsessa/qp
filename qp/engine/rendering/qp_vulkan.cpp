@@ -37,11 +37,15 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateRenderPass();
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
+	CreateCommandPool();
+	CreateCommandBuffer();
 }
 
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
 
 void qpVulkan::Cleanup() {
+	vkDestroyCommandPool( m_device, m_commandPool, NULL );
+
 	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
 		vkDestroyFramebuffer( m_device, framebuffer, NULL );
 	}
@@ -703,6 +707,78 @@ void qpVulkan::CreateFrameBuffers() {
 		if ( vkCreateFramebuffer( m_device, &framebufferInfo, NULL, &m_swapchainFramebuffers[ i ] ) != VK_SUCCESS ) {
 			ThrowOnError( "Failed to create framebuffer!" );
 		}
+	}
+}
+
+void qpVulkan::CreateCommandPool() {
+	queueFamilyIndices_t queueFamilyIndices = FindQueueFamilies( m_physicalDevice );
+
+	VkCommandPoolCreateInfo poolInfo {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.GetValue();
+
+	if ( vkCreateCommandPool( m_device, &poolInfo, NULL, &m_commandPool ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create command pool!" );
+	}
+}
+
+void qpVulkan::CreateCommandBuffer() {
+	VkCommandBufferAllocateInfo allocInfo {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.commandPool = m_commandPool;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandBufferCount = 1;
+
+	if ( vkAllocateCommandBuffers( m_device, &allocInfo, &m_commandBuffer) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to allocate command buffers!" );
+	}
+}
+
+void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex ) {
+	VkCommandBufferBeginInfo beginInfo {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = 0; 
+	beginInfo.pInheritanceInfo = NULL; 
+
+	if ( vkBeginCommandBuffer( commandBuffer, &beginInfo ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to begin recording command buffer!" );
+	}
+
+	VkRenderPassBeginInfo renderPassInfo {};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassInfo.renderPass = m_renderPass;
+	renderPassInfo.framebuffer = m_swapchainFramebuffers[ imageIndex ];
+	renderPassInfo.renderArea.offset = { 0, 0 };
+	renderPassInfo.renderArea.extent = m_swapchainExtent;
+
+	VkClearValue clearColor { { { 0.0f, 0.0f, 0.0f, 1.0f } } };
+	renderPassInfo.clearValueCount = 1;
+	renderPassInfo.pClearValues = &clearColor;
+
+	vkCmdBeginRenderPass( commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE );
+
+	vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline );
+	VkViewport viewport {};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast< float >( m_swapchainExtent.width );
+	viewport.height = static_cast< float >( m_swapchainExtent.height );
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport( commandBuffer, 0, 1, &viewport );
+
+	VkRect2D scissor {};
+	scissor.offset = { 0, 0 };
+	scissor.extent = m_swapchainExtent;
+	vkCmdSetScissor( commandBuffer, 0, 1, &scissor );
+
+	vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
+
+	vkCmdEndRenderPass( commandBuffer );
+
+	if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to record command buffer!" );
 	}
 }
 
