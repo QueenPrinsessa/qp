@@ -36,6 +36,9 @@ private:
 	VkExtent2D ChooseSwapchainExtent( const VkSurfaceCapabilitiesKHR & capabilities );
 	void CreateSwapchain();
 	void CreateImageViews();
+	void CreateRenderPass();
+	void CreateGraphicsPipeline();
+	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
 	void ThrowOnError( const qpString & msg );
 	VkInstance m_instance = NULL;
@@ -44,6 +47,9 @@ private:
 	VkSurfaceKHR m_surface = NULL;
 	VkDebugUtilsMessengerEXT m_debugMessenger = NULL;
 	VkSwapchainKHR m_swapchain = NULL;
+	VkRenderPass m_renderPass = NULL;
+	VkPipelineLayout m_pipelineLayout = NULL;
+	VkPipeline m_graphicsPipeline = NULL;
 	qpList< VkImage > m_swapchainImages;
 	qpList< VkImageView > m_swapchainImageViews;
 	VkFormat m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
