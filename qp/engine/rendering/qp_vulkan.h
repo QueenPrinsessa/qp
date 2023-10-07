@@ -42,10 +42,10 @@ private:
 	VkDevice m_device = NULL;
 	VkSurfaceKHR m_surface = NULL;
 	VkDebugUtilsMessengerEXT m_debugMessenger = NULL;
-	VkSwapchainKHR m_swapchain;
+	VkSwapchainKHR m_swapchain = NULL;
 	qpList< VkImage > m_swapchainImages;
-	VkFormat m_swapchainImageFormat;
-	VkExtent2D m_swapchainExtent;
+	VkFormat m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
+	VkExtent2D m_swapchainExtent = { 0, 0 };
 	VkQueue m_graphicsQueue = NULL;
 	VkQueue m_presentQueue = NULL;
 	
