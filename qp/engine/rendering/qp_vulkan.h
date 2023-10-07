@@ -38,6 +38,7 @@ private:
 	void CreateImageViews();
 	void CreateRenderPass();
 	void CreateGraphicsPipeline();
+	void CreateFrameBuffers();
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
 	void ThrowOnError( const qpString & msg );
@@ -52,6 +53,7 @@ private:
 	VkPipeline m_graphicsPipeline = NULL;
 	qpList< VkImage > m_swapchainImages;
 	qpList< VkImageView > m_swapchainImageViews;
+	qpList< VkFramebuffer > m_swapchainFramebuffers;
 	VkFormat m_swapchainImageFormat = VK_FORMAT_UNDEFINED;
 	VkExtent2D m_swapchainExtent = { 0, 0 };
 	VkQueue m_graphicsQueue = NULL;

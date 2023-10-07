@@ -36,11 +36,16 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateImageViews();
 	CreateRenderPass();
 	CreateGraphicsPipeline();
+	CreateFrameBuffers();
 }
 
 void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks * allocator );
 
 void qpVulkan::Cleanup() {
+	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
+		vkDestroyFramebuffer( m_device, framebuffer, nullptr );
+	}
+
 	vkDestroyPipeline( m_device, m_graphicsPipeline, NULL );
 	vkDestroyPipelineLayout( m_device, m_pipelineLayout, NULL );
 	vkDestroyRenderPass( m_device, m_renderPass, NULL );
@@ -676,6 +681,29 @@ void qpVulkan::CreateGraphicsPipeline() {
 
 	vkDestroyShaderModule( m_device, fragShaderModule, NULL );
 	vkDestroyShaderModule( m_device, vertShaderModule, NULL );
+}
+
+void qpVulkan::CreateFrameBuffers() {
+	m_swapchainFramebuffers.Resize( m_swapchainImageViews.Length() );
+
+	for ( int i = 0; i < m_swapchainImageViews.Length(); i++ ) {
+		qpArray< VkImageView, 1 > attachments {
+			m_swapchainImageViews[ i ]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo {};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = m_renderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments.Data();
+		framebufferInfo.width = m_swapchainExtent.width;
+		framebufferInfo.height = m_swapchainExtent.height;
+		framebufferInfo.layers = 1;
+
+		if ( vkCreateFramebuffer( m_device, &framebufferInfo, NULL, &m_swapchainFramebuffers[ i ] ) != VK_SUCCESS ) {
+			ThrowOnError( "Failed to create framebuffer!" );
+		}
+	}
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {
