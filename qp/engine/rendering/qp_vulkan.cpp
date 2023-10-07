@@ -37,7 +37,7 @@ void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEX
 
 void qpVulkan::Cleanup() {
 
-	for ( auto imageView : m_swapchainImageViews ) {
+	for ( VkImageView imageView : m_swapchainImageViews ) {
 		vkDestroyImageView( m_device, imageView, NULL );
 	}
 
