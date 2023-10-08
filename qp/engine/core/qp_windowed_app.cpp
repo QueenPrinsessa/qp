@@ -1,6 +1,5 @@
 #include "qp_windowed_app.h"
 #include "qp/engine/debug/qp_debug.h"
-#include <functional>
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/engine/platform/windows/window/qp_window_windows.h"
 #endif
