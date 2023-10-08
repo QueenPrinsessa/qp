@@ -18,6 +18,10 @@ void qpWindowedApp::OnInit() {
 	m_window->SetDestroyCallback( [ & ] () {
 		RequestShutdown();
 	} );
+	m_window->SetResizeCallback( [ & ] ( int width, int height ) {
+		qpDebug::Info( "Window resized to ( w:%d , h:%d ).", width, height );
+		m_vulkan->RequestFramebufferResize();
+	} );
 	m_vulkan = qpCreateUnique< qpVulkan >();
 
 	m_vulkan->Init( m_window->GetHandle() );

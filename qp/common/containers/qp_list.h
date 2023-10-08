@@ -1,6 +1,6 @@
 #pragma once
 #include "qp/common/debug/qp_debug.h"
-#include "qp/tools/math/qp_math.h"
+#include "qp/common/math/qp_math.h"
 #include "qp/common/utilities/qp_algorithms.h"
 #include "qp_array_view.h"
 #include <initializer_list>

@@ -115,6 +115,13 @@ LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_
 			PostQuitMessage( 0 );
 			break;
 		}
+		case WM_SIZE: {
+			UINT width = LOWORD( lparam );
+			UINT height = HIWORD( lparam );
+			if ( window->m_resizeCallback ) {
+				window->m_resizeCallback( width, height );
+			}
+		}
 		case WM_PAINT: {
 			ValidateRect( handle, NULL );
 			break;

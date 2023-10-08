@@ -1,7 +1,7 @@
 #pragma once
 #include "qp/common/core/qp_types.h"
 #include "qp/common/utilities/qp_function.h"
-#include "qp/tools/string/qp_string.h"
+#include "qp/common/string/qp_string.h"
 
 enum class qpWindowMode_t {
 	WINDOWED,
@@ -20,6 +20,7 @@ struct qpWindowProperties_t {
 
 class qpWindow {
 	using DestroyCallback = qpFunction< void() >;
+	using ResizeCallback = qpFunction< void( int width, int height) >;
 public:
 	virtual ~qpWindow() = default;
 
@@ -33,6 +34,8 @@ public:
 	virtual void * GetHandle() const = 0;
 
 	void SetDestroyCallback( DestroyCallback && callback ) { m_destroyCallback = qpMove( callback ); }
+	void SetResizeCallback( ResizeCallback && callback ) { m_resizeCallback = qpMove( callback ); }
 protected:
 	DestroyCallback m_destroyCallback;
+	ResizeCallback m_resizeCallback;
 };

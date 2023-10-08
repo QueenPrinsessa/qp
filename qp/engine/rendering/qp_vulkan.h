@@ -1,8 +1,8 @@
 #pragma once
 #include "qp/common/utilities/qp_optional.h"
-#include "qp/tools/containers/qp_array_view.h"
-#include "qp/tools/containers/qp_list.h"
-#include "qp/tools/string/qp_string.h"
+#include "qp/common/containers/qp_array_view.h"
+#include "qp/common/containers/qp_list.h"
+#include "qp/common/string/qp_string.h"
 #include <cstddef>
 #include <vulkan/vulkan.h>
 
@@ -13,6 +13,7 @@ public:
 	void Init( void * windowHandle );
 	void Cleanup();
 	void DrawFrame();
+	void RequestFramebufferResize();
 private:
 	struct queueFamilyIndices_t {
 		Optional< uint32 > graphicsFamily;
@@ -41,8 +42,11 @@ private:
 	void CreateGraphicsPipeline();
 	void CreateFrameBuffers();
 	void CreateCommandPool();
-	void CreateCommandBuffer();
+	void CreateCommandBuffers();
 	void CreateSyncObjects();
+	void CleanupSwapchain();
+	void CleanupSyncObjects();
+	void RecreateSwapchain();
 	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
@@ -57,7 +61,7 @@ private:
 	VkPipelineLayout m_pipelineLayout = NULL;
 	VkPipeline m_graphicsPipeline = NULL;
 	VkCommandPool m_commandPool = NULL;
-	VkCommandBuffer m_commandBuffer = NULL;
+	qpList< VkCommandBuffer > m_commandBuffers;
 	qpList< VkImage > m_swapchainImages;
 	qpList< VkImageView > m_swapchainImageViews;
 	qpList< VkFramebuffer > m_swapchainFramebuffers;
@@ -65,9 +69,11 @@ private:
 	VkExtent2D m_swapchainExtent = { 0, 0 };
 	VkQueue m_graphicsQueue = NULL;
 	VkQueue m_presentQueue = NULL;
-	VkSemaphore m_imageAvailableSemaphore = NULL;
-	VkSemaphore m_renderFinishedSemaphore = NULL;
-	VkFence m_inFlightFence = NULL;
+	qpList< VkSemaphore > m_imageAvailableSemaphores = NULL;
+	qpList< VkSemaphore > m_renderFinishedSemaphores = NULL;
+	qpList< VkFence > m_inFlightFences = NULL;
+	int m_currentFrame = 0;
+	bool m_framebufferResized = false;
 
 	void * m_windowHandle = NULL;
 };

@@ -1,9 +1,9 @@
 #include "qp_vulkan.h"
 #include "qp/common/filesystem/qp_file.h"
 #include "qp/engine/debug/qp_debug.h"
-#include "qp/tools/containers/qp_array.h"
-#include "qp/tools/containers/qp_list.h"
-#include "qp/tools/containers/qp_set.h"
+#include "qp/common/containers/qp_array.h"
+#include "qp/common/containers/qp_list.h"
+#include "qp/common/containers/qp_set.h"
 #include "vulkan/vulkan.h"
 #include <stdexcept>
 #include <iostream>
@@ -15,9 +15,23 @@ const bool enableValidationLayers = false;
 const bool enableValidationLayers = true;
 #endif
 
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
 static qpList< const char * > deviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+static void GetWindowFramebufferSize( void * windowHandle, int & width, int & height) {
+#ifdef QP_PLATFORM_WINDOWS
+	RECT rect;
+	GetClientRect( static_cast< HWND >( windowHandle ), &rect );
+
+	width = rect.right - rect.left;
+	height = rect.bottom - rect.top;
+#else
+	static_assert( false, "Unsupported platform." );
+#endif
+}
 
 qpVulkan::qpVulkan() { }
 
@@ -38,7 +52,7 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
 	CreateCommandPool();
-	CreateCommandBuffer();
+	CreateCommandBuffers();
 	CreateSyncObjects();
 }
 
@@ -47,25 +61,15 @@ void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEX
 void qpVulkan::Cleanup() {
 	vkDeviceWaitIdle( m_device );
 
-	vkDestroySemaphore( m_device, m_imageAvailableSemaphore, NULL );
-	vkDestroySemaphore( m_device, m_renderFinishedSemaphore, NULL );
-	vkDestroyFence( m_device, m_inFlightFence, NULL );
+	CleanupSyncObjects();
 
 	vkDestroyCommandPool( m_device, m_commandPool, NULL );
-
-	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
-		vkDestroyFramebuffer( m_device, framebuffer, NULL );
-	}
 
 	vkDestroyPipeline( m_device, m_graphicsPipeline, NULL );
 	vkDestroyPipelineLayout( m_device, m_pipelineLayout, NULL );
 	vkDestroyRenderPass( m_device, m_renderPass, NULL );
 
-	for ( VkImageView imageView : m_swapchainImageViews ) {
-		vkDestroyImageView( m_device, imageView, NULL );
-	}
-
-	vkDestroySwapchainKHR( m_device, m_swapchain, NULL );
+	CleanupSwapchain();
 
 	vkDestroyDevice( m_device, NULL );
 	vkDestroySurfaceKHR( m_instance, m_surface, NULL );
@@ -408,13 +412,7 @@ VkExtent2D qpVulkan::ChooseSwapchainExtent( const VkSurfaceCapabilitiesKHR & cap
 	int width;
 	int height;
 
-#ifdef QP_PLATFORM_WINDOWS
-	RECT rect;
-	GetClientRect( static_cast< HWND >( m_windowHandle ), &rect );
-
-	width = rect.right - rect.left;
-	height = rect.bottom - rect.top;
-#endif
+	GetWindowFramebufferSize( m_windowHandle, width, height );
 
 	VkExtent2D actualExtent {
 		static_cast< uint32 >( width ),
@@ -740,19 +738,25 @@ void qpVulkan::CreateCommandPool() {
 	}
 }
 
-void qpVulkan::CreateCommandBuffer() {
+void qpVulkan::CreateCommandBuffers() {
+	m_commandBuffers.Resize( MAX_FRAMES_IN_FLIGHT );
+
 	VkCommandBufferAllocateInfo allocInfo {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = m_commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = 1;
+	allocInfo.commandBufferCount = m_commandBuffers.Length();
 
-	if ( vkAllocateCommandBuffers( m_device, &allocInfo, &m_commandBuffer) != VK_SUCCESS ) {
+	if ( vkAllocateCommandBuffers( m_device, &allocInfo, m_commandBuffers.Data() ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to allocate command buffers!" );
 	}
 }
 
 void qpVulkan::CreateSyncObjects() {
+	m_imageAvailableSemaphores.Resize( MAX_FRAMES_IN_FLIGHT );
+	m_renderFinishedSemaphores.Resize( MAX_FRAMES_IN_FLIGHT );
+	m_inFlightFences.Resize( MAX_FRAMES_IN_FLIGHT );
+
 	VkSemaphoreCreateInfo semaphoreInfo {};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -760,17 +764,51 @@ void qpVulkan::CreateSyncObjects() {
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-	if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_imageAvailableSemaphore ) != VK_SUCCESS ) {
-		ThrowOnError( "Failed to create semaphore!" );
+	for( int index = 0; index < MAX_FRAMES_IN_FLIGHT; index++ ) {
+		if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_imageAvailableSemaphores[ index ]) != VK_SUCCESS ) {
+			ThrowOnError( qpFormat( "Failed to create image available semaphore for frame %d!", index ) );
+		}
+
+		if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_renderFinishedSemaphores[ index ] ) != VK_SUCCESS ) {
+			ThrowOnError( qpFormat( "Failed to create render finished semaphore for frame %d!", index ) );
+		}
+
+		if ( vkCreateFence( m_device, &fenceInfo, NULL, &m_inFlightFences[ index ] ) != VK_SUCCESS ) {
+			ThrowOnError( qpFormat( "Failed to create in flight fence for frame %d!", index ) );
+		}
+	}
+}
+
+void qpVulkan::CleanupSwapchain() {
+	for ( VkFramebuffer framebuffer : m_swapchainFramebuffers ) {
+		vkDestroyFramebuffer( m_device, framebuffer, NULL );
 	}
 
-	if ( vkCreateSemaphore( m_device, &semaphoreInfo, NULL, &m_renderFinishedSemaphore ) != VK_SUCCESS ) {
-		ThrowOnError( "Failed to create semaphore!" );
+	for ( VkImageView imageView : m_swapchainImageViews ) {
+		vkDestroyImageView( m_device, imageView, NULL );
 	}
 
-	if ( vkCreateFence( m_device, &fenceInfo, NULL, &m_inFlightFence ) != VK_SUCCESS ) {
-		ThrowOnError( "Failed to create fence!" );
+	vkDestroySwapchainKHR( m_device, m_swapchain, NULL );
+}
+
+void qpVulkan::CleanupSyncObjects() {
+	for ( int index = 0; index < MAX_FRAMES_IN_FLIGHT; index++ ) {
+		vkDestroySemaphore( m_device, m_imageAvailableSemaphores[ index ], NULL );
+		vkDestroySemaphore( m_device, m_renderFinishedSemaphores[ index ], NULL );
+		vkDestroyFence( m_device, m_inFlightFences[ index ], NULL );
 	}
+}
+
+void qpVulkan::RecreateSwapchain() {
+	vkDeviceWaitIdle( m_device );
+
+	CleanupSyncObjects();
+	CleanupSwapchain();
+
+	CreateSwapchain();
+	CreateImageViews();
+	CreateFrameBuffers();
+	CreateSyncObjects();
 }
 
 void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex ) {
@@ -821,21 +859,41 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 }
 
 void qpVulkan::DrawFrame() {
-	vkWaitForFences( m_device, 1, &m_inFlightFence, VK_TRUE, UINT64_MAX );
-	vkResetFences( m_device, 1, &m_inFlightFence );
+	int width;
+	int height;
+
+	GetWindowFramebufferSize( m_windowHandle, width, height );
+
+	if ( width == 0 || height == 0 ) {
+		return;
+	}
+
+	vkWaitForFences( m_device, 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE, UINT64_MAX );
 
 	uint32 imageIndex;
-	vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex );
+	VkResult result = vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_imageAvailableSemaphores[ m_currentFrame ], VK_NULL_HANDLE, &imageIndex );
 
-	vkResetCommandBuffer( m_commandBuffer, 0 );
+	if( ( result == VK_ERROR_OUT_OF_DATE_KHR ) || m_framebufferResized ) {
+		m_framebufferResized = false;
+		RecreateSwapchain();
+		return;
+	}
 
-	RecordCommandBuffer( m_commandBuffer, imageIndex );
+	if( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR ) {
+		ThrowOnError( qpFormat( "vkAcquireNextImageKHR failed with error code: %d", result ) );
+	}
+
+	vkResetFences( m_device, 1, &m_inFlightFences[ m_currentFrame ] );
+
+	vkResetCommandBuffer( m_commandBuffers[ m_currentFrame ], 0 );
+
+	RecordCommandBuffer( m_commandBuffers[ m_currentFrame ], imageIndex );
 
 	VkSubmitInfo submitInfo {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 	qpArray< VkSemaphore, 1 > waitSemaphores {
-		m_imageAvailableSemaphore
+		m_imageAvailableSemaphores[ m_currentFrame ]
 	};
 
 	qpArray< VkPipelineStageFlags, 1 > waitStages {
@@ -845,15 +903,15 @@ void qpVulkan::DrawFrame() {
 	submitInfo.pWaitSemaphores = waitSemaphores.Data();
 	submitInfo.pWaitDstStageMask = waitStages.Data();
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &m_commandBuffer;
+	submitInfo.pCommandBuffers = &m_commandBuffers[ m_currentFrame ];
 
 	qpArray< VkSemaphore, 1 > signalSemaphores {
-		m_renderFinishedSemaphore
+		m_renderFinishedSemaphores[ m_currentFrame ]
 	};
 	submitInfo.signalSemaphoreCount = signalSemaphores.Length();
 	submitInfo.pSignalSemaphores = signalSemaphores.Data();
 
-	if ( vkQueueSubmit( m_graphicsQueue, 1, &submitInfo, m_inFlightFence ) != VK_SUCCESS ) {
+	if ( vkQueueSubmit( m_graphicsQueue, 1, &submitInfo, m_inFlightFences[ m_currentFrame ] ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to submit draw command buffer!" );
 	}
 
@@ -869,7 +927,13 @@ void qpVulkan::DrawFrame() {
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = NULL;
 
-	vkQueuePresentKHR( m_presentQueue, &presentInfo );
+	result = vkQueuePresentKHR( m_presentQueue, &presentInfo );
+
+	m_currentFrame = ( m_currentFrame + 1 ) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void qpVulkan::RequestFramebufferResize() {
+	m_framebufferResized = true;
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {

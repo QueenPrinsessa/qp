@@ -1,8 +1,8 @@
 #pragma once
-#include "qp/tools/allocation/qp_allocation_util.h"
+#include "qp/common/allocation/qp_allocation_util.h"
 #include "qp/common/debug/qp_debug.h"
 #include "qp/common/utilities/qp_utility.h"
-#include "qp/tools/math/qp_math.h"
+#include "qp/common/math/qp_math.h"
 #include <cstddef>
 #include <ostream>
 #include <compare>

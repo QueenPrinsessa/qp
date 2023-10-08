@@ -18,7 +18,7 @@
     <ClCompile Include="entry_point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tools\string\qp_string.cpp">
+    <ClCompile Include="common\string\qp_string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="engine\core\qp_app.cpp">
@@ -41,10 +41,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tools\string\qp_string.h">
+    <ClInclude Include="common\string\qp_string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\math\qp_math.h">
+    <ClInclude Include="common\math\qp_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\debug\qp_debug.h">
@@ -53,7 +53,7 @@
     <ClInclude Include="engine\core\qp_app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\allocation\qp_allocation_util.h">
+    <ClInclude Include="common\allocation\qp_allocation_util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\core\qp_types.h">
@@ -86,16 +86,16 @@
     <ClInclude Include="engine\rendering\qp_vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\containers\qp_list.h">
+    <ClInclude Include="common\containers\qp_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\containers\qp_array.h">
+    <ClInclude Include="common\containers\qp_array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\core\qp_macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\containers\qp_array_view.h">
+    <ClInclude Include="common\containers\qp_array_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="engine\debug\qp_debug.h">
@@ -104,7 +104,7 @@
     <ClInclude Include="common\utilities\qp_optional.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tools\containers\qp_set.h">
+    <ClInclude Include="common\containers\qp_set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\utilities\qp_algorithms.h">
