@@ -1,5 +1,5 @@
 #include "common/core/qp_unique_ptr.h"
-#include "tools/string/qp_string.h"
+#include "common/string/qp_string.h"
 #include <chrono>
 #include <iostream>
 #include "common/core/qp_smart_pointers.h"
