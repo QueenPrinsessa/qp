@@ -32,6 +32,12 @@ public:
 	static T Pow( const T & a, const T & b );
 
 	template < typename T >
+	static T Pow2( const T & n );
+
+	template < typename T >
+	static T Sqrt( const T & n );
+
+	template < typename T >
 	static T Ceil( const T & n ) requires ( std::is_floating_point_v< T > );
 
 	template < typename T >
@@ -82,6 +88,16 @@ T qpMath::Rad2Deg( const T & n ) {
 template< typename T >
 T qpMath::Pow( const T & a, const T & b ) {
 	return std::pow< T >( a, b );
+}
+
+template< typename T >
+T qpMath::Pow2( const T & n ) {
+	return n * n;
+}
+
+template< typename T >
+T qpMath::Sqrt( const T & n ) {
+	return std::sqrt( n );
 }
 
 template< typename T >

@@ -125,6 +125,18 @@
     <ClInclude Include="common\utilities\qp_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\math\qp_vec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\qp_vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\qp_vertex_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\rendering\qp_vulkan_util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.vert" />

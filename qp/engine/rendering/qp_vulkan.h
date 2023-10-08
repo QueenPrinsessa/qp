@@ -48,6 +48,8 @@ private:
 	void CleanupSyncObjects();
 	void RecreateSwapchain();
 	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
+	void CreateVertexBuffer();
+	uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
 	void ThrowOnError( const qpString & msg );
@@ -72,6 +74,8 @@ private:
 	qpList< VkSemaphore > m_imageAvailableSemaphores = NULL;
 	qpList< VkSemaphore > m_renderFinishedSemaphores = NULL;
 	qpList< VkFence > m_inFlightFences = NULL;
+	VkBuffer m_vertexBuffer = NULL;
+	VkDeviceMemory m_vertexBufferMemory = NULL;
 	int m_currentFrame = 0;
 	bool m_framebufferResized = false;
 

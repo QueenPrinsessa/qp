@@ -111,6 +111,7 @@
     <ClInclude Include="common\filesystem\qp_file.h" />
     <ClInclude Include="common\filesystem\qp_filesystem.h" />
     <ClInclude Include="common\filesystem\qp_file_path.h" />
+    <ClInclude Include="common\math\qp_vec.h" />
     <ClInclude Include="common\utilities\qp_algorithms.h" />
     <ClInclude Include="common\utilities\qp_function.h" />
     <ClInclude Include="common\utilities\qp_optional.h" />
@@ -121,7 +122,10 @@
     <ClInclude Include="engine\debug\qp_debug.h" />
     <ClInclude Include="engine\platform\windows\window\qp_window_windows.h" />
     <ClInclude Include="engine\core\qp_app.h" />
+    <ClInclude Include="engine\rendering\qp_vertex_helper.h" />
     <ClInclude Include="engine\rendering\qp_vulkan.h" />
+    <ClInclude Include="engine\rendering\qp_vertex.h" />
+    <ClInclude Include="engine\rendering\qp_vulkan_util.h" />
     <ClInclude Include="engine\window\qp_window.h" />
     <ClInclude Include="common\allocation\qp_allocation_util.h" />
     <ClInclude Include="common\core\qp_types.h" />

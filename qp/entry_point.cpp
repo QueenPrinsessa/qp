@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iostream>
 #include "common/core/qp_smart_pointers.h"
+#include "common/math/qp_vec.h"
 #include "common/utilities/qp_algorithms.h"
 #include "engine/core/qp_app.h"
 #include "engine/core/qp_windowed_app.h"
@@ -14,8 +15,8 @@
 
 int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow ) {
 	qpWindowProperties_t windowProperties;
-	windowProperties.width = 1280;
-	windowProperties.height = 720;
+	windowProperties.width = 800;
+	windowProperties.height = 600;
 	windowProperties.allowResize = true;
 	windowProperties.mode = qpWindowMode_t::WINDOWED;
 	windowProperties.title = "qpVulkanWindowsWindow";

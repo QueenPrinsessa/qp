@@ -1,4 +1,5 @@
 #include "qp_vulkan.h"
+#include "qp_vertex_helper.h"
 #include "qp/common/filesystem/qp_file.h"
 #include "qp/engine/debug/qp_debug.h"
 #include "qp/common/containers/qp_array.h"
@@ -20,6 +21,13 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 static qpList< const char * > deviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+qpArray< vertex_t, 3 > triangleVertices {
+	vertex_t{.pos{0.0f, -0.5f}, .color{1.0f, 1.0f, 1.0f}},
+	vertex_t{.pos{0.5f, 0.5f}, .color{0.0f, 1.0f, 0.0f}},
+	vertex_t{.pos{-0.5f, 0.5f}, .color{0.0f, 0.0f, 1.0f}}
+};
+
 
 static void GetWindowFramebufferSize( void * windowHandle, int & width, int & height) {
 #ifdef QP_PLATFORM_WINDOWS
@@ -52,6 +60,7 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
 	CreateCommandPool();
+	CreateVertexBuffer();
 	CreateCommandBuffers();
 	CreateSyncObjects();
 }
@@ -62,6 +71,9 @@ void qpVulkan::Cleanup() {
 	vkDeviceWaitIdle( m_device );
 
 	CleanupSyncObjects();
+
+	vkDestroyBuffer( m_device, m_vertexBuffer, NULL );
+	vkFreeMemory( m_device, m_vertexBufferMemory, NULL );
 
 	vkDestroyCommandPool( m_device, m_commandPool, NULL );
 
@@ -583,12 +595,15 @@ void qpVulkan::CreateGraphicsPipeline() {
 		fragShaderStageInfo
 	};
 
+	auto bindingDescription = qpVertexHelper::GetBindingDescription();
+	auto attributeDescriptions = qpVertexHelper::GetAttributeDescriptions();
+
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo {};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = NULL; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = NULL;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; 
+	vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.Length();
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.Data();
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly {};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -849,13 +864,63 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 	scissor.extent = m_swapchainExtent;
 	vkCmdSetScissor( commandBuffer, 0, 1, &scissor );
 
-	vkCmdDraw( commandBuffer, 3, 1, 0, 0 );
+	VkBuffer vertexBuffers[] = { m_vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers( commandBuffer, 0, 1, vertexBuffers, offsets );
+
+	vkCmdDraw( commandBuffer, triangleVertices.Length(), 1, 0, 0);
 
 	vkCmdEndRenderPass( commandBuffer );
 
 	if ( vkEndCommandBuffer( commandBuffer ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to record command buffer!" );
 	}
+}
+
+void qpVulkan::CreateVertexBuffer() {
+	VkBufferCreateInfo bufferInfo {};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = sizeof( triangleVertices[ 0 ] ) * triangleVertices.Length();
+	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if ( vkCreateBuffer( m_device, &bufferInfo, NULL, &m_vertexBuffer ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create vertex buffer!" );
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements( m_device, m_vertexBuffer, &memRequirements );
+
+	VkMemoryAllocateInfo allocInfo {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType( memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+
+	if ( vkAllocateMemory( m_device, &allocInfo, NULL, &m_vertexBufferMemory ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to allocate vertex buffer memory!" );
+	}
+
+	vkBindBufferMemory( m_device, m_vertexBuffer, m_vertexBufferMemory, 0 );
+
+	void * data;
+	vkMapMemory( m_device, m_vertexBufferMemory, 0, bufferInfo.size, 0, &data );
+	memcpy( data, triangleVertices.Data(), bufferInfo.size );
+	vkUnmapMemory( m_device, m_vertexBufferMemory );
+}
+
+uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties ) {
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties( m_physicalDevice, &memProperties );
+
+	for ( uint32 i = 0; i < memProperties.memoryTypeCount; i++ ) {
+		if ( typeFilter & BIT( i ) && ( ( memProperties.memoryTypes[ i ].propertyFlags & properties ) == properties ) ) {
+			return i;
+		}
+	}
+
+	ThrowOnError( "Failed to find suitable memory type!" );
+
+	return UINT32_MAX; // unreachable
 }
 
 void qpVulkan::DrawFrame() {
