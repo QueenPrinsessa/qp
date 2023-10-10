@@ -104,6 +104,7 @@
     <ClCompile Include="common\string\qp_string.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\containers\qp_static_list.h" />
     <ClInclude Include="common\core\qp_intrusive_ref_ptr.h" />
     <ClInclude Include="common\core\qp_macros.h" />
     <ClInclude Include="common\core\qp_smart_pointers.h" />

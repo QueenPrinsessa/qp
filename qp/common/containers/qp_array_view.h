@@ -6,6 +6,9 @@ template < typename T >
 class qpList;
 
 template < typename T, int SIZE >
+class qpStaticList;
+
+template < typename T, int SIZE >
 class qpArray;
 
 template < typename T >
@@ -41,6 +44,8 @@ public:
 	};
 	qpArrayView( const qpList< T > & list );
 	template < int SIZE >
+	explicit qpArrayView( const qpStaticList< T, SIZE > & list );
+	template < int SIZE >
 	qpArrayView( const qpArray< T, SIZE > & arr );
 
 	int Length() const { return m_length; }
@@ -57,6 +62,13 @@ private:
 
 template< typename T >
 qpArrayView<T>::qpArrayView( const qpList< T > & list ) {
+	m_ptr = list.m_data;
+	m_length = list.Length();
+}
+
+template< typename T >
+template< int SIZE >
+qpArrayView<T>::qpArrayView( const qpStaticList<T, SIZE> & list ) {
 	m_ptr = list.m_data;
 	m_length = list.Length();
 }
