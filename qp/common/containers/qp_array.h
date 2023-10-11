@@ -41,6 +41,7 @@ public:
 	qpArray();
 	template < typename ... ARGS >
 	explicit qpArray( ARGS&&... args ) requires ( sizeof ... ( ARGS ) <= SIZE );
+	qpArray( const qpArray & other );
 
 	T & First() { return m_data[ 0 ]; }
 	T & Last() { return m_data[ ( SIZE - 1 ) ]; }
@@ -54,6 +55,8 @@ public:
 
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
+
+	qpArray & operator=( const qpArray & other );
 
 	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
 	Iterator End() { return Iterator( &m_data[ SIZE ] ); }
@@ -79,6 +82,11 @@ qpArray< T, SIZE >::qpArray( ARGS&&... args ) requires ( sizeof ... ( ARGS ) <= 
 }
 
 template< typename T, int SIZE >
+qpArray< T, SIZE >::qpArray( const qpArray & other ) {
+	qpCopy( m_data, SIZE, other.m_data, SIZE );
+}
+
+template< typename T, int SIZE >
 T & qpArray< T, SIZE >::operator[]( int index ) {
 	QP_ASSERT_MSG( index >= 0 && index < SIZE, "Index is out of bounds." );
 	return m_data[ index ];
@@ -88,4 +96,10 @@ template< typename T, int SIZE >
 const T & qpArray< T, SIZE >::operator[]( int index ) const {
 	QP_ASSERT_MSG( index >= 0 && index < SIZE, "Index is out of bounds." );
 	return m_data[ index ];
+}
+
+template< typename T, int SIZE >
+qpArray< T, SIZE > & qpArray< T, SIZE >::operator=( const qpArray & other ) {
+	qpCopy( m_data, SIZE, other.m_data, SIZE );
+	return *this;
 }

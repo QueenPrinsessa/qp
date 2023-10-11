@@ -45,6 +45,8 @@ public:
 	qpList();
 	qpList( int size );
 	qpList( std::initializer_list< T > initializerList );
+	qpList( const qpList & other );
+	qpList( qpList && other ) noexcept;
 
 	void Push( const T & item );
 	void Push( T && item );
@@ -69,6 +71,9 @@ public:
 
 	T & operator[]( int index );
 	const T & operator[]( int index ) const;
+
+	qpList & operator=( const qpList & other );
+	qpList & operator=( qpList && other ) noexcept;
 
 	Iterator Begin() { return Iterator( &m_data[ 0 ]); }
 	Iterator End() { return Iterator( &m_data[ m_length ] ); }
@@ -98,6 +103,22 @@ template< typename T >
 qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
 	m_length = qpCopy( m_data, m_capacity, initializerList.begin(), static_cast< int >( initializerList.size() ) );
+}
+
+template< typename T >
+qpList<T>::qpList( const qpList & other ) {
+	Reserve( other.m_length );
+	qpCopy( m_data, m_capacity, other.m_data, other.m_length );
+}
+
+template< typename T >
+qpList<T>::qpList( qpList && other ) noexcept {
+	m_data = other.m_data;
+	m_capacity = other.m_capacity;
+	m_length = other.m_length;
+	other.m_data = NULL;
+	other.m_capacity = 0;
+	other.m_length = 0;
 }
 
 template< typename T >
@@ -200,4 +221,22 @@ template< typename T >
 const T & qpList< T >::operator[]( int index ) const {
 	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
+}
+
+template< typename T >
+qpList< T > & qpList< T >::operator=( const qpList & other ) {
+	Reserve( other.m_length );
+	qpCopy( m_data, m_capacity, other.m_data, other.m_length );
+	return *this;
+}
+
+template< typename T >
+qpList< T > & qpList< T >::operator=( qpList && other ) noexcept {
+	m_data = other.m_data;
+	m_capacity = other.m_capacity;
+	m_length = other.m_length;
+	other.m_data = NULL;
+	other.m_capacity = 0;
+	other.m_length = 0;
+	return *this;
 }
