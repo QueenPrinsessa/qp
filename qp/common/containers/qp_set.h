@@ -20,14 +20,7 @@ public:
 
 	bool IsEmpty() const { return m_set.empty(); }
 
-	typename std::set< T >::iterator Begin() { return m_set.begin(); }
-	typename std::set< T >::iterator End() { return m_set.end(); }
-	typename std::set< T >::iterator Begin() const { return m_set.begin(); }
-	typename std::set< T >::iterator End() const { return m_set.end(); }
-	typename std::set< T >::iterator begin() { return Begin(); }
-	typename std::set< T >::iterator end() { return End(); }
-	typename std::set< T >::iterator begin() const { return Begin(); }
-	typename std::set< T >::iterator end() const { return End(); }
+	QP_ITERATORS( typename std::set< T >::iterator, m_set.begin(), m_set.end() )
 private:
 	std::set< T > m_set;
 };
