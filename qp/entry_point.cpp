@@ -1,13 +1,8 @@
-#include "common/core/qp_unique_ptr.h"
 #include "common/string/qp_string.h"
 #include <chrono>
 #include <iostream>
-#include "common/core/qp_smart_pointers.h"
-#include "common/math/qp_vec.h"
-#include "common/utilities/qp_algorithms.h"
 #include "engine/core/qp_app.h"
 #include "engine/core/qp_windowed_app.h"
-#include "engine/debug/qp_debug.h"
 
 #ifdef QP_PLATFORM_WINDOWS
 
@@ -27,11 +22,6 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	windowProperties.platformData = &windowsProperties;
 
 	qpWindowedApp app( windowProperties );
-
-	qpVec3 abc( 1, 2, 4 );
-	abc.Normalize();
-
-
 
 	try {
 		app.Run();
