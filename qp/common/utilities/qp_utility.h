@@ -41,4 +41,7 @@ template < typename T >
 }
 
 template < typename T >
+inline constexpr bool qpIsIntegral = std::is_integral_v< T >;
+
+template < typename T >
 inline constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;
