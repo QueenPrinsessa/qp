@@ -12,14 +12,14 @@ public:
 	qpUniquePtr( const qpUniquePtr< T > & other ) = delete;
 	qpUniquePtr( qpUniquePtr< T > && other ) noexcept;
 	template< typename D >
-	qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( std::is_base_of_v< T, D > );
+	qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D > );
 	~qpUniquePtr();
 
 	qpUniquePtr< T > & operator=( const qpUniquePtr< T > & rhs ) = delete;
 	qpUniquePtr< T > & operator=( nullptr_t null );
 	qpUniquePtr< T > & operator=( qpUniquePtr< T > && rhs ) noexcept;
 	template< typename D >
-	qpUniquePtr< T > & operator=( qpUniquePtr< D > && rhs ) noexcept requires ( std::is_base_of_v< T, D > );
+	qpUniquePtr< T > & operator=( qpUniquePtr< D > && rhs ) noexcept requires ( qpIsBaseOf< T, D > );
 
 	auto operator<=>( const qpUniquePtr< T > & rhs ) const;
 	auto operator<=>( const T * rhs ) const;
@@ -62,7 +62,7 @@ qpUniquePtr< T >::qpUniquePtr( qpUniquePtr< T > && other ) noexcept {
 
 template< typename T >
 template< typename D >
-qpUniquePtr< T >::qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( std::is_base_of_v< T, D > ) {
+qpUniquePtr< T >::qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D > ) {
 	m_ptr = other.Release();
 }
 
@@ -87,7 +87,7 @@ qpUniquePtr< T > & qpUniquePtr< T >::operator=( nullptr_t null ) {
 
 template< typename T >
 template< typename D >
-qpUniquePtr< T > & qpUniquePtr< T >::operator=( qpUniquePtr< D > && rhs ) noexcept requires ( std::is_base_of_v< T, D > ) {
+qpUniquePtr< T > & qpUniquePtr< T >::operator=( qpUniquePtr< D > && rhs ) noexcept requires ( qpIsBaseOf< T, D > ) {
 	delete m_ptr;
 	m_ptr = rhs.Release();
 	return *this;

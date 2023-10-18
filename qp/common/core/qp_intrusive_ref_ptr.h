@@ -1,5 +1,6 @@
 #pragma once
 #include "qp_types.h"
+#include "qp/common/utilities/qp_utility.h"
 
 #define QP_INTRUSIVE_INCREMENT_REF INTRUSIVE_ÎncrementRef
 #define QP_INTRUSIVE_DECREMENT_REF INTRUSIVE_DecrementRef
@@ -33,15 +34,15 @@ public:
 	qpIntrusiveRefPtr( const qpIntrusiveRefPtr< T > & other );
 	qpIntrusiveRefPtr( qpIntrusiveRefPtr< T > && other ) noexcept;
 	template< typename D >
-	qpIntrusiveRefPtr( const qpIntrusiveRefPtr< D > & other ) requires ( std::is_base_of_v< T, D > );
+	qpIntrusiveRefPtr( const qpIntrusiveRefPtr< D > & other ) requires ( qpIsBaseOf< T, D > );
 	template< typename D >
-	qpIntrusiveRefPtr( qpIntrusiveRefPtr< D > && other ) noexcept requires ( std::is_base_of_v< T, D > );
+	qpIntrusiveRefPtr( qpIntrusiveRefPtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D > );
 	~qpIntrusiveRefPtr();
 
 	qpIntrusiveRefPtr< T > & operator=( const qpIntrusiveRefPtr< T > & rhs );
 	qpIntrusiveRefPtr< T > & operator=( qpIntrusiveRefPtr< T > && rhs ) noexcept;
 	template< typename D >
-	qpIntrusiveRefPtr< T > & operator=( const qpIntrusiveRefPtr< D > & rhs ) requires ( std::is_base_of_v< T, D > );
+	qpIntrusiveRefPtr< T > & operator=( const qpIntrusiveRefPtr< D > & rhs ) requires ( qpIsBaseOf< T, D > );
 	template< typename D >
 	qpIntrusiveRefPtr< T > & operator=( qpIntrusiveRefPtr< D > && rhs ) noexcept requires ( std::is_base_of_v< T, D > );
 	qpIntrusiveRefPtr< T > & operator=( nullptr_t null );
@@ -99,14 +100,14 @@ qpIntrusiveRefPtr< T >::qpIntrusiveRefPtr( qpIntrusiveRefPtr< T > && other ) noe
 
 template< typename T > requires qpHasIntrusiveRefCounter< T >
 template< typename D >
-qpIntrusiveRefPtr< T >::qpIntrusiveRefPtr( const qpIntrusiveRefPtr< D > & other ) requires (std::is_base_of_v< T, D >) {
+qpIntrusiveRefPtr< T >::qpIntrusiveRefPtr( const qpIntrusiveRefPtr< D > & other ) requires ( qpIsBaseOf< T, D >) {
 	m_ptr = other.Raw();
 	IncrementRef();
 }
 
 template< typename T > requires qpHasIntrusiveRefCounter< T >
 template< typename D >
-qpIntrusiveRefPtr< T >::qpIntrusiveRefPtr( qpIntrusiveRefPtr< D > && other ) noexcept requires (std::is_base_of_v< T, D >) {
+qpIntrusiveRefPtr< T >::qpIntrusiveRefPtr( qpIntrusiveRefPtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D >) {
 	m_ptr = other.Raw();
 	IncrementRef();
 	other.Reset( NULL );
@@ -140,7 +141,7 @@ qpIntrusiveRefPtr< T > & qpIntrusiveRefPtr< T >::operator=( nullptr_t null ) {
 
 template< typename T > requires qpHasIntrusiveRefCounter< T >
 template< typename D >
-qpIntrusiveRefPtr< T > & qpIntrusiveRefPtr< T >::operator=( const qpIntrusiveRefPtr <D > & rhs ) requires ( std::is_base_of_v< T, D > ) {
+qpIntrusiveRefPtr< T > & qpIntrusiveRefPtr< T >::operator=( const qpIntrusiveRefPtr <D > & rhs ) requires ( qpIsBaseOf< T, D > ) {
 	m_ptr = rhs.Raw();
 	IncrementRef();
 	return *this;

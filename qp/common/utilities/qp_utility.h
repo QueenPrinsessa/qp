@@ -46,3 +46,6 @@ QP_INLINE constexpr bool qpIsIntegral = std::is_integral_v< T >;
 
 template < typename T >
 QP_INLINE constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;
+
+template < typename B, typename D >
+QP_INLINE constexpr bool qpIsBaseOf = std::is_base_of_v< B, D >;
