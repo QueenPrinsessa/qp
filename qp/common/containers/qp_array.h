@@ -9,34 +9,7 @@ class qpArray {
 public:
 	static_assert( SIZE > 0, "qpArray: " QP_STRINGIFY( SIZE ) " needs to be greater than 0." );
 	friend class qpArrayView< T >;
-	struct Iterator
-	{
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = std::ptrdiff_t;
-		using value_type = T;
-		using pointer = T *;
-		using reference = T &;
-
-		Iterator( pointer ptr ) : m_ptr( ptr ) { }
-
-		reference operator *() const { return *m_ptr; }
-
-		pointer operator->() { return m_ptr; }
-		Iterator & operator++() {
-			m_ptr++;
-			return *this;
-		}
-		Iterator operator++( int ) {
-			Iterator it = m_ptr++;
-			return it;
-		}
-
-		auto operator<=>( const qpArray< T, SIZE >::Iterator & ) const = default;
-		bool operator==( const qpArray< T, SIZE >::Iterator & ) const = default;
-	private:
-		pointer m_ptr = NULL;
-	};
+	QP_FORWARD_ITERATOR( Iterator, qpArray, T )
 
 	qpArray();
 	template < typename ... ARGS >

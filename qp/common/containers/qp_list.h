@@ -10,37 +10,7 @@ template< typename T >
 class qpList {
 	friend class qpArrayView< T >;
 public:
-	struct Iterator
-	{
-	public:
-		using iterator_category = std::forward_iterator_tag;
-		using difference_type = std::ptrdiff_t;
-		using value_type = T;
-		using pointer = T *;
-		using reference = T &;
-
-		Iterator( pointer ptr ) : m_ptr( ptr ) {
-		}
-
-		reference operator *() const { return *m_ptr; }
-
-		pointer operator->() { return m_ptr; }
-		Iterator & operator++() {
-			m_ptr++;
-			return *this;
-		}
-		Iterator operator++( int ) {
-			Iterator it = m_ptr++;
-			return it;
-		}
-
-		operator pointer ( ) { return m_ptr; }
-
-		auto operator<=>( const qpList< T >::Iterator & ) const = default;
-		bool operator==( const qpList< T >::Iterator & ) const = default;
-	private:
-		pointer m_ptr = NULL;
-	};
+	QP_FORWARD_ITERATOR( Iterator, qpList, T )
 
 	qpList();
 	qpList( int size );
