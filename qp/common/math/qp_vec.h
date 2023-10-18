@@ -1,7 +1,7 @@
 #pragma once
 
 // todo: implement vector intrinsics support
-#define QP_USE_VECTOR_INTRINSICS false
+//#define QP_USE_VECTOR_INTRINSICS 
 #define QP_ASSERT_NORMALIZE_ZERO_VECTOR
 
 template < typename T, typename VEC >
@@ -11,7 +11,7 @@ public:
 	T LengthSqr() const;
 	T Length() const;
 
-	void Normalize();
+	void Normalize() requires qpIsFloatingPoint< T >;
 	int NumElements() const { return sizeof( This().m_data ) / sizeof( T ); }
 
 	T & operator[]( int index ) { return This().m_data[ index ]; }
@@ -38,7 +38,7 @@ T qpVecBase<T, VEC>::Length() const {
 }
 
 template< typename T, typename VEC >
-void qpVecBase<T, VEC>::Normalize() {
+void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
 	T length = Length();
 	if( length == 0 ) {
 #ifdef QP_ASSERT_NORMALIZE_ZERO_VECTOR

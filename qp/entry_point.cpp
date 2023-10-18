@@ -28,6 +28,11 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	qpWindowedApp app( windowProperties );
 
+	qpVec3 abc( 1, 2, 4 );
+	abc.Normalize();
+
+
+
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {

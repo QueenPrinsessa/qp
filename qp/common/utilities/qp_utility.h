@@ -1,4 +1,5 @@
 #pragma once
+#include <type_traits>
 
 template < typename T >
 struct removeReference_t {
@@ -7,15 +8,13 @@ struct removeReference_t {
 };
 
 template < typename T >
-struct removeReference_t< T & >
-{
+struct removeReference_t< T & > {
 	using type = T;
 	using constType = const T &;
 };
 
 template < typename T >
-struct removeReference_t< T && >
-{
+struct removeReference_t< T && > {
 	using type = T;
 	using constType = const T &&;
 };
@@ -36,7 +35,10 @@ template < typename T >
 	return static_cast< T && >( arg );
 }
 
-template <class T>
+template < typename T >
 [[ nodiscard ]] removeReferenceType< T > && qpMove( T && arg ) noexcept { 
 	return static_cast< removeReferenceType< T > && >( arg );
 }
+
+template < typename T >
+inline constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;
