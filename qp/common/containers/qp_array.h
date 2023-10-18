@@ -58,14 +58,7 @@ public:
 
 	qpArray & operator=( const qpArray & other );
 
-	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
-	Iterator End() { return Iterator( &m_data[ SIZE ] ); }
-	Iterator Begin() const { return Iterator( &m_data[ 0 ] ); }
-	Iterator End() const { return Iterator( &m_data[ SIZE ] ); }
-	Iterator begin() { return Begin(); }
-	Iterator end() { return End(); }
-	Iterator begin() const { return Begin(); }
-	Iterator end() const { return End(); }
+	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ SIZE ] ) )
 private:
 	T m_data[ SIZE ] {};
 };

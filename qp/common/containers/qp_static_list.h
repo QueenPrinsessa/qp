@@ -1,4 +1,5 @@
 #pragma once
+#include "qp/common/core/qp_macros.h"
 #include "qp/common/debug/qp_debug.h"
 #include <iterator>
 
@@ -61,14 +62,7 @@ public:
 	T & operator[]( int index );
 	const T & operator[] ( int index ) const;
 
-	Iterator Begin() { return Iterator( &m_data[ 0 ] ); }
-	Iterator End() { return Iterator( &m_data[ m_length ] ); }
-	Iterator Begin() const { return Iterator( &m_data[ 0 ] ); }
-	Iterator End() const { return Iterator( &m_data[ m_length ] ); }
-	Iterator begin() { return Begin(); }
-	Iterator end() { return End(); }
-	Iterator begin() const { return Begin(); }
-	Iterator end() const { return End(); }
+	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ m_length ] ) )
 private:
 	T m_data[ SIZE ] {};
 	int m_length = 0;

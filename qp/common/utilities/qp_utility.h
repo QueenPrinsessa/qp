@@ -1,4 +1,5 @@
 #pragma once
+#include "qp/common/core/qp_macros.h"
 #include <type_traits>
 
 template < typename T >
@@ -20,28 +21,28 @@ struct removeReference_t< T && > {
 };
 
 template < typename T >
-using removeReferenceType = typename removeReference_t< T >::type;
+using removeReferenceType_t = typename removeReference_t< T >::type;
 
 template < typename T >
-using removeReferenceConstType = typename removeReference_t< T >::type;
+using removeReferenceConstType_t = typename removeReference_t< T >::type;
 
 template < typename T >
-[[ nodiscard ]] T & qpForward( removeReferenceType< T > & arg ) noexcept {
+QP_NO_DISCARD constexpr T & qpForward( removeReferenceType_t< T > & arg ) noexcept {
 	return static_cast< T & >( arg );
 }
 
 template < typename T >
-[[ nodiscard ]] T && qpForward( removeReferenceType< T > && arg ) noexcept {
+QP_NO_DISCARD constexpr T && qpForward( removeReferenceType_t< T > && arg ) noexcept {
 	return static_cast< T && >( arg );
 }
 
 template < typename T >
-[[ nodiscard ]] removeReferenceType< T > && qpMove( T && arg ) noexcept { 
-	return static_cast< removeReferenceType< T > && >( arg );
+QP_NO_DISCARD constexpr removeReferenceType_t< T > && qpMove( T && arg ) noexcept {
+	return static_cast< removeReferenceType_t< T > && >( arg );
 }
 
 template < typename T >
-inline constexpr bool qpIsIntegral = std::is_integral_v< T >;
+QP_INLINE constexpr bool qpIsIntegral = std::is_integral_v< T >;
 
 template < typename T >
-inline constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;
+QP_INLINE constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;

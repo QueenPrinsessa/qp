@@ -913,7 +913,7 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 	vkGetPhysicalDeviceMemoryProperties( m_physicalDevice, &memProperties );
 
 	for ( uint32 i = 0; i < memProperties.memoryTypeCount; i++ ) {
-		if ( typeFilter & BIT( i ) && ( ( memProperties.memoryTypes[ i ].propertyFlags & properties ) == properties ) ) {
+		if ( typeFilter & QP_BIT( i ) && ( ( memProperties.memoryTypes[ i ].propertyFlags & properties ) == properties ) ) {
 			return i;
 		}
 	}

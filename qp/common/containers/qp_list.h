@@ -75,14 +75,7 @@ public:
 	qpList & operator=( const qpList & other );
 	qpList & operator=( qpList && other ) noexcept;
 
-	Iterator Begin() { return Iterator( &m_data[ 0 ]); }
-	Iterator End() { return Iterator( &m_data[ m_length ] ); }
-	Iterator Begin() const { return Iterator( &m_data[ 0 ]); }
-	Iterator End() const { return Iterator( &m_data[ m_length ] ); }
-	Iterator begin() { return Begin(); }
-	Iterator end() { return End(); }
-	Iterator begin() const { return Begin(); }
-	Iterator end() const { return End(); }
+	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ m_length ] ) )
 private:
 	int m_capacity = 0;
 	int m_length = 0;
