@@ -8,8 +8,8 @@ class qpBitSet {
 public:
 	static_assert( NUM_BITS > 0, "Empty bitsets are not allowed." );
 	enum {
-		DATA_COUNT = ( ( ( NUM_BITS - 1 ) / ( sizeof( T ) * 8 ) ) + 1 ),
-		TYPE_BITS_SIZE = sizeof( T ) * 8
+		TYPE_BITS_SIZE = sizeof( T ) * 8,
+		DATA_COUNT = ( ( ( NUM_BITS - 1 ) / TYPE_BITS_SIZE ) + 1 )
 	};
 
 	class qpReference {
