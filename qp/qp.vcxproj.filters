@@ -140,6 +140,9 @@
     <ClInclude Include="common\containers\qp_static_list.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\containers\qp_bitset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.vert" />
