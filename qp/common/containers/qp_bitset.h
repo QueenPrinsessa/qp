@@ -1,5 +1,6 @@
 #pragma once
 #include "qp/common/core/qp_types.h"
+#include "qp/common/core/qp_macros.h"
 #include "qp/common/debug/qp_debug.h"
 
 template< int NUM_BITS, typename T = uint32 > 
