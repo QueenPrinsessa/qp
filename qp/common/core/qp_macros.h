@@ -22,6 +22,8 @@
 #define QP_INLINE inline
 #define QP_FORCE_INLINE __forceinline
 
+#define QP_SAFE_DELETE( x ) delete x; x = NULL;
+
 #define QP_FORWARD_ITERATOR( iteratorType, type, containerType ) \
 	struct iteratorType { \
 	public: \

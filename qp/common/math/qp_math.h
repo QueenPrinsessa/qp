@@ -44,6 +44,9 @@ public:
 	static T Log( const T & n ) requires ( std::is_floating_point_v< T > );
 
 	template < typename T >
+	static T Log2( const T & n ) requires ( std::is_floating_point_v< T > );
+
+	template < typename T >
 	static T RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > );
 private:
 };
@@ -108,6 +111,11 @@ T qpMath::Ceil( const T & n ) requires ( std::is_floating_point_v<T> ) {
 template< typename T >
 T qpMath::Log( const T & n ) requires (std::is_floating_point_v<T>) {
 	return std::log( n );
+}
+
+template< typename T >
+T qpMath::Log2( const T & n ) requires ( std::is_floating_point_v<T> ) {
+	return std::log2( n );
 }
 
 template < typename T >

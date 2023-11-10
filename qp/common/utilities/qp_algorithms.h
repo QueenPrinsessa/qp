@@ -49,3 +49,10 @@ int qpCopy( T * to, int toCount, const T * from, int fromCount ) {
 
 	return qpCopyUnchecked( to, from, fromCount );
 }
+
+template < typename T >
+void qpSwap( T & a, T & b ) {
+	const T temp = a;
+	a = b;
+	b = temp;
+}
