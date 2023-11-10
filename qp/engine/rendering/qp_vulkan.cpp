@@ -22,12 +22,16 @@ static qpList< const char * > deviceExtensions {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
-qpArray< vertex_t, 3 > triangleVertices {
-	vertex_t{.pos{0.0f, -0.5f}, .color{1.0f, 1.0f, 1.0f}},
-	vertex_t{.pos{0.5f, 0.5f}, .color{0.0f, 1.0f, 0.0f}},
-	vertex_t{.pos{-0.5f, 0.5f}, .color{0.0f, 0.0f, 1.0f}}
+qpArray< vertex_t, 4 > meshVertices {
+	vertex_t{.pos{-0.5f, -0.5f}, .color{1.0f, 0.0f, 0.0f}},
+	vertex_t{.pos{0.5f, -0.5f}, .color{0.0f, 1.0f, 0.0f}},
+	vertex_t{.pos{0.5f, 0.5f}, .color{0.0f, 0.0f, 1.0f}},
+	vertex_t{.pos{-0.5f, 0.5f}, .color{1.0f, 1.0f, 1.0f}}
 };
 
+qpArray< uint16, 6 > meshIndices {
+	0, 1, 2, 2, 3, 0
+};
 
 static void GetWindowFramebufferSize( void * windowHandle, int & width, int & height) {
 #ifdef QP_PLATFORM_WINDOWS
@@ -61,6 +65,7 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateFrameBuffers();
 	CreateCommandPool();
 	CreateVertexBuffer();
+	CreateIndexBuffer();
 	CreateCommandBuffers();
 	CreateSyncObjects();
 }
@@ -71,6 +76,9 @@ void qpVulkan::Cleanup() {
 	vkDeviceWaitIdle( m_device );
 
 	CleanupSyncObjects();
+
+	vkDestroyBuffer( m_device, m_indexBuffer, NULL );
+	vkFreeMemory( m_device, m_indexBufferMemory, NULL );
 
 	vkDestroyBuffer( m_device, m_vertexBuffer, NULL );
 	vkFreeMemory( m_device, m_vertexBufferMemory, NULL );
@@ -868,7 +876,9 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers( commandBuffer, 0, 1, vertexBuffers, offsets );
 
-	vkCmdDraw( commandBuffer, triangleVertices.Length(), 1, 0, 0);
+	vkCmdBindIndexBuffer( commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
+
+	vkCmdDrawIndexed( commandBuffer, meshIndices.Length(), 1, 0, 0, 0 );
 
 	vkCmdEndRenderPass( commandBuffer );
 
@@ -878,34 +888,103 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 }
 
 void qpVulkan::CreateVertexBuffer() {
+	VkDeviceSize bufferSize = sizeof( meshVertices[ 0 ] ) * meshVertices.Length();
+
+	VkBuffer stagingBuffer = NULL;
+	VkDeviceMemory stagingBufferMemory = NULL;
+	CreateBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory );
+
+	void * data = NULL;
+	vkMapMemory( m_device, stagingBufferMemory, 0, bufferSize, 0, &data );
+	memcpy( data, meshVertices.Data(), bufferSize );
+	vkUnmapMemory( m_device, stagingBufferMemory );
+
+	CreateBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory );
+
+	CopyBuffer( stagingBuffer, m_vertexBuffer, bufferSize );
+	vkDestroyBuffer( m_device, stagingBuffer, NULL );
+	vkFreeMemory( m_device, stagingBufferMemory, NULL );
+}
+
+void qpVulkan::CreateIndexBuffer() {
+	VkDeviceSize bufferSize = sizeof( meshIndices[ 0 ] ) * meshIndices.Length();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	CreateBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory );
+
+	void * data;
+	vkMapMemory( m_device, stagingBufferMemory, 0, bufferSize, 0, &data );
+	memcpy( data, meshIndices.Data(), bufferSize );
+	vkUnmapMemory( m_device, stagingBufferMemory );
+
+	CreateBuffer( bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory );
+
+	CopyBuffer( stagingBuffer, m_indexBuffer, bufferSize );
+
+	vkDestroyBuffer( m_device, stagingBuffer, NULL );
+	vkFreeMemory( m_device, stagingBufferMemory, NULL );
+}
+
+void qpVulkan::CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer& outBuffer, VkDeviceMemory& outBufferMemory ) {
 	VkBufferCreateInfo bufferInfo {};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof( triangleVertices[ 0 ] ) * triangleVertices.Length();
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.size = size;
+	bufferInfo.usage = usageFlags;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if ( vkCreateBuffer( m_device, &bufferInfo, NULL, &m_vertexBuffer ) != VK_SUCCESS ) {
-		ThrowOnError( "Failed to create vertex buffer!" );
+	if ( vkCreateBuffer( m_device, &bufferInfo, NULL, &outBuffer ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create buffer!" );
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements( m_device, m_vertexBuffer, &memRequirements );
+	vkGetBufferMemoryRequirements( m_device, outBuffer, &memRequirements );
 
 	VkMemoryAllocateInfo allocInfo {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType( memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+	allocInfo.memoryTypeIndex = FindMemoryType( memRequirements.memoryTypeBits, propertyFlags );
 
-	if ( vkAllocateMemory( m_device, &allocInfo, NULL, &m_vertexBufferMemory ) != VK_SUCCESS ) {
+	if ( vkAllocateMemory( m_device, &allocInfo, NULL, &outBufferMemory ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to allocate vertex buffer memory!" );
 	}
 
-	vkBindBufferMemory( m_device, m_vertexBuffer, m_vertexBufferMemory, 0 );
+	vkBindBufferMemory( m_device, outBuffer, outBufferMemory, 0 );
+}
 
-	void * data;
-	vkMapMemory( m_device, m_vertexBufferMemory, 0, bufferInfo.size, 0, &data );
-	memcpy( data, triangleVertices.Data(), bufferInfo.size );
-	vkUnmapMemory( m_device, m_vertexBufferMemory );
+void qpVulkan::CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size ) {
+	VkCommandBufferAllocateInfo allocInfo {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = m_commandPool;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers( m_device, &allocInfo, &commandBuffer );
+
+	VkCommandBufferBeginInfo beginInfo {};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer( commandBuffer, &beginInfo );
+
+	VkBufferCopy copyRegion {};
+	copyRegion.srcOffset = 0;
+	copyRegion.dstOffset = 0;
+	copyRegion.size = size;
+	vkCmdCopyBuffer( commandBuffer, sourceBuffer, destinationBuffer, 1, &copyRegion );
+
+	vkEndCommandBuffer( commandBuffer );
+
+	VkSubmitInfo submitInfo {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit( m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE );
+	vkQueueWaitIdle( m_graphicsQueue );
+
+	vkFreeCommandBuffers( m_device, m_commandPool, 1, &commandBuffer );
 }
 
 uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties ) {

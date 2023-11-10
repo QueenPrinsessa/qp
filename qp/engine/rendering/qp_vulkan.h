@@ -49,6 +49,9 @@ private:
 	void RecreateSwapchain();
 	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
 	void CreateVertexBuffer();
+	void CreateIndexBuffer();
+	void CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer & outBuffer, VkDeviceMemory & outBufferMemory );
+	void CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size );
 	uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
 	bool CheckValidationLayerSupport( const qpArrayView< const char * > & layersView );
@@ -76,6 +79,8 @@ private:
 	qpList< VkFence > m_inFlightFences = NULL;
 	VkBuffer m_vertexBuffer = NULL;
 	VkDeviceMemory m_vertexBufferMemory = NULL;
+	VkBuffer m_indexBuffer = NULL;
+	VkDeviceMemory m_indexBufferMemory = NULL;
 	int m_currentFrame = 0;
 	bool m_framebufferResized = false;
 
