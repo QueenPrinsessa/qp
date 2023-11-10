@@ -95,6 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\platform\windows\filesystem\qp_windows_file.cpp" />
+    <ClCompile Include="common\time\qp_time_point.cpp" />
     <ClCompile Include="engine\core\qp_windowed_app.cpp" />
     <ClCompile Include="engine\debug\qp_debug.cpp" />
     <ClCompile Include="engine\platform\windows\window\qp_window_windows.cpp" />
@@ -114,6 +115,9 @@
     <ClInclude Include="common\filesystem\qp_filesystem.h" />
     <ClInclude Include="common\filesystem\qp_file_path.h" />
     <ClInclude Include="common\math\qp_vec.h" />
+    <ClCompile Include="common\platform\windows\time\qp_windows_clock.cpp" />
+    <ClInclude Include="common\time\qp_clock.h" />
+    <ClInclude Include="common\time\qp_time_point.h" />
     <ClInclude Include="common\utilities\qp_algorithms.h" />
     <ClInclude Include="common\utilities\qp_comparison_macros.h" />
     <ClInclude Include="common\utilities\qp_function.h" />

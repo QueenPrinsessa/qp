@@ -1,4 +1,5 @@
 #include "qp_windowed_app.h"
+#include "qp/common/time/qp_clock.h"
 #include "qp/engine/debug/qp_debug.h"
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/engine/platform/windows/window/qp_window_windows.h"
@@ -29,6 +30,12 @@ void qpWindowedApp::OnInit() {
 void qpWindowedApp::OnUpdate() {
 	m_vulkan->DrawFrame();
 	m_window->OnUpdate();
+
+	static qpTimePoint timeLast = qpClock::Now();
+	qpTimePoint time = qpClock::Now();
+	qpTimePoint deltaTime = ( time - timeLast );
+	timeLast = time;
+	qpDebug::Info( "Time: %lld", deltaTime.AsFPS() );
 }
 
 void qpWindowedApp::OnCleanup() {

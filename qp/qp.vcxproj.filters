@@ -39,6 +39,12 @@
     <ClCompile Include="common\platform\windows\filesystem\qp_windows_file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="common\platform\windows\time\qp_windows_clock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\time\qp_time_point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\string\qp_string.h">
@@ -147,6 +153,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\utilities\qp_initializer_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\time\qp_clock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\time\qp_time_point.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
