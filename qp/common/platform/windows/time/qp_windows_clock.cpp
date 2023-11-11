@@ -1,3 +1,4 @@
+#include "qp/common/core/qp_macros.h"
 #ifdef QP_PLATFORM_WINDOWS
 #include "qp/common/time/qp_time_point.h"
 #include "qp/common/time/qp_clock.h"
@@ -6,7 +7,7 @@
 qpTimePoint qpClock::Now() {
     static LARGE_INTEGER frequency {};
     static BOOL useHighResolution = QueryPerformanceFrequency( &frequency );
-    static_cast< void >( useHighResolution );
+    QP_DISCARD( useHighResolution );
     LARGE_INTEGER now {};
     QueryPerformanceCounter( &now );
     return qpTimePoint{ now.QuadPart, frequency.QuadPart };
