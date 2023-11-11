@@ -10,7 +10,6 @@ qpTimePoint qpClock::Now() {
     static_cast< void >( useHighResolution );
     LARGE_INTEGER now {};
     QueryPerformanceCounter( &now );
-    int64 timeNs = ( 1000ll * 1000ll * now.QuadPart ) / frequency.QuadPart;
     return qpTimePoint{ now.QuadPart, frequency.QuadPart };
 }
 
