@@ -5,10 +5,6 @@ qpTimePoint::qpTimePoint( int64 ticks, int64 ticksPerSecond ) {
 	m_ticksPerSecond = ticksPerSecond;
 }
 
-bool qpTimePoint::operator==( const qpTimePoint & rhs ) const {
-	return ( m_ticks == rhs.m_ticks ) && ( m_ticksPerSecond == rhs.m_ticksPerSecond );
-}
-
 qpTimePoint & qpTimePoint::operator-=( const qpTimePoint & rhs ) {
 	m_ticks -= rhs.m_ticks;
 	return *this;
