@@ -1,4 +1,5 @@
 #pragma once
+#include "qp/common/core/qp_macros.h"
 
 // todo: implement vector intrinsics support
 //#define QP_USE_VECTOR_INTRINSICS 
@@ -12,7 +13,7 @@ public:
 	T Length() const;
 
 	void Normalize() requires qpIsFloatingPoint< T >;
-	int NumElements() const { return sizeof( This().m_data ) / sizeof( T ); }
+	int NumElements() const { return QP_ARRAY_LENGTH( This().m_data ); }
 
 	T & operator[]( int index ) { return This().m_data[ index ]; }
 	const T & operator[]( int index ) const { return This().m_data[ index ]; }

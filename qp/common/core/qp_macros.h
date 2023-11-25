@@ -22,6 +22,8 @@
 #define QP_INLINE inline
 #define QP_FORCE_INLINE __forceinline
 
+#define QP_ARRAY_LENGTH( x ) ( sizeof( x ) / sizeof( x[ 0 ] ) )
+
 #define QP_SAFE_DELETE( x ) delete x; x = NULL;
 
 #define QP_DISCARD( x ) static_cast< void >( x );
