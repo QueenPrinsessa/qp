@@ -23,7 +23,7 @@ T * qpBinarySearch( T * begin, T * end, const T & value ) {
 
 template < typename T >
 int qpCopyUnchecked( T * to, const T * from, int num ) {
-	if constexpr ( std::is_trivially_copyable_v< T > ) {
+	if constexpr ( qpIsTrivialToCopy< T > ) {
 		memcpy( to, from, num * sizeof( T ) );
 	} else {
 		for ( int index = 0; index < num; index++ ) {

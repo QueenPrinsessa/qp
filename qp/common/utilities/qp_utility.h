@@ -49,3 +49,6 @@ QP_INLINE constexpr bool qpIsFloatingPoint = std::is_floating_point_v< T >;
 
 template < typename B, typename D >
 QP_INLINE constexpr bool qpIsBaseOf = std::is_base_of_v< B, D >;
+
+template < typename T >
+QP_INLINE constexpr bool qpIsTrivialToCopy = std::is_trivially_copyable_v< T >;
