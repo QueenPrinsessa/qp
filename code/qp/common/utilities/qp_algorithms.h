@@ -56,3 +56,13 @@ void qpSwap( T & a, T & b ) {
 	a = b;
 	b = temp;
 }
+
+template < typename T >
+void qpZeroMemory( T & memory ) {
+	memset( &memory, 0, sizeof( T ) );
+}
+
+template < typename T >
+void qpZeroMemory( void * memory, int numBytes ) {
+	memset( memory, 0, numBytes );
+}

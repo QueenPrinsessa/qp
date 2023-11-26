@@ -13,22 +13,24 @@ public:
 	T Length() const;
 
 	void Normalize() requires qpIsFloatingPoint< T >;
-	int NumElements() const { return QP_ARRAY_LENGTH( This().m_data ); }
+	int NumElements() const { return QP_ARRAY_LENGTH( CRTP().m_data ); }
 
-	T & operator[]( int index ) { return This().m_data[ index ]; }
-	const T & operator[]( int index ) const { return This().m_data[ index ]; }
+	T & operator[]( int index ) { return CRTP().m_data[ index ]; }
+	const T & operator[]( int index ) const { return CRTP().m_data[ index ]; }
 
-	T * Data() const { return This().m_data; }
+	T * Data() const { return CRTP().m_data; }
+
+	void Zero();
 private:
-	VEC & This() { return static_cast< VEC & >( *this ); }
-	const VEC & This() const { return static_cast< const VEC & >( *this ); }
+	VEC & CRTP() { return static_cast< VEC & >( *this ); }
+	const VEC & CRTP() const { return static_cast< const VEC & >( *this ); }
 };
 
 template< typename T, typename VEC >
 T qpVecBase<T, VEC>::LengthSqr() const {
 	T length = 0;
 	for ( int index = 0; index < NumElements(); index++ ) {
-		length += qpMath::Pow2( This().m_data[ index ] );
+		length += qpMath::Pow2( CRTP().m_data[ index ] );
 	}
 	return length;
 }
@@ -49,8 +51,13 @@ void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
 	}
 
 	for ( int index = 0; index < NumElements(); index++ ) {
-		This().m_data[ index ] /= length;
+		CRTP().m_data[ index ] /= length;
 	}
+}
+
+template< typename T, typename VEC >
+void qpVecBase<T, VEC>::Zero() {
+	qpZeroMemory( &CRTP().m_data[ 0 ], sizeof(T) * NumElements());
 }
 
 template < typename T, int LENGTH >
@@ -138,3 +145,7 @@ using qpVec4 = qpVec< float, 4 >;
 using qpVec4d = qpVec< double, 4 >;
 using qpVec4i = qpVec< int, 4 >;
 using qpVec4ui = qpVec< unsigned int, 4 >;
+
+#define QP_VEC2_ZERO qpVec2( 0.0f, 0.0f, 0.0f )
+#define QP_VEC3_ZERO qpVec3( 0.0f, 0.0f, 0.0f )
+#define QP_VEC4_ZERO qpVec4( 0.0f, 0.0f, 0.0f )
