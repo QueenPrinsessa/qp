@@ -83,6 +83,8 @@ public:
 		: qpVec( n, n ) {}
 	qpVec( T _x, T _y )
 		: m_data { _x, _y } {}
+	explicit qpVec( const qpVec< T, 3 > & vec )
+		: qpVec( vec.x, vec.y ) { }
 	union {
 		T m_data[ 2 ] {};
 		struct {
@@ -101,6 +103,10 @@ public:
 		: qpVec( n, n, n ) {}
 	qpVec( T _x, T _y, T _z )
 		: m_data { _x, _y, _z } { }
+	explicit qpVec( const qpVec< T, 4 > & vec )
+		: qpVec( vec.x, vec.y, vec.z ) {}
+	explicit qpVec( const qpVec< T, 2 > & vec, const T & _z )
+		: qpVec( vec.x, vec.y, _z ) { }
 	union {
 		T m_data[ 3 ] {};
 		struct {
@@ -120,6 +126,8 @@ public:
 		: qpVec( n, n, n, n ) {}
 	qpVec( T _x, T _y, T _z, T _w )
 		: m_data { _x, _y, _z, _w } { }
+	explicit qpVec( const qpVec< T, 3 > & vec, const T & _w )
+		: qpVec( vec.x, vec.y, vec.z, _w ) { }
 	union {
 		T m_data[ 4 ] {};
 		struct {
