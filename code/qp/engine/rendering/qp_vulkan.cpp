@@ -1002,7 +1002,9 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 
 	ThrowOnError( "Failed to find suitable memory type!" );
 
-	return UINT32_MAX; // unreachable
+#if defined( QP_DEBUG )
+	return UINT32_MAX;
+#endif
 }
 
 void qpVulkan::DrawFrame() {
