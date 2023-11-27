@@ -253,12 +253,12 @@ public:
 
 template< typename T >
 qpVec< T, 3 > qpMat< T, 4 >::TransformPoint( const qpVec< T, 3 > & point ) {
-	return operator*( qpVec< T, 4 >( point, static_cast< T >( 0 ) ), *this );
+	return operator*( qpVec< T, 4 >( point, static_cast< T >( 1 ) ), *this );
 }
 
 template< typename T >
 qpVec< T, 3 > qpMat< T, 4 >::TransformPoint( const qpVec< T, 4 > & point ) {
-	return operator*( qpVec< T, 4 >( point.x, point.y, point.z, static_cast< T >( 0 ) ), *this );
+	return operator*( qpVec< T, 4 >( point.x, point.y, point.z, static_cast< T >( 1 ) ), *this );
 }
 
 template< typename T >
