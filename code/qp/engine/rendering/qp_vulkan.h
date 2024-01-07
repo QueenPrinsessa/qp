@@ -39,6 +39,7 @@ private:
 	void CreateSwapchain();
 	void CreateImageViews();
 	void CreateRenderPass();
+	void CreateDescriptorSetLayout();
 	void CreateGraphicsPipeline();
 	void CreateFrameBuffers();
 	void CreateCommandPool();
@@ -50,6 +51,9 @@ private:
 	void RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageIndex );
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
+	void CreateUniformBuffers();
+	void CreateDescriptorPool();
+	void CreateDescriptorSets();
 	void CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer & outBuffer, VkDeviceMemory & outBufferMemory );
 	void CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size );
 	uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties );
@@ -63,6 +67,9 @@ private:
 	VkDebugUtilsMessengerEXT m_debugMessenger = NULL;
 	VkSwapchainKHR m_swapchain = NULL;
 	VkRenderPass m_renderPass = NULL;
+	VkDescriptorSetLayout m_descriptorSetLayout = NULL;
+	VkDescriptorPool m_descriptorPool;
+	qpList< VkDescriptorSet > m_descriptorSets;
 	VkPipelineLayout m_pipelineLayout = NULL;
 	VkPipeline m_graphicsPipeline = NULL;
 	VkCommandPool m_commandPool = NULL;
@@ -81,6 +88,9 @@ private:
 	VkDeviceMemory m_vertexBufferMemory = NULL;
 	VkBuffer m_indexBuffer = NULL;
 	VkDeviceMemory m_indexBufferMemory = NULL;
+	qpList< VkBuffer > m_uniformBuffers;
+	qpList< VkDeviceMemory > m_uniformBuffersMemory;
+	qpList< void * > m_uniformBuffersMapped;
 	int m_currentFrame = 0;
 	bool m_framebufferResized = false;
 

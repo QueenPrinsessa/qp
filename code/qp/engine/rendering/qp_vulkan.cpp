@@ -1,11 +1,13 @@
 #include "engine.pch.h"
 #include "qp_vulkan.h"
+#include "qp_buffer_structs.h"
 #include "qp_vertex_helper.h"
 #include "qp/common/filesystem/qp_file.h"
 #include "qp/engine/debug/qp_debug.h"
 #include "qp/common/containers/qp_array.h"
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/containers/qp_set.h"
+#include "qp/common/time/qp_clock.h"
 #include "vulkan/vulkan.h"
 #include <stdexcept>
 #include <iostream>
@@ -62,11 +64,15 @@ void qpVulkan::Init( void * windowHandle ) {
 	CreateSwapchain();
 	CreateImageViews();
 	CreateRenderPass();
+	CreateDescriptorSetLayout();
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
 	CreateCommandPool();
 	CreateVertexBuffer();
 	CreateIndexBuffer();
+	CreateUniformBuffers();
+	CreateDescriptorPool();
+	CreateDescriptorSets();
 	CreateCommandBuffers();
 	CreateSyncObjects();
 }
@@ -89,6 +95,14 @@ void qpVulkan::Cleanup() {
 	vkDestroyPipeline( m_device, m_graphicsPipeline, NULL );
 	vkDestroyPipelineLayout( m_device, m_pipelineLayout, NULL );
 	vkDestroyRenderPass( m_device, m_renderPass, NULL );
+
+	for ( int index = 0; index < MAX_FRAMES_IN_FLIGHT; index++ ) {
+		vkDestroyBuffer( m_device, m_uniformBuffers[ index ], NULL );
+		vkFreeMemory( m_device, m_uniformBuffersMemory[ index ], NULL );
+	}
+
+	vkDestroyDescriptorPool( m_device, m_descriptorPool, NULL );
+	vkDestroyDescriptorSetLayout( m_device, m_descriptorSetLayout, NULL );
 
 	CleanupSwapchain();
 
@@ -569,6 +583,24 @@ void qpVulkan::CreateRenderPass() {
 	}
 }
 
+void qpVulkan::CreateDescriptorSetLayout() {
+	VkDescriptorSetLayoutBinding uboLayoutBinding {};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+	uboLayoutBinding.pImmutableSamplers = NULL;
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	if ( vkCreateDescriptorSetLayout( m_device, &layoutInfo, NULL, &m_descriptorSetLayout ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create descriptor set layout!" );
+	}
+}
+
 VkShaderModule qpVulkan::CreateShaderModule( const qpList< byte > & shaderCode ) {
 	VkShaderModuleCreateInfo createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -655,7 +687,7 @@ void qpVulkan::CreateGraphicsPipeline() {
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer.lineWidth = 1.0f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 	rasterizer.depthBiasConstantFactor = 0.0f;
 	rasterizer.depthBiasClamp = 0.0f;
@@ -693,8 +725,8 @@ void qpVulkan::CreateGraphicsPipeline() {
 
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo {};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipelineLayoutInfo.setLayoutCount = 0;
-	pipelineLayoutInfo.pSetLayouts = NULL; 
+	pipelineLayoutInfo.setLayoutCount = 1;
+	pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
 	pipelineLayoutInfo.pushConstantRangeCount = 0; 
 	pipelineLayoutInfo.pPushConstantRanges = NULL; 
 
@@ -881,6 +913,8 @@ void qpVulkan::RecordCommandBuffer( VkCommandBuffer commandBuffer, int imageInde
 
 	vkCmdBindIndexBuffer( commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
 
+	vkCmdBindDescriptorSets( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_descriptorSets[ m_currentFrame ], 0, NULL );
+
 	vkCmdDrawIndexed( commandBuffer, meshIndices.Length(), 1, 0, 0, 0 );
 
 	vkCmdEndRenderPass( commandBuffer );
@@ -927,6 +961,72 @@ void qpVulkan::CreateIndexBuffer() {
 
 	vkDestroyBuffer( m_device, stagingBuffer, NULL );
 	vkFreeMemory( m_device, stagingBufferMemory, NULL );
+}
+
+void qpVulkan::CreateUniformBuffers() {
+	VkDeviceSize bufferSize = sizeof( uniformBufferObject_t );
+
+	m_uniformBuffers.Resize( MAX_FRAMES_IN_FLIGHT );
+	m_uniformBuffersMemory.Resize( MAX_FRAMES_IN_FLIGHT );
+	m_uniformBuffersMapped.Resize( MAX_FRAMES_IN_FLIGHT );
+
+	for ( int index = 0; index < MAX_FRAMES_IN_FLIGHT; index++ ) {
+		CreateBuffer( bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_uniformBuffers[ index ], m_uniformBuffersMemory[ index ] );
+
+		vkMapMemory( m_device, m_uniformBuffersMemory[ index ], 0, bufferSize, 0, &m_uniformBuffersMapped[ index ] );
+	}
+}
+
+void qpVulkan::CreateDescriptorPool() {
+	VkDescriptorPoolSize poolSize {};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = static_cast< uint32 >( MAX_FRAMES_IN_FLIGHT );
+
+	VkDescriptorPoolCreateInfo poolInfo {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = static_cast< uint32_t >( MAX_FRAMES_IN_FLIGHT );
+
+	if ( vkCreateDescriptorPool( m_device, &poolInfo, NULL, &m_descriptorPool ) != VK_SUCCESS ) {
+		ThrowOnError( "failed to create descriptor pool!" );
+	}
+}
+
+void qpVulkan::CreateDescriptorSets() {
+	qpList< VkDescriptorSetLayout > layouts( MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout );
+	VkDescriptorSetAllocateInfo allocInfo {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = m_descriptorPool;
+	allocInfo.descriptorSetCount = static_cast< uint32_t >( MAX_FRAMES_IN_FLIGHT );
+	allocInfo.pSetLayouts = layouts.Data();
+
+	m_descriptorSets.Resize( MAX_FRAMES_IN_FLIGHT );
+	if ( vkAllocateDescriptorSets( m_device, &allocInfo, m_descriptorSets.Data() ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to allocate descriptor sets!" );
+	}
+
+	for ( int index = 0; index < MAX_FRAMES_IN_FLIGHT; index++ ) {
+		VkDescriptorBufferInfo bufferInfo {};
+		bufferInfo.buffer = m_uniformBuffers[ index ];
+		bufferInfo.offset = 0;
+		bufferInfo.range = sizeof( uniformBufferObject_t );
+
+		VkWriteDescriptorSet descriptorWrite {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = m_descriptorSets[ index ];
+		descriptorWrite.dstBinding = 0;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = NULL;
+		descriptorWrite.pTexelBufferView = NULL;
+
+		vkUpdateDescriptorSets( m_device, 1, &descriptorWrite, 0, NULL);
+
+	}
+
 }
 
 void qpVulkan::CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer& outBuffer, VkDeviceMemory& outBufferMemory ) {
@@ -1007,6 +1107,25 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 #endif
 }
 
+void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
+	static qpTimePoint startTime = qpClock::Now();
+
+	qpTimePoint currentTime = qpClock::Now();
+	qpTimePoint timeDiff = ( currentTime - startTime );
+	const float time = timeDiff.AsSeconds();
+
+	int width;
+	int height;
+	GetWindowFramebufferSize( windowHandle, width, height );
+
+	uniformBufferObject_t ubo {};
+	ubo.model = qpCreateRotationZ( time * 90.0f ) * qpCreateRotationX( 45.0f );
+	ubo.view = qpCreateTranslation( qpVec3 { 0.0f, 0.0f, -5.0f } ) * qpCreateRotationY( 180.0f );
+	ubo.projection = qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f );
+
+	qpCopy( static_cast< uniformBufferObject_t * >( mappedUBO ), 1, &ubo, 1 );
+}
+
 void qpVulkan::DrawFrame() {
 	int width;
 	int height;
@@ -1037,6 +1156,8 @@ void qpVulkan::DrawFrame() {
 	vkResetCommandBuffer( m_commandBuffers[ m_currentFrame ], 0 );
 
 	RecordCommandBuffer( m_commandBuffers[ m_currentFrame ], imageIndex );
+
+	UpdateUniformBuffer( m_uniformBuffersMapped[ m_currentFrame ], m_windowHandle );
 
 	VkSubmitInfo submitInfo {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

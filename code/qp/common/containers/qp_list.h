@@ -14,6 +14,7 @@ public:
 
 	qpList();
 	qpList( int size );
+	qpList( int size, const T & initValue );
 	qpList( std::initializer_list< T > initializerList );
 	qpList( const qpList & other );
 	qpList( qpList && other ) noexcept;
@@ -60,6 +61,14 @@ qpList< T >::qpList() {
 template< typename T >
 qpList< T >::qpList( int size ) {
 	Resize( size );
+}
+
+template< typename T >
+qpList<T>::qpList( int size, const T & initValue ) {
+	Resize( size );
+	for ( int index = 0; index < size; ++index ) {
+		m_data[ index ] = initValue;
+	}
 }
 
 template< typename T >

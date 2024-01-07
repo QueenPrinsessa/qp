@@ -13,6 +13,8 @@ public:
 	T Length() const;
 
 	void Normalize() requires qpIsFloatingPoint< T >;
+	VEC Normalized() requires qpIsFloatingPoint< T >;
+
 	int NumElements() const { return QP_ARRAY_LENGTH( CRTP().m_data ); }
 
 	T & operator[]( int index ) { return CRTP().m_data[ index ]; }
@@ -21,7 +23,9 @@ public:
 	T * Data() const { return CRTP().m_data; }
 
 	void Zero();
-private:
+
+	VEC operator-() const;
+
 	VEC & CRTP() { return static_cast< VEC & >( *this ); }
 	const VEC & CRTP() const { return static_cast< const VEC & >( *this ); }
 };
@@ -56,8 +60,24 @@ void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
 }
 
 template< typename T, typename VEC >
+VEC qpVecBase< T, VEC >::Normalized() requires qpIsFloatingPoint< T > {
+	qpVecBase result = *this;
+	result.Normalize();
+	return result;
+}
+
+template< typename T, typename VEC >
 void qpVecBase<T, VEC>::Zero() {
 	qpZeroMemory( &CRTP().m_data[ 0 ], sizeof(T) * NumElements());
+}
+
+template< typename T, typename VEC >
+VEC qpVecBase< T, VEC >::operator-() const {
+	VEC result;
+	for ( int index = 0; index < NumElements(); ++index ) {
+		result[ index ] = -CRTP().m_data[ index ];
+	}
+	return result;
 }
 
 template < typename T, int LENGTH >
@@ -138,6 +158,16 @@ public:
 		};
 	};
 };
+
+template < typename T, typename VEC >
+T qpDot( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+	T dot = static_cast< T >( 0 );
+	for ( int index = 0; index < lhs.NumElements(); ++index ) {
+		dot += lhs.CRTP().m_data[index] * rhs.CRTP().m_data[index];
+	}
+	return dot;
+}
+
 
 using qpVec2 = qpVec< float, 2 >;
 using qpVec2d = qpVec< double, 2 >;

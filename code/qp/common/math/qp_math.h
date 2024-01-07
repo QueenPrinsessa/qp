@@ -29,6 +29,18 @@ public:
 	static T Rad2Deg( const T & n );
 
 	template < typename T >
+	static T Cos( const T & n );
+
+	template < typename T >
+	static T Sin( const T & n );
+
+	template < typename T >
+	static T Tan( const T & n );
+
+	template < typename T >
+	static T Atan( const T & n );
+
+	template < typename T >
 	static T Pow( const T & a, const T & b );
 
 	template < typename T >
@@ -80,12 +92,32 @@ T qpMath::Clamp01( const T & n ) {
 
 template < typename T >
 T qpMath::Deg2Rad( const T & n ) {
-	return static_cast< T >( n * ( 180.0f / Pi ) );
+	return static_cast< T >( n * ( Pi / 180.0f ) );
 }
 
 template < typename T >
 T qpMath::Rad2Deg( const T & n ) {
-	return static_cast< T > ( n * ( Pi / 180.0f ) );
+	return static_cast< T > ( n * ( 180.0f / Pi ) );
+}
+
+template< typename T >
+T qpMath::Cos( const T & n ) {
+	return static_cast< T >( std::cos( n ) );
+}
+
+template< typename T >
+T qpMath::Sin( const T & n ) {
+	return static_cast< T >( std::sin( n ) );
+}
+
+template< typename T >
+T qpMath::Tan( const T & n ) {
+	return static_cast< T >( std::tan( n ) );
+}
+
+template< typename T >
+T qpMath::Atan( const T & n ) {
+	return static_cast< T >( std::atan( n ) );
 }
 
 template< typename T >
