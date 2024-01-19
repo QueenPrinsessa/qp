@@ -61,7 +61,7 @@ void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
 
 template< typename T, typename VEC >
 VEC qpVecBase< T, VEC >::Normalized() requires qpIsFloatingPoint< T > {
-	qpVecBase result = *this;
+	VEC result = CRTP();
 	result.Normalize();
 	return result;
 }
