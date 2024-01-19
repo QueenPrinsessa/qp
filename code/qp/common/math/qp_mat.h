@@ -88,16 +88,6 @@ qpMatBase< T, MAT, SIZE > & qpMatBase< T, MAT, SIZE >::operator*=( const qpMatBa
 			CRTP().m_rows[ rowIndex ][ columnIndex ] = qpDot( Row( rowIndex ), rhs.CRTP().Column( columnIndex ) );
 		}
 	}
-
-	/*for ( int rowIndex = 0; rowIndex < SIZE; ++rowIndex ) {
-		qpVec< T, SIZE > row;
-		for ( int rhsColumnIndex = 0; rhsColumnIndex < SIZE; ++rhsColumnIndex ) {
-			for ( int columnIndex = 0; columnIndex < SIZE; ++columnIndex ) {
-				row[ columnIndex ] += CRTP().m_data[ ( rowIndex * SIZE ) + columnIndex ] * rhs.CRTP().m_data[ ( columnIndex * SIZE ) + rhsColumnIndex ];
-			}
-		}
-		CRTP().m_rows[ rowIndex ] = row;
-	}*/
 	return *this;
 }
 
@@ -173,10 +163,8 @@ inline MAT operator*( const float lhs, const qpMatBase< T, MAT, SIZE > & rhs ) {
 template< typename T, typename MAT, int SIZE >
 inline qpVec< T, SIZE > operator*( const qpVec< T, SIZE > & lhs, const qpMatBase< T, MAT, SIZE > & rhs ) {
 	qpVec< T, SIZE > result( lhs );
-	for ( int rhsColumnIndex = 0; rhsColumnIndex < SIZE; ++rhsColumnIndex ) {
-		for ( int columnIndex = 0; columnIndex < SIZE; ++columnIndex ) {
-			result[ columnIndex ] += lhs[ columnIndex ] * rhs.CRTP().m_data[ ( columnIndex * SIZE ) + rhsColumnIndex ];
-		}
+	for ( int columnIndex = 0; columnIndex < SIZE; ++columnIndex ) {
+		result[ columnIndex ] = qpDot( lhs, rhs.CRTP().Column( columnIndex ) );
 	}
 	return result;
 }
@@ -424,12 +412,12 @@ using qpMat3d = qpMat< double, 3 >;
 using qpMat4 = qpMat< float, 4 >;
 using qpMat4d = qpMat< double, 4 >;
 
-static qpMat3 g_Mat3Identity {
+static const qpMat3 g_mat3Identity {
 	1.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 1.0f
 };
-static qpMat4 g_Mat4Identity {
+static const qpMat4 g_mat4Identity {
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
