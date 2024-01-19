@@ -52,3 +52,21 @@ QP_INLINE constexpr bool qpIsBaseOf = std::is_base_of_v< B, D >;
 
 template < typename T >
 QP_INLINE constexpr bool qpIsTrivialToCopy = std::is_trivially_copyable_v< T >;
+
+template < typename T, typename I >
+QP_INLINE constexpr bool qpIsSame = std::is_same_v< T, I >;
+
+template < typename T, typename ... ARGS >
+constexpr bool qpIsPartOfParameterPack_Internal() {
+	bool found = false;
+	( [ & ] () {
+		if constexpr ( qpIsSame< T, ARGS > ) {
+			found = true;
+			return;
+		}
+	}( ), ... );
+	return found;
+}
+
+template < typename T, typename ... ARGS >
+constexpr bool qpIsPartOfParameterPack = qpIsPartOfParameterPack_Internal< T, ARGS... >();

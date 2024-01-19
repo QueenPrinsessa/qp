@@ -25,31 +25,6 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	windowProperties.platformData = &windowsProperties;
 
-	struct type_t {
-		type_t() {
-			printf( "hello 2 :>" );
-		}
-		~type_t() {
-			printf( "hello :>" );
-		}
-		char a[ 213678 ] {};
-	};
-
-	qpVariant< int, float, double, type_t > variant;
-	int x = sizeof( variant );
-	( void ) x;
-	variant.Emplace< double >( 5.0 );
-
-	double value = variant.GetValue< double >();
-	( void ) value;
-	variant.Emplace< type_t >();
-	type_t t = variant.GetValue< type_t >();
-	variant.Emplace< float >( 23.0f );
-	float val = variant.GetValue< float >();
-	( void ) val;
-	std::variant< int, float, double, type_t > abc;
-	abc.emplace< double >( 5.0 );
-	
 	qpWindowedApp app( windowProperties );
 
 	qpMat4 mat;

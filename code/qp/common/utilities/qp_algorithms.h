@@ -62,7 +62,20 @@ void qpZeroMemory( T & memory ) {
 	memset( &memory, 0, sizeof( T ) );
 }
 
-template < typename T >
-void qpZeroMemory( void * memory, int numBytes ) {
+inline void qpZeroMemory( void * memory, int numBytes ) {
 	memset( memory, 0, numBytes );
 }
+
+template < typename ... ARGS >
+constexpr size_t qpSizeOfBiggestType_Internal() {
+	size_t bytes = 0;
+	( [ & ] () {
+		if ( bytes < sizeof( ARGS ) ) {
+			bytes = sizeof( ARGS );
+		}
+	}( ), ... );
+	return bytes;
+}
+
+template < typename ... ARGS >
+constexpr size_t qpSizeOfBiggestTypeValue = qpSizeOfBiggestType_Internal< ARGS... >();
