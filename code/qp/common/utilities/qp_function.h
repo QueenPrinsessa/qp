@@ -30,8 +30,7 @@ public:
 
 	operator bool() const { return m_functor != NULL; }
 private:
-	class qpFunctor
-	{
+	class qpFunctor {
 	public:
 		virtual ~qpFunctor() = default;
 		virtual R Invoke( ARGS... ) const = 0;
@@ -39,8 +38,7 @@ private:
 		QP_INTRUSIVE_REF_COUNTER;
 	};
 	template < typename T >
-	class qpTFunctor : public qpFunctor
-	{
+	class qpTFunctor : public qpFunctor {
 	public:
 		qpTFunctor( const T & func ) : m_func( func ) { }
 		virtual ~qpTFunctor() override = default;

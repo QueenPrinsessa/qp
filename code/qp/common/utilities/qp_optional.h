@@ -3,8 +3,7 @@
 #include <utility>
 
 template < typename T >
-class Optional
-{
+class Optional {
 public:
 	Optional();
 	Optional( const Optional< T > & other );
