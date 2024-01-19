@@ -2,6 +2,8 @@
 #include "qp/common/core/qp_types.h"
 #include "qp/common/core/qp_macros.h"
 #include "qp/common/debug/qp_debug.h"
+#include "qp/common/utilities/qp_algorithms.h"
+#include "qp/common/utilities/qp_utility.h"
 
 template< int NUM_BITS, typename T = uint32 > 
 class qpBitSet {
@@ -14,11 +16,14 @@ public:
 
 	class qpReference {
 	public:
+		qpReference() = delete;
 		qpReference( qpBitSet * bitset, int pos ): m_bitset( bitset ), m_pos( pos ) {}
 		qpReference( const qpReference & other ) = default;
 
 		qpReference & operator=( const bool value ) { m_bitset->SetBit( m_pos, value ); return *this; }
 		qpReference & Toggle() { m_bitset->ToggleBit( m_pos ); return *this; }
+		qpReference & Set() { m_bitset->SetBit( m_pos ); return *this; }
+		qpReference & Clear() { m_bitset->ClearBit( m_pos ); return *this; }
 		bool operator~() const { return !m_bitset->GetBit( m_pos ); }
 
 		operator bool() const { return m_bitset->GetBit( m_pos ); }
