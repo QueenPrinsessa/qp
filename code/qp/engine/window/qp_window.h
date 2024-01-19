@@ -3,6 +3,9 @@
 #include "qp/common/utilities/qp_function.h"
 #include "qp/common/string/qp_string.h"
 
+class qpKeyboard;
+class qpMouse;
+
 enum class qpWindowMode_t {
 	WINDOWED,
 	BORDERLESS,
@@ -32,6 +35,9 @@ public:
 	virtual qpWindowMode_t GetWindowMode() const = 0;
 
 	virtual void * GetHandle() const = 0;
+
+	virtual const qpMouse & GetMouse() const = 0;
+	virtual const qpKeyboard & GetKeyboard() const = 0;
 
 	void SetDestroyCallback( DestroyCallback && callback ) { m_destroyCallback = qpMove( callback ); }
 	void SetResizeCallback( ResizeCallback && callback ) { m_resizeCallback = qpMove( callback ); }

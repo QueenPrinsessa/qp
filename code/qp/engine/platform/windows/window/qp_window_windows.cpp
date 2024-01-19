@@ -24,6 +24,9 @@ void qpWindowsWindow::OnUpdate() {
 
 	ShowWindow( m_handle, SW_SHOW );
 	UpdateWindow( m_handle );
+
+	m_mouse.Update();
+	m_keyboard.Update();
 }
 
 void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
@@ -104,6 +107,14 @@ void qpWindowsWindow::ApplyWindowMode( const qpWindowMode_t windowMode ) {
 
 LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam ) {
 	static qpWindowsWindow * window = NULL;
+
+	if ( window->m_mouse.ProcessWindowEvent( msg, wparam, lparam ) ) {
+		return 0;
+	}
+
+	if ( window->m_keyboard.ProcessWindowEvent( msg, wparam, lparam ) ) {
+		return 0;
+	}
 
 	switch ( msg ) {
 		case WM_DESTROY: {
