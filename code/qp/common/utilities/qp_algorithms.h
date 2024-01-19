@@ -1,4 +1,8 @@
 #pragma once
+#include "qp_utility.h"
+#include "qp/common/debug/qp_debug.h"
+#include <cstddef>
+#include <cstring>
 
 template < typename T >
 T * qpBinarySearch( T * begin, T * end, const T & value ) {
