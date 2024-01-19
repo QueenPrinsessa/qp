@@ -6,11 +6,13 @@
 #include <cstddef>
 #include <vulkan/vulkan.h>
 
+class qpWindow;
+
 class qpVulkan {
 public:
 	qpVulkan();
 	~qpVulkan();
-	void Init( void * windowHandle );
+	void Init( void * windowHandle, const qpWindow * window );
 	void Cleanup();
 	void DrawFrame();
 	void RequestFramebufferResize();

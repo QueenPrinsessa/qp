@@ -8,6 +8,8 @@
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/containers/qp_set.h"
 #include "qp/common/time/qp_clock.h"
+#include "qp/engine/window/qp_keyboard.h"
+#include "qp/engine/window/qp_window.h"
 #include "vulkan/vulkan.h"
 #include <stdexcept>
 #include <iostream>
@@ -26,10 +28,10 @@ static qpList< const char * > deviceExtensions {
 };
 
 qpArray< vertex_t, 4 > meshVertices {
-	vertex_t{.pos{-0.5f, -0.5f}, .color{1.0f, 0.0f, 0.0f}},
-	vertex_t{.pos{0.5f, -0.5f}, .color{0.0f, 1.0f, 0.0f}},
-	vertex_t{.pos{0.5f, 0.5f}, .color{0.0f, 0.0f, 1.0f}},
-	vertex_t{.pos{-0.5f, 0.5f}, .color{1.0f, 1.0f, 1.0f}}
+	vertex_t{.pos{-50.0f, -50.0f}, .color{1.0f, 0.0f, 0.0f}},
+	vertex_t{.pos{50.0f, -50.0f}, .color{0.0f, 1.0f, 0.0f}},
+	vertex_t{.pos{50.0f, 50.0f}, .color{0.0f, 0.0f, 1.0f}},
+	vertex_t{.pos{-50.0f, 50.0f}, .color{1.0f, 1.0f, 1.0f}}
 };
 
 qpArray< uint16, 6 > meshIndices {
@@ -53,9 +55,10 @@ qpVulkan::qpVulkan() { }
 qpVulkan::~qpVulkan() {
 	Cleanup();
 }
-
-void qpVulkan::Init( void * windowHandle ) {
+const qpWindow * windowForTesting = NULL;
+void qpVulkan::Init( void * windowHandle, const qpWindow * window ) {
 	m_windowHandle = windowHandle;
+	windowForTesting = window;
 	CreateInstance();
 	SetupDebugMessenger();
 	CreateSurface( windowHandle );
@@ -1109,19 +1112,81 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 
 void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	static qpTimePoint startTime = qpClock::Now();
+	static qpTimePoint lastTime = startTime;
 
 	qpTimePoint currentTime = qpClock::Now();
 	qpTimePoint timeDiff = ( currentTime - startTime );
-	const float time = timeDiff.AsSeconds();
+	qpTimePoint timeDelta = ( currentTime - lastTime );
+	lastTime = currentTime;
+	//const float time = timeDiff.AsSeconds();
+	const float deltaTime = timeDelta.AsSeconds();
 
 	int width;
 	int height;
 	GetWindowFramebufferSize( windowHandle, width, height );
 
+	static qpVec3 translation( 0.0f, 0.0f, 50.0f );
+	static qpVec3 rotation( 0.0f, 0.0f, 0.0f );
+
+
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_X ) ) {
+		rotation.y += 45.0f * deltaTime;
+	}
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_Z ) ) {
+		rotation.y -= 45.0f * deltaTime;
+	}
+
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_C ) ) {
+		rotation.x += 45.0f * deltaTime;
+	}
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_V ) ) {
+		rotation.x -= 45.0f * deltaTime;
+	}
+
+	qpMat4 orientation = qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
+
+	const float fwdSpeed = 100.0f;
+	const float rightSpeed = 100.0f;
+	const float upSpeed = 100.0f;
+	float forwardDir = 0.0f;
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_W ) ) {
+		forwardDir = 1.0f;
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_S ) ) {
+		forwardDir = -1.0f;
+	}
+	float rightDir = 0.0f;
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_D ) ) {
+		rightDir = 1.0f;
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_A ) ) {
+		rightDir = -1.0f;
+	}
+
+	float upDir = 0.0f;
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_Q ) ) {
+		upDir = -1.0f;
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_E ) ) {
+		upDir = 1.0f;
+	}
+	translation.x += orientation.Forward().x * fwdSpeed * deltaTime * forwardDir;
+	translation.y += orientation.Forward().y * fwdSpeed * deltaTime * forwardDir;
+	translation.z += orientation.Forward().z * fwdSpeed * deltaTime * forwardDir;
+
+	translation.x += orientation.Right().x * rightSpeed * deltaTime * rightDir;
+	translation.y += orientation.Right().y * rightSpeed * deltaTime * rightDir;
+	translation.z += orientation.Right().z * rightSpeed * deltaTime * rightDir;
+
+	translation.x += orientation.Up().x * upSpeed * deltaTime * upDir;
+	translation.y += orientation.Up().y * upSpeed * deltaTime * upDir;
+	translation.z += orientation.Up().z * upSpeed * deltaTime * upDir;
+
+	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::KEY_ENTER ) ) {
+		translation = qpVec3( 0.0f, 0.0f, -50.0f );
+	}
+
 	uniformBufferObject_t ubo {};
-	ubo.model = qpCreateRotationZ( time * 90.0f ) * qpCreateRotationX( 45.0f );
-	ubo.view = qpCreateTranslation( qpVec3 { 0.0f, 0.0f, -5.0f } ) * qpCreateRotationY( 180.0f );
-	ubo.projection = qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f );
+	ubo.model = ( qpCreateRotationY( 180.0f ) * qpCreateTranslation( qpVec3( 0.0f, 0.0f, 200.0f ) ) ).Transposed();
+	ubo.view = qpRotationAndTranslationInverse( orientation * qpCreateTranslation( translation ) ).Transposed();
+	ubo.projection = qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f ).Transposed();
 
 	qpCopy( static_cast< uniformBufferObject_t * >( mappedUBO ), 1, &ubo, 1 );
 }

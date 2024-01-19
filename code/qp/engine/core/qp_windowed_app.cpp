@@ -25,18 +25,18 @@ void qpWindowedApp::OnInit() {
 	} );
 	m_vulkan = qpCreateUnique< qpVulkan >();
 
-	m_vulkan->Init( m_window->GetHandle() );
+	m_vulkan->Init( m_window->GetHandle(), m_window.Raw() );
 }
 
 void qpWindowedApp::OnUpdate() {
 	m_vulkan->DrawFrame();
 	m_window->OnUpdate();
 
-	static qpTimePoint timeLast = qpClock::Now();
-	qpTimePoint time = qpClock::Now();
-	qpTimePoint deltaTime = ( time - timeLast );
-	timeLast = time;
-	qpDebug::Info( "Time: %lld", deltaTime.AsFPS() );
+	//static qpTimePoint timeLast = qpClock::Now();
+	//qpTimePoint time = qpClock::Now();
+	//qpTimePoint deltaTime = ( time - timeLast );
+	//timeLast = time;
+	//qpDebug::Info( "Time: %lld", deltaTime.AsFPS() );
 }
 
 void qpWindowedApp::OnCleanup() {
