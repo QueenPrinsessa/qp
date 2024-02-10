@@ -1175,17 +1175,11 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_E ) ) {
 		upDir = 1.0f;
 	}
-	translation.x += orientation.Forward().x * fwdSpeed * deltaTime * forwardDir;
-	translation.y += orientation.Forward().y * fwdSpeed * deltaTime * forwardDir;
-	translation.z += orientation.Forward().z * fwdSpeed * deltaTime * forwardDir;
+	translation += orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
 
-	translation.x += orientation.Right().x * rightSpeed * deltaTime * rightDir;
-	translation.y += orientation.Right().y * rightSpeed * deltaTime * rightDir;
-	translation.z += orientation.Right().z * rightSpeed * deltaTime * rightDir;
+	translation += orientation.Right() * rightSpeed * deltaTime * rightDir;
 
-	translation.x += g_vec3Up.x * upSpeed * deltaTime * upDir;
-	translation.y += g_vec3Up.y * upSpeed * deltaTime * upDir;
-	translation.z += g_vec3Up.z * upSpeed * deltaTime * upDir;
+	translation += g_vec3Up * upSpeed * deltaTime * upDir;
 
 	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::KEY_ENTER ) ) {
 		translation = qpVec3( 0.0f, 0.0f, -50.0f );

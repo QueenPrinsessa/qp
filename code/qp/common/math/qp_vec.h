@@ -80,6 +80,51 @@ VEC qpVecBase< T, VEC >::operator-() const {
 	return result;
 }
 
+template< typename T, typename VEC >
+inline VEC operator-=( qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+	for ( int index = 0; index < lhs.NumElements(); ++index ) {
+		lhs[ index ] -= rhs[ index ];
+	}
+	return lhs.CRTP();
+}
+
+template< typename T, typename VEC >
+inline VEC operator-( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+	VEC result( lhs.CRTP() );
+	result -= rhs;
+	return result;
+}
+
+template< typename T, typename VEC >
+inline VEC operator+=( qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+	for ( int index = 0; index < lhs.NumElements(); ++index ) {
+		lhs[ index ] += rhs[ index ];
+	}
+	return lhs.CRTP();
+}
+
+template< typename T, typename VEC >
+inline VEC operator+( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+	VEC result( lhs.CRTP() );
+	result += rhs;
+	return result;
+}
+
+template< typename T, typename VEC >
+inline VEC operator*=( qpVecBase< T, VEC > & lhs, const T & rhs ) {
+	for ( int index = 0; index < lhs.NumElements(); ++index ) {
+		lhs[ index ] *= rhs;
+	}
+	return lhs.CRTP();
+}
+
+template< typename T, typename VEC >
+inline VEC operator*( const qpVecBase< T, VEC > & lhs, const T & rhs ) {
+	VEC result( lhs.CRTP() );
+	result *= rhs;
+	return result;
+}
+
 template < typename T, int LENGTH >
 class qpVec : public qpVecBase< T, qpVec< T, LENGTH > > {
 public:
