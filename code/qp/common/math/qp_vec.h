@@ -159,6 +159,8 @@ public:
 	};
 };
 
+//TODO: Add operators
+
 template < typename T, typename VEC >
 T qpDot( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
 	T dot = static_cast< T >( 0 );
@@ -166,6 +168,13 @@ T qpDot( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
 		dot += lhs.CRTP().m_data[index] * rhs.CRTP().m_data[index];
 	}
 	return dot;
+}
+
+template < typename T >
+qpVec< T, 3 > qpCross( const qpVec< T, 3 > & lhs, const qpVec< T, 3 > & rhs ) {
+	return qpVec< T, 3 >( ( ( lhs.y * rhs.z ) - ( lhs.z * rhs.y ) ),
+						  ( ( lhs.z * rhs.x ) - ( lhs.x * rhs.z ) ),
+						  ( ( lhs.x * rhs.y ) - ( lhs.y * rhs.x ) ) );
 }
 
 
@@ -184,6 +193,10 @@ using qpVec4d = qpVec< double, 4 >;
 using qpVec4i = qpVec< int, 4 >;
 using qpVec4ui = qpVec< unsigned int, 4 >;
 
-#define QP_VEC2_ZERO qpVec2( 0.0f, 0.0f, 0.0f )
-#define QP_VEC3_ZERO qpVec3( 0.0f, 0.0f, 0.0f )
-#define QP_VEC4_ZERO qpVec4( 0.0f, 0.0f, 0.0f )
+static const qpVec2 g_vec2Zero { 0.0f };
+static const qpVec3 g_vec3Zero { 0.0f };
+static const qpVec4 g_vec4Zero { 0.0f };
+
+static const qpVec3 g_vec3Right { 1.0f, 0.0f, 0.0f };
+static const qpVec3 g_vec3Up { 0.0f, 1.0f, 0.0f };
+static const qpVec3 g_vec3Forward { 0.0f, 0.0f, 1.0f };

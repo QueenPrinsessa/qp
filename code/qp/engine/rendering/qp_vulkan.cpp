@@ -7,6 +7,7 @@
 #include "qp/common/containers/qp_array.h"
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/containers/qp_set.h"
+#include "qp/common/math/qp_quat.h"
 #include "qp/common/time/qp_clock.h"
 #include "qp/engine/window/qp_keyboard.h"
 #include "qp/engine/window/qp_window.h"
@@ -1143,7 +1144,14 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 		rotation.x -= 45.0f * deltaTime;
 	}
 
-	qpMat4 orientation = qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_B ) ) {
+		rotation.z += 45.0f * deltaTime;
+	}
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_N ) ) {
+		rotation.z -= 45.0f * deltaTime;
+	}
+
+	qpQuat orientation( rotation.x, rotation.y, rotation.z ); //qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
 
 	const float fwdSpeed = 100.0f;
 	const float rightSpeed = 100.0f;
@@ -1175,9 +1183,9 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	translation.y += orientation.Right().y * rightSpeed * deltaTime * rightDir;
 	translation.z += orientation.Right().z * rightSpeed * deltaTime * rightDir;
 
-	translation.x += orientation.Up().x * upSpeed * deltaTime * upDir;
-	translation.y += orientation.Up().y * upSpeed * deltaTime * upDir;
-	translation.z += orientation.Up().z * upSpeed * deltaTime * upDir;
+	translation.x += g_vec3Up.x * upSpeed * deltaTime * upDir;
+	translation.y += g_vec3Up.y * upSpeed * deltaTime * upDir;
+	translation.z += g_vec3Up.z * upSpeed * deltaTime * upDir;
 
 	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::KEY_ENTER ) ) {
 		translation = qpVec3( 0.0f, 0.0f, -50.0f );
@@ -1185,7 +1193,7 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 
 	uniformBufferObject_t ubo {};
 	ubo.model = ( qpCreateRotationY( 180.0f ) * qpCreateTranslation( qpVec3( 0.0f, 0.0f, 200.0f ) ) ).Transposed();
-	ubo.view = qpRotationAndTranslationInverse( orientation * qpCreateTranslation( translation ) ).Transposed();
+	ubo.view = qpRotationAndTranslationInverse( orientation.ToMat4() * qpCreateTranslation( translation ) ).Transposed();
 	ubo.projection = qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f ).Transposed();
 
 	qpCopy( static_cast< uniformBufferObject_t * >( mappedUBO ), 1, &ubo, 1 );

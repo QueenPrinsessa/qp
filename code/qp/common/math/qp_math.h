@@ -2,9 +2,7 @@
 #include "qp/common/debug/qp_debug.h"
 #include <cmath>
 
-class qpMath {
-public:
-
+namespace qpMath {
 	constexpr static inline float Pi = 3.14159265359f;
 
 	template <typename T>
@@ -35,10 +33,16 @@ public:
 	static T Sin( const T & n );
 
 	template < typename T >
+	static T Asin( const T & n );
+
+	template < typename T >
 	static T Tan( const T & n );
 
 	template < typename T >
 	static T Atan( const T & n );
+
+	template < typename T >
+	static T Atan2( const T & y, const T & x );
 
 	template < typename T >
 	static T Pow( const T & a, const T & b );
@@ -60,7 +64,12 @@ public:
 
 	template < typename T >
 	static T RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > );
-private:
+
+	template < typename T, typename S >
+	static T Lerp( const T & a, const T & b, const S & time ) requires ( std::is_floating_point_v< S > );
+
+	template < typename T >
+	static T CopySign( const T & magnitude, const T & sign );
 };
 
 template < typename T >
@@ -111,6 +120,11 @@ T qpMath::Sin( const T & n ) {
 }
 
 template< typename T >
+T qpMath::Asin( const T & n ) {
+	return static_cast< T >( std::asin( n ) );
+}
+
+template< typename T >
 T qpMath::Tan( const T & n ) {
 	return static_cast< T >( std::tan( n ) );
 }
@@ -118,6 +132,11 @@ T qpMath::Tan( const T & n ) {
 template< typename T >
 T qpMath::Atan( const T & n ) {
 	return static_cast< T >( std::atan( n ) );
+}
+
+template< typename T >
+T qpMath::Atan2( const T & y, const T & x ) {
+	return std::atan2( y, x );
 }
 
 template< typename T >
@@ -153,4 +172,14 @@ T qpMath::Log2( const T & n ) requires ( std::is_floating_point_v<T> ) {
 template < typename T >
 T qpMath::RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > ) {
 	return qpMath::Pow( static_cast< T >( 2 ), qpMath::Ceil( qpMath::Log( n ) / qpMath::Log( static_cast< T >( 2 ) ) ) );
+}
+
+template< typename T, typename S >
+T qpMath::Lerp( const T & a, const T & b, const S & time ) requires ( std::is_floating_point_v< S > ) {
+	return a + ( b - a ) * time;
+}
+
+template< typename T >
+T qpMath::CopySign( const T & magnitude, const T & sign ) {
+	return std::copysign( magnitude, sign );
 }
