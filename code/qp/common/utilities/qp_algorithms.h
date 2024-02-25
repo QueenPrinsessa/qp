@@ -26,7 +26,11 @@ T * qpBinarySearch( T * begin, T * end, const T & value ) {
 }
 
 template < typename T >
-int qpCopyUnchecked( T * to, const T * from, int num ) {
+uint64 qpCopyUnchecked( T * to, const T * from, const uint64 num ) {
+	if ( num == 0 ) {
+		return num;
+	}
+
 	if constexpr ( qpIsTrivialToCopy< T > ) {
 		memcpy( to, from, num * sizeof( T ) );
 	} else {
@@ -40,7 +44,7 @@ int qpCopyUnchecked( T * to, const T * from, int num ) {
 }
 
 template < typename T >
-int qpCopy( T * to, int toCount, const T * from, int fromCount ) {
+uint64 qpCopy( T * to, uint64 toCount, const T * from, const uint64 fromCount ) {
 	QP_ASSERT( toCount >= fromCount );
 
 	if( toCount < fromCount ) {
@@ -52,6 +56,51 @@ int qpCopy( T * to, int toCount, const T * from, int fromCount ) {
 	}
 
 	return qpCopyUnchecked( to, from, fromCount );
+}
+
+static uint64 qpCopyBytesUnchecked( void * to, const void * from, const uint64 numBytes ) {
+	if ( numBytes == 0 ) {
+		return numBytes;
+	}
+	memcpy( to, from, numBytes );
+	return numBytes;
+}
+
+static uint64 qpCopyBytes( void * to, uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
+	QP_ASSERT( toSizeBytes >= numBytes );
+
+	if ( toSizeBytes < numBytes ) {
+		return 0;
+	}
+
+	if ( to == NULL || from == NULL ) {
+		return 0;
+	}
+
+	return qpCopyBytesUnchecked( to, from, numBytes );
+}
+
+static uint64 qpCopyBytesOverlappedUnchecked( void * to, const void * from, const uint64 numBytes ) {
+	if ( numBytes == 0 ) {
+		return numBytes;
+	}
+	memmove( to, from, numBytes );
+	return numBytes;
+}
+
+
+static uint64 qpCopyBytesOverlapped( void * to, uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
+	QP_ASSERT( toSizeBytes >= numBytes );
+
+	if ( toSizeBytes < numBytes ) {
+		return 0;
+	}
+
+	if ( to == NULL || from == NULL ) {
+		return 0;
+	}
+
+	return qpCopyBytesOverlappedUnchecked( to, from, numBytes );
 }
 
 template < typename T >
@@ -83,3 +132,10 @@ constexpr size_t qpSizeOfBiggestType_Internal() {
 
 template < typename ... ARGS >
 constexpr size_t qpSizeOfBiggestTypeValue = qpSizeOfBiggestType_Internal< ARGS... >();
+
+template < typename TO, typename FROM >
+static TO qpVerifyStaticCast( const FROM a ) {
+	TO result = static_cast< TO >( a );
+	QP_ASSERT_MSG( static_cast< FROM >( result ) == a, "Truncation resulted in loss of data" );
+	return result;
+}

@@ -9,6 +9,8 @@
 #include "qp/common/containers/qp_set.h"
 #include "qp/common/math/qp_quat.h"
 #include "qp/common/time/qp_clock.h"
+#include "qp/engine/resources/image/qp_image.h"
+#include "qp/engine/resources/loaders/qp_tga_loader.h"
 #include "qp/engine/window/qp_keyboard.h"
 #include "qp/engine/window/qp_window.h"
 #include "vulkan/vulkan.h"
@@ -29,10 +31,10 @@ static qpList< const char * > deviceExtensions {
 };
 
 qpArray< vertex_t, 4 > meshVertices {
-	vertex_t{.pos{-50.0f, -50.0f}, .color{1.0f, 0.0f, 0.0f}},
-	vertex_t{.pos{50.0f, -50.0f}, .color{0.0f, 1.0f, 0.0f}},
-	vertex_t{.pos{50.0f, 50.0f}, .color{0.0f, 0.0f, 1.0f}},
-	vertex_t{.pos{-50.0f, 50.0f}, .color{1.0f, 1.0f, 1.0f}}
+	vertex_t{.pos{-50.0f, -50.0f}, .color{1.0f, 0.0f, 0.0f}, .texCoord{1.0f, 1.0f}}, // top right
+	vertex_t{.pos{50.0f, -50.0f}, .color{0.0f, 1.0f, 0.0f}, .texCoord{0.0f, 1.0f}}, // top left
+	vertex_t{.pos{50.0f, 50.0f}, .color{0.0f, 0.0f, 1.0f}, .texCoord{0.0f, 0.0f}}, // bottom left
+	vertex_t{.pos{-50.0f, 50.0f}, .color{1.0f, 1.0f, 1.0f}, .texCoord{1.0f, 0.0f}} // bottom right
 };
 
 qpArray< uint16, 6 > meshIndices {
@@ -72,6 +74,9 @@ void qpVulkan::Init( void * windowHandle, const qpWindow * window ) {
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
 	CreateCommandPool();
+	CreateTextureImage();
+	CreateTextureImageView();
+	CreateTextureSampler();
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 	CreateUniformBuffers();
@@ -109,6 +114,14 @@ void qpVulkan::Cleanup() {
 	vkDestroyDescriptorSetLayout( m_device, m_descriptorSetLayout, NULL );
 
 	CleanupSwapchain();
+
+	vkDestroySampler( m_device, m_textureSampler, NULL );
+	vkDestroyImageView( m_device, m_textureImageView, NULL );
+
+	vkDestroyImageView( m_device, m_textureImageView, NULL );
+
+	vkDestroyImage( m_device, m_textureImage, NULL );
+	vkFreeMemory( m_device, m_textureImageMemory, NULL );
 
 	vkDestroyDevice( m_device, NULL );
 	vkDestroySurfaceKHR( m_instance, m_surface, NULL );
@@ -169,7 +182,7 @@ void qpVulkan::CreateInstance() {
 		createInfo.enabledLayerCount = 0;
 	}
 
-	createInfo.enabledExtensionCount = enabledExtensions.Length();
+	createInfo.enabledExtensionCount = qpVerifyStaticCast< uint32 >( enabledExtensions.Length() );
 	createInfo.ppEnabledExtensionNames = enabledExtensions.Data();
 
 	VkResult result = vkCreateInstance( &createInfo, NULL, &m_instance );
@@ -286,7 +299,10 @@ bool qpVulkan::IsDeviceSuitable( VkPhysicalDevice device ) {
 		swapchainAdequate = !swapchainSupportDetails.formats.IsEmpty() && !swapchainSupportDetails.presentModes.IsEmpty();
 	}
 
-	return allIndices && extensionsSupported && swapchainAdequate;
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures( device, &supportedFeatures );
+
+	return allIndices && extensionsSupported && swapchainAdequate && supportedFeatures.samplerAnisotropy;
 }
 
 bool qpVulkan::HasAllQueueFamilyIndices( const queueFamilyIndices_t & indices ) const {
@@ -334,13 +350,14 @@ void qpVulkan::CreateLogicalDevice() {
 	}
 
 	VkPhysicalDeviceFeatures deviceFeatures {};
+	deviceFeatures.samplerAnisotropy = VK_TRUE;
 
 	VkDeviceCreateInfo createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.queueCreateInfoCount = queueCreateInfos.Length();
+	createInfo.queueCreateInfoCount = qpVerifyStaticCast< uint32 >( queueCreateInfos.Length() );
 	createInfo.pQueueCreateInfos = queueCreateInfos.Data();
 	createInfo.pEnabledFeatures = &deviceFeatures;
-	createInfo.enabledExtensionCount = deviceExtensions.Length();
+	createInfo.enabledExtensionCount = qpVerifyStaticCast< uint32 >( deviceExtensions.Length() );
 	createInfo.ppEnabledExtensionNames = deviceExtensions.Data();
 
 	if ( vkCreateDevice( m_physicalDevice, &createInfo, NULL, &m_device ) ) {
@@ -524,24 +541,7 @@ void qpVulkan::CreateImageViews() {
 	m_swapchainImageViews.Resize( m_swapchainImages.Length() );
 
 	for( int index = 0; index < m_swapchainImages.Length(); index++ ) {
-		VkImageViewCreateInfo createInfo {};
-		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfo.image = m_swapchainImages[ index ];
-		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		createInfo.format = m_swapchainImageFormat;
-		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		createInfo.subresourceRange.baseMipLevel = 0;
-		createInfo.subresourceRange.levelCount = 1;
-		createInfo.subresourceRange.baseArrayLayer = 0;
-		createInfo.subresourceRange.layerCount = 1;
-
-		if ( vkCreateImageView( m_device, &createInfo, NULL, &m_swapchainImageViews[ index ] ) != VK_SUCCESS ) {
-			ThrowOnError( "Failed to create image views!" );
-		}
+		m_swapchainImageViews[ index ] = CreateImageView( m_swapchainImages[ index ], m_swapchainImageFormat );
 	}
 }
 
@@ -595,10 +595,18 @@ void qpVulkan::CreateDescriptorSetLayout() {
 	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	uboLayoutBinding.pImmutableSamplers = NULL;
 
+	VkDescriptorSetLayoutBinding samplerLayoutBinding {};
+	samplerLayoutBinding.binding = 1;
+	samplerLayoutBinding.descriptorCount = 1;
+	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	samplerLayoutBinding.pImmutableSamplers = NULL;
+	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	qpArray< VkDescriptorSetLayoutBinding, 2 > bindings { uboLayoutBinding, samplerLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo {};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = 1;
-	layoutInfo.pBindings = &uboLayoutBinding;
+	layoutInfo.bindingCount = 2;
+	layoutInfo.pBindings = bindings.Data();
 
 	if ( vkCreateDescriptorSetLayout( m_device, &layoutInfo, NULL, &m_descriptorSetLayout ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to create descriptor set layout!" );
@@ -807,7 +815,7 @@ void qpVulkan::CreateCommandBuffers() {
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = m_commandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandBufferCount = m_commandBuffers.Length();
+	allocInfo.commandBufferCount = qpVerifyStaticCast< uint32 >( m_commandBuffers.Length() );
 
 	if ( vkAllocateCommandBuffers( m_device, &allocInfo, m_commandBuffers.Data() ) != VK_SUCCESS ) {
 		ThrowOnError( "Failed to allocate command buffers!" );
@@ -982,14 +990,16 @@ void qpVulkan::CreateUniformBuffers() {
 }
 
 void qpVulkan::CreateDescriptorPool() {
-	VkDescriptorPoolSize poolSize {};
-	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSize.descriptorCount = static_cast< uint32 >( MAX_FRAMES_IN_FLIGHT );
+	qpArray< VkDescriptorPoolSize, 2 > poolSizes {};
+	poolSizes[ 0 ].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[ 0 ].descriptorCount = MAX_FRAMES_IN_FLIGHT;
+	poolSizes[ 1 ].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[ 1 ].descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
 	VkDescriptorPoolCreateInfo poolInfo {};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = 1;
-	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.poolSizeCount = poolSizes.Length();
+	poolInfo.pPoolSizes = poolSizes.Data();
 	poolInfo.maxSets = static_cast< uint32_t >( MAX_FRAMES_IN_FLIGHT );
 
 	if ( vkCreateDescriptorPool( m_device, &poolInfo, NULL, &m_descriptorPool ) != VK_SUCCESS ) {
@@ -1016,19 +1026,29 @@ void qpVulkan::CreateDescriptorSets() {
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof( uniformBufferObject_t );
 
-		VkWriteDescriptorSet descriptorWrite {};
-		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrite.dstSet = m_descriptorSets[ index ];
-		descriptorWrite.dstBinding = 0;
-		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = NULL;
-		descriptorWrite.pTexelBufferView = NULL;
+		VkDescriptorImageInfo imageInfo {};
+		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageInfo.imageView = m_textureImageView;
+		imageInfo.sampler = m_textureSampler;
 
-		vkUpdateDescriptorSets( m_device, 1, &descriptorWrite, 0, NULL);
+		qpArray< VkWriteDescriptorSet, 2 > descriptorWrites {};
+		descriptorWrites[ 0 ].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[ 0 ].dstSet = m_descriptorSets[ index ];
+		descriptorWrites[ 0 ].dstBinding = 0;
+		descriptorWrites[ 0 ].dstArrayElement = 0;
+		descriptorWrites[ 0 ].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptorWrites[ 0 ].descriptorCount = 1;
+		descriptorWrites[ 0 ].pBufferInfo = &bufferInfo;
 
+		descriptorWrites[ 1 ].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[ 1 ].dstSet = m_descriptorSets[ index ];
+		descriptorWrites[ 1 ].dstBinding = 1;
+		descriptorWrites[ 1 ].dstArrayElement = 0;
+		descriptorWrites[ 1 ].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[ 1 ].descriptorCount = 1;
+		descriptorWrites[ 1 ].pImageInfo = &imageInfo;
+
+		vkUpdateDescriptorSets( m_device, descriptorWrites.Length(), descriptorWrites.Data(), 0, NULL );
 	}
 
 }
@@ -1059,7 +1079,121 @@ void qpVulkan::CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, V
 	vkBindBufferMemory( m_device, outBuffer, outBufferMemory, 0 );
 }
 
-void qpVulkan::CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size ) {
+void qpVulkan::CreateImage( uint32 width, uint32 height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory ) {
+	VkImageCreateInfo imageInfo {};
+	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	imageInfo.imageType = VK_IMAGE_TYPE_2D;
+	imageInfo.extent.width = width;
+	imageInfo.extent.height = height;
+	imageInfo.extent.depth = 1;
+	imageInfo.mipLevels = 1;
+	imageInfo.arrayLayers = 1;
+	imageInfo.format = format;
+	imageInfo.tiling = tiling;
+	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	imageInfo.usage = usage;
+	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if ( vkCreateImage( m_device, &imageInfo, nullptr, &image ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create image!" );
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetImageMemoryRequirements( m_device, image, &memRequirements );
+
+	VkMemoryAllocateInfo allocInfo {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType( memRequirements.memoryTypeBits, properties );
+
+	if ( vkAllocateMemory( m_device, &allocInfo, nullptr, &imageMemory ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to allocate image memory!" );
+	}
+
+	vkBindImageMemory( m_device, image, imageMemory, 0 );
+}
+
+VkImageView qpVulkan::CreateImageView( VkImage image, VkFormat format ) {
+	VkImageViewCreateInfo viewInfo {};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = format;
+	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+
+	VkImageView imageView;
+	if ( vkCreateImageView( m_device, &viewInfo, NULL, &imageView ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create texture image view!" );
+	}
+
+	return imageView;
+}
+
+void qpVulkan::CreateTextureImage() {
+	qpFilePath tgaPath = "user/kat.tga";
+	qpTGALoader tgaLoader;
+	const qpImage * katImage = static_cast< const qpImage * >( tgaLoader.LoadResource( tgaPath ) );
+	if ( tgaLoader.HasError() ) {
+		qpDebug::Error( "Failed to load resource \"%s\" with error: %s", tgaPath.c_str(), tgaLoader.GetLastError().c_str() );
+		ThrowOnError( "Failed to create image." );
+	}
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	CreateBuffer( katImage->GetSize(), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory );
+	void * data;
+	vkMapMemory( m_device, stagingBufferMemory, 0, katImage->GetSize(), 0, &data );
+	memcpy( data, katImage->GetData(), katImage->GetSize() );
+	vkUnmapMemory( m_device, stagingBufferMemory );
+
+	CreateImage( static_cast< uint32 >( katImage->GetWidth() ), static_cast< uint32 >( katImage->GetHeight() ), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory );
+
+	TransitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+	CopyBufferToImage( stagingBuffer, m_textureImage, static_cast< uint32 >( katImage->GetWidth() ), static_cast< uint32 >( katImage->GetHeight() ) );
+	TransitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+
+	vkDestroyBuffer( m_device, stagingBuffer, NULL );
+	vkFreeMemory( m_device, stagingBufferMemory, NULL );
+}
+
+void qpVulkan::CreateTextureImageView() {
+	m_textureImageView = CreateImageView( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB );
+}
+
+void qpVulkan::CreateTextureSampler() {
+	VkSamplerCreateInfo samplerInfo {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.anisotropyEnable = VK_TRUE;
+
+	VkPhysicalDeviceProperties properties {};
+	vkGetPhysicalDeviceProperties( m_physicalDevice, &properties );
+	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 0.0f;
+
+	if ( vkCreateSampler( m_device, &samplerInfo, NULL, &m_textureSampler ) != VK_SUCCESS ) {
+		ThrowOnError( "Failed to create texture sampler!" );
+	}
+}
+
+VkCommandBuffer qpVulkan::BeginSingleTimeCommands() {
 	VkCommandBufferAllocateInfo allocInfo {};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1074,13 +1208,10 @@ void qpVulkan::CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, Vk
 	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 	vkBeginCommandBuffer( commandBuffer, &beginInfo );
+	return commandBuffer;
+}
 
-	VkBufferCopy copyRegion {};
-	copyRegion.srcOffset = 0;
-	copyRegion.dstOffset = 0;
-	copyRegion.size = size;
-	vkCmdCopyBuffer( commandBuffer, sourceBuffer, destinationBuffer, 1, &copyRegion );
-
+void qpVulkan::EndSingleTimeCommands( VkCommandBuffer commandBuffer ) {
 	vkEndCommandBuffer( commandBuffer );
 
 	VkSubmitInfo submitInfo {};
@@ -1092,6 +1223,83 @@ void qpVulkan::CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, Vk
 	vkQueueWaitIdle( m_graphicsQueue );
 
 	vkFreeCommandBuffers( m_device, m_commandPool, 1, &commandBuffer );
+}
+
+void qpVulkan::TransitionImageLayout( VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout ) {
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+	VkImageMemoryBarrier barrier {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+
+	VkPipelineStageFlags sourceStage = 0;
+	VkPipelineStageFlags destinationStage = 0;
+
+	if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL ) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	} else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	} else {
+		ThrowOnError( "Unsupported layout transition!" );
+	}
+
+	vkCmdPipelineBarrier( commandBuffer, sourceStage, destinationStage, 0, 0, NULL, 0, NULL, 1, &barrier );
+
+	EndSingleTimeCommands( commandBuffer );
+}
+
+void qpVulkan::CopyBufferToImage( VkBuffer buffer, VkImage image, uint32 width, uint32 height ) {
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+	VkBufferImageCopy region {};
+	region.bufferOffset = 0;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+
+	region.imageOffset = { 0, 0, 0 };
+	region.imageExtent = {
+		width,
+		height,
+		1
+	};
+
+	vkCmdCopyBufferToImage( commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region );
+
+	EndSingleTimeCommands( commandBuffer );
+}
+
+void qpVulkan::CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size ) {
+	VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+
+	VkBufferCopy copyRegion {};
+	copyRegion.srcOffset = 0;
+	copyRegion.dstOffset = 0;
+	copyRegion.size = size;
+	vkCmdCopyBuffer( commandBuffer, sourceBuffer, destinationBuffer, 1, &copyRegion );
+
+	EndSingleTimeCommands( commandBuffer );
 }
 
 uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties ) {

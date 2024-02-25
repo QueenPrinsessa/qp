@@ -41,7 +41,7 @@ bool qpFile::Open( const qpFilePath & filePath, fileAccessMode_t accessMode, fil
 	QP_ASSERT_MSG( m_handle == NULL, "Close the file before opening a new one!" );
 
 	if ( m_handle == NULL ) {
-		m_handle = CreateFileA( filePath.c_str(), qpFileAccessModeToWin32( accessMode ), qpFileShareModeToWin32( shareMode ), NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+		m_handle = CreateFileA( filePath.c_str(), qpFileAccessModeToWin32( accessMode ), qpFileShareModeToWin32( shareMode ), NULL, ( accessMode != fileAccessMode_t::QP_FILE_READ ) ? OPEN_ALWAYS : OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 
 		if( m_handle == INVALID_HANDLE_VALUE ) {
 			m_handle = NULL;
@@ -57,34 +57,34 @@ bool qpFile::Open( const qpFilePath & filePath, fileAccessMode_t accessMode, fil
 	return false;
 }
 
-bool qpFile::Read( qpList<byte> & buffer ) const {
-	int fileSize = GetSize();
+bool qpFile::Read( qpList< byte > & buffer ) const {
+	const uint64 fileSize = GetSize();
 	QP_ASSERT( fileSize != -1 );
 	buffer.Resize( fileSize );
 	return Read( buffer.Data(), buffer.Length() ) != QP_FILE_FAILURE;
 }
 
-int qpFile::Read( void * buffer, int size ) const {
+uint64 qpFile::Read( void * buffer, const uint64 size ) const {
 	QP_ASSERT( m_handle != NULL );
 	QP_ASSERT( m_accessMode & QP_FILE_READ || m_accessMode & QP_FILE_WRITE );
 	DWORD bytesRead = 0;
-	BOOL result = ReadFile( m_handle, buffer, size, &bytesRead, NULL );
+	BOOL result = ReadFile( m_handle, buffer, qpVerifyStaticCast< DWORD >( size ), &bytesRead, NULL );
 	if( result == FALSE ) {
 		return QP_FILE_FAILURE;
 	}
 	return bytesRead;
 }
 
-bool qpFile::Write( const qpList<byte> & buffer ) const {
+bool qpFile::Write( const qpList< byte > & buffer ) const {
 	return Write( buffer.Data(), buffer.Length() );
 }
 
-int qpFile::Write( const void * buffer, int size ) const {
+uint64 qpFile::Write( const void * buffer, const uint64 size ) const {
 	QP_ASSERT( m_handle != NULL );
 	QP_ASSERT( m_accessMode & QP_FILE_WRITE );
 
 	DWORD bytesWritten = 0;
-	BOOL result = WriteFile( m_handle, buffer, size, &bytesWritten, NULL );
+	BOOL result = WriteFile( m_handle, buffer, qpVerifyStaticCast< DWORD >( size ), &bytesWritten, NULL );
 	if( result == FALSE ) {
 		return QP_FILE_FAILURE;
 	}
@@ -95,15 +95,15 @@ bool qpFile::IsOpen() const {
 	return m_handle != NULL;
 }
 
-int qpFile::GetSize() const {
+uint64 qpFile::GetSize() const {
 	if ( m_handle == NULL ) {
 		return QP_FILE_FAILURE;
 	}
 	LARGE_INTEGER size;
-	if ( GetFileSizeEx( m_handle, &size ) == false ) {
+	if ( GetFileSizeEx( m_handle, &size ) == FALSE ) {
 		return QP_FILE_FAILURE;
 	}
-	return static_cast< int >( size.QuadPart );
+	return qpVerifyStaticCast< uint64 >( size.QuadPart );
 }
 
 void qpFile::Close() {

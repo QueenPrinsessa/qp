@@ -28,7 +28,7 @@ enum fileShareMode_t : uint32 {
 	QP_FILE_SHARE_READ_WRITE = QP_FILE_SHARE_READ | QP_FILE_SHARE_WRITE
 };
 
-#define QP_FILE_FAILURE -1
+#define QP_FILE_FAILURE ( ~0u )
 
 /**
  * \brief A file for synchronous read/write.
@@ -36,18 +36,18 @@ enum fileShareMode_t : uint32 {
 class qpFile {
 public:
 	qpFile() {}
-	~qpFile() = default;
+	virtual ~qpFile() = default;
 
 	bool Open( const qpFilePath & filePath, fileAccessMode_t accessMode );
 	bool Open( const qpFilePath & filePath, fileAccessMode_t accessMode, fileShareMode_t shareMode );
 	bool Read( qpList< byte > & buffer ) const;
-	int Read( void * buffer, int size ) const;
+	uint64 Read( void * buffer, const uint64 size ) const;
 	bool Write( const qpList< byte > & buffer ) const;
-	int Write( const void * buffer, int size ) const; 
+	uint64 Write( const void * buffer, const uint64 size ) const;
 
 	bool IsOpen() const;
 
-	int  GetSize() const;
+	uint64  GetSize() const;
 	void Close();
 
 	fileAccessMode_t GetAccessMode() const { return m_accessMode; }

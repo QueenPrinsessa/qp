@@ -8,6 +8,9 @@ workspace "qp"
         "release", -- optimized internal build with symbols
         "retail" -- optimized without symbols, for distribution.
     }
+    disablewarnings {
+        "4505"
+    }
     --platform naming:
     --dev builds: platform_graphics_dev_architecture
     --builds: platform_graphics_architectures

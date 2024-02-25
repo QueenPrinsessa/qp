@@ -4,4 +4,5 @@
 struct vertex_t {
 	qpVec2 pos;
 	qpVec3 color;
+	qpVec2 texCoord;
 };

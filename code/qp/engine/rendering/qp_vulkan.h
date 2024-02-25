@@ -57,6 +57,15 @@ private:
 	void CreateDescriptorPool();
 	void CreateDescriptorSets();
 	void CreateBuffer( VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer & outBuffer, VkDeviceMemory & outBufferMemory );
+	void CreateImage( uint32 width, uint32 height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage & image, VkDeviceMemory & imageMemory );
+	VkImageView CreateImageView( VkImage image, VkFormat format );
+	void CreateTextureImage();
+	void CreateTextureImageView();
+	void CreateTextureSampler();
+	[[ nodiscard ]] VkCommandBuffer BeginSingleTimeCommands();
+	void EndSingleTimeCommands( VkCommandBuffer commandBuffer );
+	void TransitionImageLayout( VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout );
+	void CopyBufferToImage( VkBuffer buffer, VkImage image, uint32 width, uint32 height );
 	void CopyBuffer( VkBuffer sourceBuffer, VkBuffer destinationBuffer, VkDeviceSize size );
 	uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties );
 	VkShaderModule CreateShaderModule( const qpList< byte > & shaderCode );
@@ -93,6 +102,10 @@ private:
 	qpList< VkBuffer > m_uniformBuffers;
 	qpList< VkDeviceMemory > m_uniformBuffersMemory;
 	qpList< void * > m_uniformBuffersMapped;
+	VkImage m_textureImage = NULL;
+	VkDeviceMemory m_textureImageMemory = NULL;
+	VkImageView m_textureImageView = NULL;
+	VkSampler m_textureSampler = NULL;
 	int m_currentFrame = 0;
 	bool m_framebufferResized = false;
 

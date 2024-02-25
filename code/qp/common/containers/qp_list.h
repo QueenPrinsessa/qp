@@ -33,23 +33,23 @@ public:
 	T * Data() const { return m_data; }
 
 	void ShrinkToFit();
-	void Reserve( int capacity );
-	void Resize( int length );
+	void Reserve( const uint64 capacity );
+	void Resize( const uint64 length );
 	void Clear();
 
-	int Length() const { return m_length; }
+	uint64 Length() const { return m_length; }
 	bool IsEmpty() const { return m_length == 0; }
 
-	T & operator[]( int index );
-	const T & operator[]( int index ) const;
+	T & operator[]( const uint64 index );
+	const T & operator[]( const uint64 index ) const;
 
 	qpList & operator=( const qpList & other );
 	qpList & operator=( qpList && other ) noexcept;
 
 	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ m_length ] ) )
 private:
-	int m_capacity = 0;
-	int m_length = 0;
+	uint64 m_capacity = 0;
+	uint64 m_length = 0;
 	T * m_data = NULL;
 };
 
@@ -74,7 +74,7 @@ qpList<T>::qpList( int size, const T & initValue ) {
 template< typename T >
 qpList< T >::qpList( std::initializer_list< T > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
-	m_length = qpCopy( m_data, m_capacity, initializerList.begin(), static_cast< int >( initializerList.size() ) );
+	m_length = qpCopy( m_data, static_cast< uint64 >( m_capacity ), initializerList.begin(), initializerList.size() );
 }
 
 template< typename T >
@@ -150,7 +150,7 @@ void qpList< T >::ShrinkToFit() {
 }
 
 template< typename T >
-void qpList< T >::Reserve( int capacity ) {
+void qpList< T >::Reserve( const uint64 capacity ) {
 	if ( m_capacity < capacity ) {
 		T * newData = new T[ capacity ] {};
 		memcpy( newData, m_data, m_length * sizeof( T ) );
@@ -161,16 +161,16 @@ void qpList< T >::Reserve( int capacity ) {
 }
 
 template< typename T >
-void qpList< T >::Resize( int length ) {
+void qpList< T >::Resize( const uint64 length ) {
 	Reserve( length );
-	int lengthDiff = m_length - length;
+	int64 lengthDiff = qpVerifyStaticCast< int64 >( m_length ) - qpVerifyStaticCast< int64 >( length );
 
 	if ( lengthDiff < 0 ) {
-		for ( int index = 0; index < qpMath::Abs( lengthDiff ); index++ ) {
+		for ( uint64 index = 0; index < qpVerifyStaticCast< uint64 >( qpMath::Abs( lengthDiff ) ); index++ ) {
 			m_data[ m_length + index ] = T();
 		}
 	} else if ( lengthDiff > 0 ) {
-		for ( int index = 0; index < lengthDiff; index++ ) {
+		for ( uint64 index = 0; index < qpVerifyStaticCast< uint64 >( lengthDiff ); index++ ) {
 			m_data[ m_length - index ] = T();
 		}
 	}
@@ -184,14 +184,14 @@ void qpList< T >::Clear() {
 }
 
 template< typename T >
-T & qpList< T >::operator[]( int index ) {
-	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index is out of bounds." );
+T & qpList< T >::operator[]( const uint64 index ) {
+	QP_ASSERT_MSG( index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
 template< typename T >
-const T & qpList< T >::operator[]( int index ) const {
-	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index is out of bounds." );
+const T & qpList< T >::operator[]( const uint64 index ) const {
+	QP_ASSERT_MSG( index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
 

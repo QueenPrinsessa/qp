@@ -27,9 +27,6 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	qpWindowedApp app( windowProperties );
 
-	qpMat4 mat;
-	mat[ 2 ][ 3 ] = 4.0f;
-
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
