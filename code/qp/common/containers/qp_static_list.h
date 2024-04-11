@@ -3,20 +3,20 @@
 #include "qp/common/debug/qp_debug.h"
 #include <iterator>
 
-template < typename T, int SIZE >
+template < typename _type_, int _size_ >
 class qpStaticList
 {
 public:
 	QP_FORWARD_ITERATOR( Iterator, qpStaticList, T )
 
 	qpStaticList();
-	template < typename ... ARGS >
-	explicit qpStaticList( ARGS&&... args ) requires ( sizeof ... ( ARGS ) <= SIZE );
+	template < typename ... _args_ >
+	explicit qpStaticList( _args_ &&... args ) requires ( sizeof ... ( _args_ ) <= SIZE );
 	qpStaticList( const qpStaticList & other );
 
 	void Push( const T & value );
-	template< typename ... ARGS >
-	void Emplace( ARGS&&... args );
+	template< typename ... _args_ >
+	void Emplace( _args_&&... args );
 	void Pop();
 
 	T & First();
@@ -39,82 +39,82 @@ private:
 	int m_length = 0;
 };
 
-template< typename T, int SIZE >
-qpStaticList< T, SIZE >::qpStaticList() {
+template< typename _type_, int _size_ >
+qpStaticList< _type_, _size_ >::qpStaticList() {
 }
 
-template< typename T, int SIZE >
-template< typename ... ARGS >
-qpStaticList< T, SIZE >::qpStaticList( ARGS &&... args ) requires (sizeof...(ARGS) <= SIZE) {
+template< typename _type_, int _size_ >
+template< typename ... _args_ >
+qpStaticList< _type_, _size_ >::qpStaticList( _args_ &&... args ) requires ( sizeof...( _args_ ) <= _size_ ) {
 	int index = 0;
 	( [ & ] { m_data[ index++ ] = args; }(), ... );
 }
 
-template< typename T, int SIZE >
-qpStaticList< T, SIZE >::qpStaticList( const qpStaticList & other ) {
+template< typename _type_, int _size_ >
+qpStaticList< _type_, _size_ >::qpStaticList( const qpStaticList & other ) {
 	m_length = other.m_length;
-	qpCopy( m_data, SIZE, other.m_data, other.m_length );
+	qpCopy( m_data, _size_, other.m_data, other.m_length );
 }
 
-template< typename T, int SIZE >
-void qpStaticList< T, SIZE >::Push( const T & value ) {
+template< typename _type_, int _size_ >
+void qpStaticList< _type_, _size_ >::Push( const T & value ) {
 	Emplace( value );
 }
 
-template< typename T, int SIZE >
-template< typename ... ARGS >
-void qpStaticList< T, SIZE >::Emplace( ARGS &&... args ) {
-	QP_ASSERT_MSG( m_length < SIZE, "List is already full!");
-	m_data[ m_length++ ] = T( qpForward< ARGS >( args )... );
+template< typename _type_, int _size_ >
+template< typename ... _args_ >
+void qpStaticList< _type_, _size_ >::Emplace( _args_ &&... args ) {
+	QP_ASSERT_MSG( m_length < _size_, "List is already full!");
+	m_data[ m_length++ ] = T( qpForward< _args_ >( args )... );
 }
 
-template< typename T, int SIZE >
-void qpStaticList< T, SIZE >::Pop() {
+template< typename _type_, int _size_ >
+void qpStaticList< _type_, _size_ >::Pop() {
 	if ( m_length > 0 ) {
 		m_length--;
 	}
 }
 
-template< typename T, int SIZE >
-T & qpStaticList< T, SIZE >::First() {
+template< typename _type_, int _size_ >
+T & qpStaticList< _type_, _size_ >::First() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
-template< typename T, int SIZE >
-T & qpStaticList< T, SIZE >::Last() {
+template< typename _type_, int _size_ >
+T & qpStaticList< _type_, _size_ >::Last() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
-template< typename T, int SIZE >
-const T & qpStaticList< T, SIZE >::First() const {
+template< typename _type_, int _size_ >
+const T & qpStaticList< _type_, _size_ >::First() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
-template< typename T, int SIZE >
-const T & qpStaticList< T, SIZE >::Last() const {
+template< typename _type_, int _size_ >
+const T & qpStaticList< _type_, _size_ >::Last() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
-template< typename T, int SIZE >
-qpStaticList< T, SIZE > & qpStaticList< T, SIZE >::operator=( const qpStaticList & other ) {
+template< typename _type_, int _size_ >
+qpStaticList< _type_, _size_ > & qpStaticList< _type_, _size_ >::operator=( const qpStaticList & other ) {
 	m_length = other.m_length;
-	qpCopy( m_data, SIZE, other.m_data, other.m_length );
+	qpCopy( m_data, _size_, other.m_data, other.m_length );
 	return *this;
 }
 
-template< typename T, int SIZE >
-T & qpStaticList< T, SIZE >::operator[]( int index ) {
+template< typename _type_, int _size_ >
+T & qpStaticList< _type_, _size_ >::operator[]( int index ) {
 	QP_ASSERT_MSG( index >= 0, "Index out of bounds!" );
 	QP_ASSERT_MSG( index >= m_length, "Index out of bounds!" );
 	return m_data[ index ];
 }
 
-template< typename T, int SIZE >
-const T & qpStaticList< T, SIZE >::operator[]( int index ) const {
+template< typename _type_, int _size_ >
+const T & qpStaticList< _type_, _size_ >::operator[]( int index ) const {
 	QP_ASSERT_MSG( index >= 0, "Index out of bounds!" );
 	QP_ASSERT_MSG( index >= m_length, "Index out of bounds!" );
 	return m_data[ index ];

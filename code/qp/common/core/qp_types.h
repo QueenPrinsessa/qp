@@ -24,5 +24,5 @@ static_assert( sizeof( uint32 ) == 4, "sizeof uint32 needs to be 4 bytes." );
 static_assert( sizeof( uint64 ) == 8, "sizeof uint64 needs to be 8 bytes." );
 static_assert( sizeof( byte ) == 1, "sizeof byte needs to be 1 byte." );
 
-template< typename T >
-using qpAtomic = std::atomic< T >;
+template< typename _type_ >
+using qpAtomic = std::atomic< _type_ >;

@@ -59,7 +59,7 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 		instanceHandle = windowsProperties->instanceHandle;
 	}
 
-	qpWString wTitle = qpUTF8ToWide( properties.title );
+	qpWideString wTitle = qpUTF8ToWide( properties.title );
 	m_handle = CreateWindow( windowClassName, wTitle.c_str(), windowStyle, windowLeft, windowTop, m_width, m_height, NULL, NULL, instanceHandle, this );
 
 	SetForegroundWindow( m_handle );
@@ -70,11 +70,11 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 	ApplyWindowMode( m_windowMode );
 }
 
-void qpWindowsWindow::ApplyWindowMode( const qpWindowMode_t windowMode ) {
+void qpWindowsWindow::ApplyWindowMode( const windowMode_t windowMode ) {
 	DWORD windowStyle = GetWindowLong( m_handle, GWL_STYLE );
 
 	switch ( windowMode ) {
-		case qpWindowMode_t::WINDOWED: {
+		case windowMode_t::WINDOWED: {
 			SetWindowLong( m_handle, GWL_STYLE, windowStyle | WS_OVERLAPPEDWINDOW );
 			SetWindowPlacement( m_handle, &m_lastWindowPlacement );
 
@@ -87,7 +87,7 @@ void qpWindowsWindow::ApplyWindowMode( const qpWindowMode_t windowMode ) {
 			SetForegroundWindow( m_handle );
 			break;
 		}
-		case qpWindowMode_t::BORDERLESS: {
+		case windowMode_t::BORDERLESS: {
 			MONITORINFO monitorInfo = { sizeof( monitorInfo ) };
 			if ( GetWindowPlacement( m_handle, &m_lastWindowPlacement ) &&
 				 GetMonitorInfo( MonitorFromWindow( m_handle, MONITOR_DEFAULTTOPRIMARY ), &monitorInfo ) ) {

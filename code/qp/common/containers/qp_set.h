@@ -4,7 +4,7 @@
 #include "qp/common/utilities/qp_initializer_list.h"
 #include "qp/common/utilities/qp_algorithms.h"
 
-template < typename T >
+template < typename _type_ >
 class qpSet {
 public:
 	class qpNode {
@@ -16,20 +16,20 @@ public:
 		};
 		qpNode() = delete;
 
-		T & GetValue() { return m_value; }
-		const T & GetValue() const { return m_value; }
+		_type_ & GetValue() { return m_value; }
+		const _type_ & GetValue() const { return m_value; }
 		qpNode * GetRight() const { return m_right; }
 		qpNode * GetLeft() const { return m_left; }
 		qpNode * GetParent() const { return m_parent; }
 		color_t GetColor() const { return m_color; }
 	private:
-		qpNode( const color_t color, const T & value ) : m_color( color ), m_value( value ){};
+		qpNode( const color_t color, const _type_ & value ) : m_color( color ), m_value( value ) {};
 		~qpNode() = default;
 		qpNode * m_right = NULL;
 		qpNode * m_left = NULL;
 		qpNode * m_parent = NULL;
 		color_t m_color = RED;
-		T m_value {};
+		_type_ m_value {};
 
 		qpNode * GetUncle();
 		qpNode * GetSibling();
@@ -40,18 +40,17 @@ public:
 		bool IsOnRight() const { return ( m_parent != NULL ) && ( m_parent->m_right == this ); }
 		bool HasRedChild() const { return ( ( m_left != NULL ) && ( m_left->m_color == color_t::RED ) ) || ( ( m_right != NULL ) && ( m_right->m_color == color_t::RED ) ); }
 	};
-	struct Iterator
-	{
+	struct Iterator {
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using difference_type = std::ptrdiff_t;
-		Iterator( qpNode * node ) : m_node( node ) { }
-		T & operator *() const { return m_node->m_value; }
-		T * operator->() { return &m_node->m_value; }
+		Iterator( qpNode * node ) : m_node( node ) {}
+		_type_ & operator *() const { return m_node->m_value; }
+		_type_ * operator->() { return &m_node->m_value; }
 		Iterator & operator++() {
 			if ( m_node->m_right != NULL ) {
 				m_node = Min( m_node->m_right );
-			} else if( ( m_node->m_parent != NULL ) && ( m_node->m_parent->m_left == m_node )) {
+			} else if ( ( m_node->m_parent != NULL ) && ( m_node->m_parent->m_left == m_node ) ) {
 				m_node = m_node->m_parent;
 			} else {
 				qpNode * next = m_node;
@@ -59,7 +58,7 @@ public:
 					next = next->m_parent;
 				} while ( ( next != NULL ) && ( ( next->m_parent != NULL ) && ( next->m_parent->m_right == next ) ) );
 
-				if( next != NULL ) {
+				if ( next != NULL ) {
 					m_node = next->m_parent;
 				} else {
 					m_node = NULL;
@@ -72,24 +71,24 @@ public:
 			this->operator++();
 			return it;
 		}
-		operator T * () { return &m_node->m_value; }
+		operator _type_ * ( ) { return &m_node->m_value; }
 		auto operator<=>( const Iterator & ) const = default;
 		bool operator==( const Iterator & ) const = default;
 	private:
 		qpNode * m_node = NULL;
 	};
 	qpSet();
-	qpSet( qpInitializerList< T > initializerList );
-	qpSet( const T * begin, const T * end );
+	qpSet( qpInitializerList< _type_ > initializerList );
+	qpSet( const _type_ * begin, const _type_ * end );
 	~qpSet();
 
 	void Clear();
 
-	template < typename ... ARGS >
-	void Emplace( ARGS&&... args );
-	void Erase( const T & value );
+	template < typename ... _args_ >
+	void Emplace( _args_ &&... args );
+	void Erase( const _type_ & value );
 
-	Iterator Find( const T & value ) const;
+	Iterator Find( const _type_ & value ) const;
 
 	const qpNode * GetRoot() const { return m_root; }
 
@@ -106,8 +105,8 @@ private:
 	bool m_leftRightRotationFlag = false;
 	bool m_rightLeftRotationFlag = false;
 
-	qpNode * BinarySearch_r( qpNode * node, const T & value );
-	void Insert_r( qpNode *& node, const T & value );
+	qpNode * BinarySearch_r( qpNode * node, const _type_ & value );
+	void Insert_r( qpNode *& node, const _type_ & value );
 	void RotateLeft( qpNode * node );
 	void RotateRight( qpNode * node );
 	void SwapColors( qpNode * nodeA, qpNode * nodeB );
@@ -121,8 +120,8 @@ private:
 	static qpNode * Min( qpNode * node );
 };
 
-template< typename T >
-typename qpSet< T >::qpNode * qpSet< T >::qpNode::GetUncle() {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::qpNode::GetUncle() {
 	if ( m_parent == NULL || m_parent->m_parent == NULL ) {
 		return NULL;
 	}
@@ -134,23 +133,23 @@ typename qpSet< T >::qpNode * qpSet< T >::qpNode::GetUncle() {
 	return m_parent->m_parent->m_left;
 }
 
-template< typename T >
-typename qpSet< T >::qpNode * qpSet< T >::qpNode::GetSibling() {
-	if( m_parent == NULL ) {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::qpNode::GetSibling() {
+	if ( m_parent == NULL ) {
 		return NULL;
 	}
 
-	if( IsOnLeft() ) {
+	if ( IsOnLeft() ) {
 		return m_parent->m_right;
 	}
 
 	return m_parent->m_left;
 }
 
-template< typename T >
-void qpSet< T >::qpNode::MoveDown( qpNode * newParent ) {
-	if( m_parent != NULL ) {
-		if( IsOnLeft() ) {
+template< typename _type_ >
+void qpSet< _type_ >::qpNode::MoveDown( qpNode * newParent ) {
+	if ( m_parent != NULL ) {
+		if ( IsOnLeft() ) {
 			m_parent->m_left = newParent;
 		} else {
 			m_parent->m_right = newParent;
@@ -161,59 +160,57 @@ void qpSet< T >::qpNode::MoveDown( qpNode * newParent ) {
 	m_parent = newParent;
 }
 
-template< typename T >
-qpSet< T >::qpSet() {
-}
+template< typename _type_ >
+qpSet< _type_ >::qpSet() {}
 
-template< typename T >
-qpSet< T >::qpSet( qpInitializerList< T > initializerList ) : qpSet( initializerList.begin(), initializerList.end() ) {
-}
+template< typename _type_ >
+qpSet< _type_ >::qpSet( qpInitializerList< _type_ > initializerList ) : qpSet( initializerList.begin(), initializerList.end() ) {}
 
-template< typename T >
-qpSet< T >::qpSet( const T * begin, const T * end ) {
-	for( auto it = begin; it != end; it++ ) {
+template< typename _type_ >
+qpSet< _type_ >::qpSet( const _type_ * begin, const _type_ * end ) {
+	for ( auto it = begin; it != end; it++ ) {
 		Emplace( *it );
 	}
 }
 
-template< typename T >
-qpSet< T >::~qpSet() {
+template< typename _type_ >
+qpSet< _type_ >::~qpSet() {
 	DeleteTree_r( m_root );
 }
 
-template< typename T >
-void qpSet< T >::Clear() {
+template< typename _type_ >
+void qpSet< _type_ >::Clear() {
 	DeleteTree_r( m_root );
 	m_length = 0;
 }
 
-template< typename T >
-template< typename ... ARGS >
-void qpSet< T >::Emplace( ARGS &&... args ) {
-	T value( qpForward< ARGS >( args )... );
-	if( BinarySearch_r( m_root, value ) == NULL ) {
+template< typename _type_ >
+template< typename ... _args_ >
+void qpSet< _type_ >::Emplace( _args_ &&... args ) {
+	_type_ value( qpForward< _args_ >( args )... );
+	if ( BinarySearch_r( m_root, value ) == NULL ) {
 		Insert_r( m_root, value );
 	}
 }
 
-template< typename T >
-void qpSet< T >::Erase( const T & value ) {
+template< typename _type_ >
+void qpSet< _type_ >::Erase( const _type_ & value ) {
 	qpNode * node = BinarySearch_r( m_root, value );
 	DeleteNode_r( node );
 }
 
-template< typename T >
-typename qpSet< T >::Iterator qpSet< T >::Find( const T & value ) const {
+template< typename _type_ >
+typename qpSet< _type_ >::Iterator qpSet< _type_ >::Find( const _type_ & value ) const {
 	return Iterator( BinarySearch_r( m_root, value ) );
 }
 
-template< typename T >
-typename qpSet< T >::qpNode * qpSet<T>::BinarySearch_r( qpNode * node, const T & value ) {
-	if( node == NULL ) {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::BinarySearch_r( qpNode * node, const _type_ & value ) {
+	if ( node == NULL ) {
 		return NULL;
 	}
 
-	if( QP_COMPARE_LESS_THAN( node->m_value, value ) ) {
+	if ( QP_COMPARE_LESS_THAN( node->m_value, value ) ) {
 		return BinarySearch_r( node->m_left, value );
 	}
 
@@ -224,21 +221,21 @@ typename qpSet< T >::qpNode * qpSet<T>::BinarySearch_r( qpNode * node, const T &
 	return node;
 }
 
-template< typename T >
-void qpSet<T>::Insert_r( qpNode *& node, const T & value ) {
-	if( node == NULL ) {
+template< typename _type_ >
+void qpSet< _type_ >::Insert_r( qpNode *& node, const _type_ & value ) {
+	if ( node == NULL ) {
 		node = new qpNode( color_t::RED, value );
-		if( node == m_root ) {
+		if ( node == m_root ) {
 			node->m_color = color_t::BLACK;
 		}
 		++m_length;
 		return;
 	}
 
-	if( QP_COMPARE_LESS_THAN( value, node->m_value ) ) {
+	if ( QP_COMPARE_LESS_THAN( value, node->m_value ) ) {
 		bool wasInserted = ( node->m_left == NULL );
 		Insert_r( node->m_left, value );
-		if( wasInserted ) {
+		if ( wasInserted ) {
 			node->m_left->m_parent = node;
 			FixRedRed_r( node->m_left );
 		}
@@ -252,11 +249,11 @@ void qpSet<T>::Insert_r( qpNode *& node, const T & value ) {
 	}
 }
 
-template< typename T >
-void qpSet< T >::RotateLeft( qpNode * node ) {
+template< typename _type_ >
+void qpSet< _type_ >::RotateLeft( qpNode * node ) {
 	qpNode * newParent = node->m_right;
 
-	if( node == m_root ) {
+	if ( node == m_root ) {
 		m_root = newParent;
 	}
 
@@ -268,8 +265,8 @@ void qpSet< T >::RotateLeft( qpNode * node ) {
 	newParent->m_left = node;
 }
 
-template< typename T >
-void qpSet< T >::RotateRight( qpNode * node ) {
+template< typename _type_ >
+void qpSet< _type_ >::RotateRight( qpNode * node ) {
 	qpNode * newParent = node->m_left;
 
 	if ( node == m_root ) {
@@ -284,19 +281,19 @@ void qpSet< T >::RotateRight( qpNode * node ) {
 	newParent->m_right = node;
 }
 
-template< typename T >
-void qpSet< T >::SwapColors( qpNode * nodeA, qpNode * nodeB ) {
+template< typename _type_ >
+void qpSet< _type_ >::SwapColors( qpNode * nodeA, qpNode * nodeB ) {
 	qpSwap( nodeA->m_color, nodeB->m_color );
 }
 
-template< typename T >
-void qpSet< T >::SwapValues( qpNode * nodeA, qpNode * nodeB ) {
+template< typename _type_ >
+void qpSet< _type_ >::SwapValues( qpNode * nodeA, qpNode * nodeB ) {
 	qpSwap( nodeA->m_value, nodeB->m_value );
 }
 
-template< typename T >
-void qpSet< T >::FixRedRed_r( qpNode * node ) {
-	if( node == m_root ) {
+template< typename _type_ >
+void qpSet< _type_ >::FixRedRed_r( qpNode * node ) {
+	if ( node == m_root ) {
 		node->m_color = color_t::BLACK;
 		return;
 	}
@@ -333,8 +330,8 @@ void qpSet< T >::FixRedRed_r( qpNode * node ) {
 	}
 }
 
-template< typename T >
-void qpSet<T>::FixDoubleBlack_r( qpNode * node ) {
+template< typename _type_ >
+void qpSet< _type_ >::FixDoubleBlack_r( qpNode * node ) {
 	if ( node == m_root ) {
 		return;
 	}
@@ -389,9 +386,9 @@ void qpSet<T>::FixDoubleBlack_r( qpNode * node ) {
 	}
 }
 
-template< typename T >
-void qpSet< T >::DeleteNode_r( qpNode * nodeB ) {
-	if( nodeB == NULL ) {
+template< typename _type_ >
+void qpSet< _type_ >::DeleteNode_r( qpNode * nodeB ) {
+	if ( nodeB == NULL ) {
 		return;
 	}
 
@@ -448,9 +445,9 @@ void qpSet< T >::DeleteNode_r( qpNode * nodeB ) {
 	DeleteNode_r( nodeA );
 }
 
-template< typename T >
-void qpSet< T >::DeleteTree_r( qpNode *& node ) {
-	if( node != NULL ) {
+template< typename _type_ >
+void qpSet< _type_ >::DeleteTree_r( qpNode *& node ) {
+	if ( node != NULL ) {
 		DeleteTree_r( node->m_left );
 		DeleteTree_r( node->m_right );
 	}
@@ -459,20 +456,20 @@ void qpSet< T >::DeleteTree_r( qpNode *& node ) {
 	node = NULL;
 }
 
-template< typename T >
-typename qpSet<T>::qpNode * qpSet<T>::GetSuccessor( qpNode * node ) {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::GetSuccessor( qpNode * node ) {
 	qpNode * temp = node;
 
-	while( temp->m_left != NULL ) {
+	while ( temp->m_left != NULL ) {
 		temp = temp->m_left;
 	}
 
 	return temp;
 }
 
-template< typename T >
-typename qpSet< T >::qpNode * qpSet< T >::FindReplacement( qpNode * node ) {
-	if( ( node->m_left != NULL ) && ( node->m_right != NULL ) ) {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::FindReplacement( qpNode * node ) {
+	if ( ( node->m_left != NULL ) && ( node->m_right != NULL ) ) {
 		return GetSuccessor( node->m_right );
 	}
 
@@ -487,9 +484,9 @@ typename qpSet< T >::qpNode * qpSet< T >::FindReplacement( qpNode * node ) {
 	return node->m_right;
 }
 
-template< typename T >
-typename qpSet< T >::qpNode * qpSet<T>::Min( qpNode * node ) {
-	if( node == NULL ) {
+template< typename _type_ >
+typename qpSet< _type_ >::qpNode * qpSet< _type_ >::Min( qpNode * node ) {
+	if ( node == NULL ) {
 		return NULL;
 	}
 

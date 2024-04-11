@@ -5,94 +5,94 @@
 template < typename >
 class qpFunction;
 
-template < typename R, typename ... ARGS >
-class qpFunction< R( ARGS... ) > {
+template < typename _return_, typename ... _args_ >
+class qpFunction< _return_( _args_... ) > {
 public:
 	qpFunction() = default;
 	qpFunction( nullptr_t ){}
-	template < typename T >
-	qpFunction( T func );
+	template < typename _type_ >
+	qpFunction( _type_ func );
 
 	qpFunction( const qpFunction & other ) noexcept;
 
 	qpFunction( qpFunction && other ) noexcept;
 	~qpFunction() = default;
 
-	template < typename T >
-	qpFunction & operator=( T func );
+	template < typename _type_ >
+	qpFunction & operator=( _type_ func );
 	qpFunction & operator=( nullptr_t );
 	qpFunction & operator=( const qpFunction & rhs );
 	qpFunction & operator=( qpFunction && rhs ) noexcept;
 
 	bool operator==( nullptr_t ) { return m_functor != NULL; }
 
-	R operator()( ARGS ... args ) const;
+	_return_ operator()( _args_ ... args ) const;
 
 	operator bool() const { return m_functor != NULL; }
 private:
-	class qpFunctor {
+	class qpFunctorBase {
 	public:
-		virtual ~qpFunctor() = default;
-		virtual R Invoke( ARGS... ) const = 0;
+		virtual ~qpFunctorBase() = default;
+		virtual _return_ Invoke( _args_... ) const = 0;
 
 		QP_INTRUSIVE_REF_COUNTER;
 	};
-	template < typename T >
-	class qpTFunctor : public qpFunctor {
+	template < typename _type_ >
+	class qpFunctor : public qpFunctorBase {
 	public:
-		qpTFunctor( const T & func ) : m_func( func ) { }
-		virtual ~qpTFunctor() override = default;
-		virtual R Invoke( ARGS ... args ) const override { return m_func( args... ); }
+		qpFunctor( const _type_ & func ) : m_func( func ) { }
+		virtual ~qpFunctor() override = default;
+		virtual _return_ Invoke( _args_ ... args ) const override { return m_func( args... ); }
 	private:
-		T m_func;
+		_type_ m_func;
 	};
 
-	qpIntrusiveRefPtr< qpFunctor > m_functor;
+	qpIntrusiveRefPtr< qpFunctorBase > m_functor;
 };
 
-template< typename R, typename ... ARGS >
-template< typename T >
-qpFunction< R( ARGS... ) >::qpFunction( T func ) {
-	m_functor = qpCreateIntrusiveRef< qpTFunctor< T > >( func );
+template< typename _return_, typename ... _args_ >
+template< typename _type_ >
+qpFunction< _return_( _args_... ) >::qpFunction( _type_ func ) {
+	m_functor = qpCreateIntrusiveRef< qpFunctor< _type_ > >( func );
 }
 
-template< typename R, typename ... ARGS >
-qpFunction< R( ARGS... ) >::qpFunction( const qpFunction & other ) noexcept {
+template< typename _return_, typename ... _args_ >
+qpFunction< _return_( _args_... ) >::qpFunction( const qpFunction & other ) noexcept {
 	m_functor = other.m_functor;
 }
 
-template< typename R, typename ... ARGS >
-qpFunction< R( ARGS... ) >::qpFunction( qpFunction && other ) noexcept {
+template< typename _return_, typename ... _args_ >
+qpFunction< _return_( _args_... ) >::qpFunction( qpFunction && other ) noexcept {
 	m_functor = qpMove( other.m_functor );
 }
 
-template< typename R, typename ... ARGS >
-template< typename T >
-qpFunction< R( ARGS... ) > & qpFunction< R( ARGS... ) >::operator=( T func ) {
-	m_functor = qpCreateIntrusiveRef< qpTFunctor< T > >( func );
+template< typename _return_, typename ... _args_ >
+template< typename _type_ >
+qpFunction< _return_( _args_... ) > & qpFunction< _return_( _args_... ) >::operator=( _type_ func ) {
+	m_functor = qpCreateIntrusiveRef< qpFunctor< _type_ > >( func );
 	return *this;
 }
 
-template< typename R, typename ... ARGS >
-qpFunction< R( ARGS... ) > & qpFunction< R( ARGS... ) >::operator=( nullptr_t ) {
+template< typename _return_, typename ... _args_ >
+qpFunction< _return_( _args_... ) > & qpFunction< _return_( _args_... ) >::operator=( nullptr_t ) {
 	m_functor.Reset();
 	return *this;
 }
 
-template< typename R, typename ... ARGS >
-qpFunction< R( ARGS... ) > & qpFunction< R( ARGS... ) >::operator=( const qpFunction & rhs ) {
+template< typename _return_, typename ... _args_ >
+qpFunction< _return_( _args_... ) > & qpFunction< _return_( _args_... ) >::operator=( const qpFunction & rhs ) {
 	m_functor = rhs.m_functor;
 	return *this;
 }
 
-template< typename R, typename ... ARGS >
-qpFunction< R( ARGS... ) > & qpFunction< R( ARGS... ) >::operator=( qpFunction && rhs ) noexcept {
+template< typename _return_, typename ... _args_ >
+qpFunction< _return_( _args_... ) > & qpFunction< _return_( _args_... ) >::operator=( qpFunction && rhs ) noexcept {
 	m_functor = qpMove( rhs.m_functor );
 	return *this;
 }
 
-template< typename R, typename ... ARGS >
-R qpFunction< R( ARGS... ) >::operator()( ARGS... args ) const {
+template< typename _return_, typename ... _args_ >
+_return_ qpFunction< _return_( _args_... ) >::operator()( _args_... args ) const {
 	QP_ASSERT( m_functor != NULL );
 	return m_functor->Invoke( args... );
 }

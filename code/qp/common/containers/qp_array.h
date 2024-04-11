@@ -4,68 +4,68 @@
 #include <cstddef>
 #include <iterator>
 
-template < typename T, int SIZE >
+template < typename _type_, int _size_ >
 class qpArray {
 public:
-	static_assert( SIZE > 0, "qpArray: " QP_STRINGIFY( SIZE ) " needs to be greater than 0." );
-	friend class qpArrayView< T >;
-	QP_FORWARD_ITERATOR( Iterator, qpArray, T )
+	static_assert( _size_ > 0, "qpArray: " QP_STRINGIFY( SIZE ) " needs to be greater than 0." );
+	friend class qpArrayView< _type_ >;
+	QP_FORWARD_ITERATOR( Iterator, qpArray, _type_ )
 
 	qpArray();
-	template < typename ... ARGS >
-	explicit qpArray( ARGS&&... args ) requires ( sizeof ... ( ARGS ) <= SIZE );
+	template < typename ... _args_ >
+	explicit qpArray( _args_ &&... args ) requires ( sizeof ... ( _args_ ) <= _size_ );
 	qpArray( const qpArray & other );
 
-	T & First() { return m_data[ 0 ]; }
-	T & Last() { return m_data[ ( SIZE - 1 ) ]; }
-	const T & First() const { return m_data[ 0 ]; }
-	const T & Last() const { return m_data[ ( SIZE - 1 ) ]; }
+	_type_ & First() { return m_data[ 0 ]; }
+	_type_ & Last() { return m_data[ ( _size_ - 1 ) ]; }
+	const _type_ & First() const { return m_data[ 0 ]; }
+	const _type_ & Last() const { return m_data[ ( _size_ - 1 ) ]; }
 
-	int Length() const { return SIZE; }
+	int Length() const { return _size_; }
 
-	T * Data() { return &m_data[ 0 ]; }
-	const T * Data() const { return &m_data[ 0 ]; }
+	_type_ * Data() { return &m_data[ 0 ]; }
+	const _type_ * Data() const { return &m_data[ 0 ]; }
 
-	T & operator[]( int index );
-	const T & operator[]( int index ) const;
+	_type_ & operator[]( int index );
+	const _type_ & operator[]( int index ) const;
 
 	qpArray & operator=( const qpArray & other );
 
-	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ SIZE ] ) )
+	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ _size_ ] ) )
 private:
-	T m_data[ SIZE ] {};
+	_type_ m_data[ _size_ ] {};
 };
 
-template< typename T, int SIZE >
-qpArray< T, SIZE >::qpArray() {
+template< typename _type_, int _size_ >
+qpArray< _type_, _size_ >::qpArray() {
 }
 
-template< typename T, int SIZE >
-template< typename ... ARGS >
-qpArray< T, SIZE >::qpArray( ARGS&&... args ) requires ( sizeof ... ( ARGS ) <= SIZE ) {
+template< typename _type_, int _size_ >
+template< typename ... _args_ >
+qpArray< _type_, _size_ >::qpArray( _args_&&... args ) requires ( sizeof ... ( _args_ ) <= _size_ ) {
 	int index = 0;
-	( [ & ] { m_data[ index++ ] = static_cast< T >( args ); }(), ... );
+	( [ & ] { m_data[ index++ ] = static_cast< _type_ >( args ); }(), ... );
 }
 
-template< typename T, int SIZE >
-qpArray< T, SIZE >::qpArray( const qpArray & other ) {
-	qpCopy( m_data, SIZE, other.m_data, SIZE );
+template< typename _type_, int _size_ >
+qpArray< _type_, _size_ >::qpArray( const qpArray & other ) {
+	qpCopy( m_data, _size_, other.m_data, _size_ );
 }
 
-template< typename T, int SIZE >
-T & qpArray< T, SIZE >::operator[]( int index ) {
-	QP_ASSERT_MSG( index >= 0 && index < SIZE, "Index is out of bounds." );
+template< typename _type_, int _size_ >
+_type_ & qpArray< _type_, _size_ >::operator[]( int index ) {
+	QP_ASSERT_MSG( index >= 0 && index < _size_, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
-template< typename T, int SIZE >
-const T & qpArray< T, SIZE >::operator[]( int index ) const {
-	QP_ASSERT_MSG( index >= 0 && index < SIZE, "Index is out of bounds." );
+template< typename _type_, int _size_ >
+const _type_ & qpArray< _type_, _size_ >::operator[]( int index ) const {
+	QP_ASSERT_MSG( index >= 0 && index < _size_, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
-template< typename T, int SIZE >
-qpArray< T, SIZE > & qpArray< T, SIZE >::operator=( const qpArray & other ) {
-	qpCopy( m_data, SIZE, other.m_data, SIZE );
+template< typename _type_, int _size_ >
+qpArray< _type_, _size_ > & qpArray< _type_, _size_ >::operator=( const qpArray & other ) {
+	qpCopy( m_data, _size_, other.m_data, _size_ );
 	return *this;
 }

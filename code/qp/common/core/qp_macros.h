@@ -28,14 +28,14 @@
 
 #define QP_DISCARD( x ) static_cast< void >( x );
 
-#define QP_FORWARD_ITERATOR( iteratorType, type, containerType ) \
+#define QP_FORWARD_ITERATOR( iteratorType, containerType, type ) \
 	struct iteratorType { \
 	public: \
 		using iterator_category = std::forward_iterator_tag; \
 		using difference_type = std::ptrdiff_t; \
-		using value_type = T; \
-		using pointer = T *; \
-		using reference = T &; \
+		using value_type = type; \
+		using pointer = type *; \
+		using reference = type &; \
  \
 		iteratorType( pointer ptr ) : m_ptr( ptr ) { } \
  \
@@ -53,8 +53,8 @@
  \
 		operator pointer () { return m_ptr; } \
  \
-		auto operator<=>( const type::iteratorType & ) const = default; \
-		bool operator==( const type::iteratorType & ) const = default; \
+		auto operator<=>( const containerType::iteratorType & ) const = default; \
+		bool operator==( const containerType::iteratorType & ) const = default; \
 	private: \
 		pointer m_ptr = NULL; \
 	};

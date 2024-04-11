@@ -1,22 +1,28 @@
 #pragma once
-#include "qp_algorithms.h"
 #include "qp_utility.h"
 #include "qp/common/core/qp_types.h"
+#include "qp/common/core/qp_type_traits.h"
 
-template < typename ... ARGS > requires ( ( sizeof ... ( ARGS ) > 0 ) ) && ( sizeof ... ( ARGS ) < UINT8_MAX )
+template < typename ... _types_ > requires ( ( sizeof ... ( _types_ ) > 0 ) ) && ( sizeof ... ( _types_ ) < UINT8_MAX )
 class qpVariant {
-	enum { NUM_BYTES = qpSizeOfBiggestTypeValue< ARGS... > };
+	enum { NUM_BYTES = SizeOfBiggestType< _types_... > };
 
 	static inline uint8 s_nextTypeIndex = 0;
-	template < typename T >
-	struct typeIndex_t {
-		using type = T;
-		static inline const uint8 s_index = s_nextTypeIndex++;
+	template < typename _type_ >
+	struct VariantTypeIndex {
+		using type = _type_;
+		static inline const uint8 index = s_nextTypeIndex++;
 	};
+
+	template < typename _type_ >
+	static inline uint8 variantTypeIndex_t = VariantTypeIndex< _type_ >::index;
+
+	template < typename _type_ >
+	using variantType_t = typename VariantTypeIndex< _type_ >::type;
 public:
 	constexpr qpVariant() {
 		( [] () {
-			typeIndex_t< ARGS >::s_index;
+			variantTypeIndex_t< _types_ >;
 		}, ... );
 	};
 	constexpr ~qpVariant() {
@@ -24,37 +30,37 @@ public:
 			DeconstructData();
 		}
 	}
-	template < typename T, typename ... VARGS >
-	T & Emplace( VARGS&&... vargs ) {
-		static_assert( qpIsPartOfParameterPack< T, ARGS... >, "Type is not part of parameter pack" );
+	template < typename _type_, typename ... _args_ >
+	_type_ & Emplace( _args_&&... args ) {
+		static_assert( IsAnyOf< _type_, _types_... >, "Type is not part of parameter pack" );
 		if ( m_hasData ) {
 			DeconstructData();
 			qpZeroMemory( m_data );
 		}
-		T * newData = new ( &m_data[ 0 ] ) T( qpForward< VARGS >( vargs )... );
+		_type_ * newData = new ( &m_data[ 0 ] ) _type_( qpForward< _args_ >( args )... );
 		m_hasData = true;
-		m_index = typeIndex_t< T >::s_index;
+		m_index = VariantTypeIndex< _type_ >::index;
 		return *newData;
 	}
 
-	template < typename T >
-	constexpr T & GetValue() {
-		static_assert( qpIsPartOfParameterPack< T, ARGS... >, "Type is not part of parameter pack" );
-		QP_ASSERT_MSG( HoldsType< T >(), "qpVariant does not hold type, undefined behavior." );
-		return *GetDataInternal< T >();
+	template < typename _type_ >
+	constexpr _type_ & GetValue() {
+		static_assert( IsAnyOf< _type_, _types_... >, "Type is not part of parameter pack" );
+		QP_ASSERT_MSG( HoldsType< _type_ >(), "qpVariant does not hold type, undefined behavior." );
+		return *GetDataInternal< _type_ >();
 	}
 
-	template < typename T >
-	constexpr const T & GetValue() const {
-		static_assert( qpIsPartOfParameterPack< T, ARGS... >, "Type is not part of parameter pack" );
-		QP_ASSERT_MSG( HoldsType< T >(), "qpVariant does not hold type, undefined behavior." );
-		return GetDataInternal< T >();
+	template < typename _type_ >
+	constexpr const _type_ & GetValue() const {
+		static_assert( IsAnyOf< _type_, _types_... >, "Type is not part of parameter pack" );
+		QP_ASSERT_MSG( HoldsType< _type_ >(), "qpVariant does not hold type, undefined behavior." );
+		return GetDataInternal< _type_ >();
 	}
 
 
 	int GetIndex() const { return m_index; }
-	template < typename T >
-	bool HoldsType() const { return m_hasData && ( m_index == typeIndex_t< T >::s_index ); }
+	template < typename _type_ >
+	bool HoldsType() const { return m_hasData && ( m_index == variantTypeIndex_t< _type_ > ); }
 private:
 	uint8 m_data[ NUM_BYTES ] {};
 	uint8 m_index = 0;
@@ -62,9 +68,8 @@ private:
 
 	constexpr void DeconstructData() {
 		( [ & ] () {
-			if ( m_index == typeIndex_t< ARGS >::s_index ) {
-				using type = typename typeIndex_t< ARGS >::type;
-				type * data = reinterpret_cast< type * >( &m_data[ 0 ] );
+			if ( m_index == variantTypeIndex_t< _types_ > ) {
+				variantType_t< _types_ > * data = reinterpret_cast< variantType_t< _types_ > * >( &m_data[ 0 ] );
 				data->~type();
 			}
 		}( ), ... );
@@ -72,8 +77,8 @@ private:
 	}
 
 	template < typename T >
-	constexpr typename typeIndex_t< T >::type * GetDataInternal() {
-		return reinterpret_cast< typename typeIndex_t< T >::type * >( &m_data[ 0 ] );
+	constexpr variantType_t< T > * GetDataInternal() {
+		return reinterpret_cast< variantType_t< T > * >( &m_data[ 0 ] );
 	}
 };
 

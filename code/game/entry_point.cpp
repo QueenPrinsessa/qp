@@ -5,6 +5,7 @@
 #include "engine/core/qp_app.h"
 #include "engine/core/qp_windowed_app.h"
 #include <common/math/qp_mat.h>
+#include <common/math/qp_quat.h>
 #include <common/utilities/qp_variant.h>
 
 #if defined( QP_PLATFORM_WINDOWS )
@@ -17,7 +18,7 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	windowProperties.width = 800;
 	windowProperties.height = 600;
 	windowProperties.allowResize = true;
-	windowProperties.mode = qpWindowMode_t::WINDOWED;
+	windowProperties.mode = windowMode_t::WINDOWED;
 	windowProperties.title = "qpVulkanWindowsWindow";
 
 	qpWindowPropertiesWindows_t windowsProperties;

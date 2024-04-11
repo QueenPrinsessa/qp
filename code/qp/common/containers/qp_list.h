@@ -6,31 +6,31 @@
 #include <initializer_list>
 #include <type_traits>
 
-template< typename T >
+template< typename _type_ >
 class qpList {
-	friend class qpArrayView< T >;
+	friend class qpArrayView< _type_ >;
 public:
-	QP_FORWARD_ITERATOR( Iterator, qpList, T )
+	QP_FORWARD_ITERATOR( Iterator, qpList, _type_ )
 
 	qpList();
 	qpList( int size );
-	qpList( int size, const T & initValue );
-	qpList( std::initializer_list< T > initializerList );
+	qpList( int size, const _type_ & initValue );
+	qpList( std::initializer_list< _type_ > initializerList );
 	qpList( const qpList & other );
 	qpList( qpList && other ) noexcept;
 
-	void Push( const T & item );
-	void Push( T && item );
-	template < typename ... ARGS >
-	T & Emplace( ARGS&&... args );
+	void Push( const _type_ & item );
+	void Push( _type_ && item );
+	template < typename ... _args_ >
+	_type_ & Emplace( _args_ &&... args );
 	void Pop();
 
-	T & First();
-	T & Last();
-	const T & First() const;
-	const T & Last() const;
+	_type_ & First();
+	_type_ & Last();
+	const _type_ & First() const;
+	const _type_ & Last() const;
 
-	T * Data() const { return m_data; }
+	_type_ * Data() const { return m_data; }
 
 	void ShrinkToFit();
 	void Reserve( const uint64 capacity );
@@ -40,8 +40,8 @@ public:
 	uint64 Length() const { return m_length; }
 	bool IsEmpty() const { return m_length == 0; }
 
-	T & operator[]( const uint64 index );
-	const T & operator[]( const uint64 index ) const;
+	_type_ & operator[]( const uint64 index );
+	const _type_ & operator[]( const uint64 index ) const;
 
 	qpList & operator=( const qpList & other );
 	qpList & operator=( qpList && other ) noexcept;
@@ -50,41 +50,41 @@ public:
 private:
 	uint64 m_capacity = 0;
 	uint64 m_length = 0;
-	T * m_data = NULL;
+	_type_ * m_data = NULL;
 };
 
-template< typename T >
-qpList< T >::qpList() {
+template< typename _type_ >
+qpList< _type_ >::qpList() {
 	Reserve( 1 );
 }
 
-template< typename T >
-qpList< T >::qpList( int size ) {
+template< typename _type_ >
+qpList< _type_ >::qpList( int size ) {
 	Resize( size );
 }
 
-template< typename T >
-qpList<T>::qpList( int size, const T & initValue ) {
+template< typename _type_ >
+qpList<_type_>::qpList( int size, const _type_ & initValue ) {
 	Resize( size );
 	for ( int index = 0; index < size; ++index ) {
 		m_data[ index ] = initValue;
 	}
 }
 
-template< typename T >
-qpList< T >::qpList( std::initializer_list< T > initializerList ) {
+template< typename _type_ >
+qpList< _type_ >::qpList( std::initializer_list< _type_ > initializerList ) {
 	Reserve( static_cast< int >( initializerList.size() ) );
 	m_length = qpCopy( m_data, static_cast< uint64 >( m_capacity ), initializerList.begin(), initializerList.size() );
 }
 
-template< typename T >
-qpList<T>::qpList( const qpList & other ) {
+template< typename _type_ >
+qpList<_type_>::qpList( const qpList & other ) {
 	Reserve( other.m_length );
 	qpCopy( m_data, m_capacity, other.m_data, other.m_length );
 }
 
-template< typename T >
-qpList<T>::qpList( qpList && other ) noexcept {
+template< typename _type_ >
+qpList<_type_>::qpList( qpList && other ) noexcept {
 	m_data = other.m_data;
 	m_capacity = other.m_capacity;
 	m_length = other.m_length;
@@ -93,117 +93,117 @@ qpList<T>::qpList( qpList && other ) noexcept {
 	other.m_length = 0;
 }
 
-template< typename T >
-void qpList< T >::Push( const T & item ) {
+template< typename _type_ >
+void qpList< _type_ >::Push( const _type_ & item ) {
 	Emplace( item );
 }
 
-template< typename T >
-void qpList< T >::Push( T && item ) {
+template< typename _type_ >
+void qpList< _type_ >::Push( _type_ && item ) {
 	Emplace( item );
 }
 
-template< typename T >
-template< typename ... ARGS >
-T & qpList< T >::Emplace( ARGS &&... args ) {
+template< typename _type_ >
+template< typename ... _args_ >
+_type_ & qpList< _type_ >::Emplace( _args_ &&... args ) {
 	if ( ( m_length + 1 ) > m_capacity ) {
 		Reserve( m_capacity * 2 );
 	}
 
-	return m_data[ m_length++ ] = qpMove( T( qpForward<ARGS>( args )... ) );
+	return m_data[ m_length++ ] = qpMove( _type_( qpForward< _args_ >( args )... ) );
 }
 
-template< typename T >
-void qpList< T >::Pop() {
+template< typename _type_ >
+void qpList< _type_ >::Pop() {
 	if ( m_length > 0 ) {
 		m_length--;
 	}
 }
 
-template< typename T >
-T & qpList< T >::First() {
+template< typename _type_ >
+_type_ & qpList< _type_ >::First() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
-template< typename T >
-T & qpList< T >::Last() {
+template< typename _type_ >
+_type_ & qpList< _type_ >::Last() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
-template< typename T >
-const T & qpList< T >::First() const {
+template< typename _type_ >
+const _type_ & qpList< _type_ >::First() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
-template< typename T >
-const T & qpList< T >::Last() const {
+template< typename _type_ >
+const _type_ & qpList< _type_ >::Last() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
 
-template< typename T >
-void qpList< T >::ShrinkToFit() {
+template< typename _type_ >
+void qpList< _type_ >::ShrinkToFit() {
 }
 
-template< typename T >
-void qpList< T >::Reserve( const uint64 capacity ) {
+template< typename _type_ >
+void qpList< _type_ >::Reserve( const uint64 capacity ) {
 	if ( m_capacity < capacity ) {
-		T * newData = new T[ capacity ] {};
-		memcpy( newData, m_data, m_length * sizeof( T ) );
+		_type_ * newData = new _type_[ capacity ] {};
+		memcpy( newData, m_data, m_length * sizeof( _type_ ) );
 		delete[] m_data;
 		m_data = newData;
 		m_capacity = capacity;
 	}
 }
 
-template< typename T >
-void qpList< T >::Resize( const uint64 length ) {
+template< typename _type_ >
+void qpList< _type_ >::Resize( const uint64 length ) {
 	Reserve( length );
 	int64 lengthDiff = qpVerifyStaticCast< int64 >( m_length ) - qpVerifyStaticCast< int64 >( length );
 
 	if ( lengthDiff < 0 ) {
 		for ( uint64 index = 0; index < qpVerifyStaticCast< uint64 >( qpMath::Abs( lengthDiff ) ); index++ ) {
-			m_data[ m_length + index ] = T();
+			m_data[ m_length + index ] = _type_();
 		}
 	} else if ( lengthDiff > 0 ) {
 		for ( uint64 index = 0; index < qpVerifyStaticCast< uint64 >( lengthDiff ); index++ ) {
-			m_data[ m_length - index ] = T();
+			m_data[ m_length - index ] = _type_();
 		}
 	}
 
 	m_length = length;
 }
 
-template< typename T >
-void qpList< T >::Clear() {
+template< typename _type_ >
+void qpList< _type_ >::Clear() {
 	m_length = 0;
 }
 
-template< typename T >
-T & qpList< T >::operator[]( const uint64 index ) {
+template< typename _type_ >
+_type_ & qpList< _type_ >::operator[]( const uint64 index ) {
 	QP_ASSERT_MSG( index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
-template< typename T >
-const T & qpList< T >::operator[]( const uint64 index ) const {
+template< typename _type_ >
+const _type_ & qpList< _type_ >::operator[]( const uint64 index ) const {
 	QP_ASSERT_MSG( index < m_length, "Index is out of bounds." );
 	return m_data[ index ];
 }
 
-template< typename T >
-qpList< T > & qpList< T >::operator=( const qpList & other ) {
+template< typename _type_ >
+qpList< _type_ > & qpList< _type_ >::operator=( const qpList & other ) {
 	Reserve( other.m_length );
 	qpCopy( m_data, m_capacity, other.m_data, other.m_length );
 	return *this;
 }
 
-template< typename T >
-qpList< T > & qpList< T >::operator=( qpList && other ) noexcept {
+template< typename _type_ >
+qpList< _type_ > & qpList< _type_ >::operator=( qpList && other ) noexcept {
 	m_data = other.m_data;
 	m_capacity = other.m_capacity;
 	m_length = other.m_length;

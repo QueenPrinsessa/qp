@@ -1,8 +1,7 @@
 #include "engine.pch.h"
 #include "qp_windowed_app.h"
-#include "qp/common/time/qp_clock.h"
+#include "qp/common/allocation/qp_stack_allocator.h"
 #include "qp/engine/debug/qp_debug.h"
-#include "qp/engine/resources/image/qp_image.h"
 #include "qp/engine/resources/loaders/qp_tga_loader.h"
 #if defined( QP_PLATFORM_WINDOWS )
 #include "qp/engine/platform/windows/window/qp_window_windows.h"
@@ -33,12 +32,6 @@ void qpWindowedApp::OnInit() {
 void qpWindowedApp::OnUpdate() {
 	m_vulkan->DrawFrame();
 	m_window->OnUpdate();
-
-	//static qpTimePoint timeLast = qpClock::Now();
-	//qpTimePoint time = qpClock::Now();
-	//qpTimePoint deltaTime = ( time - timeLast );
-	//timeLast = time;
-	//qpDebug::Info( "Time: %lld", deltaTime.AsFPS() );
 }
 
 void qpWindowedApp::OnCleanup() {

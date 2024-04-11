@@ -2,28 +2,27 @@
 #include <cstddef>
 #include <iterator>
 
-template < typename T >
+template < typename _type_ >
 class qpList;
 
-template < typename T, int SIZE >
+template < typename _type_, int _size_ >
 class qpStaticList;
 
-template < typename T, int SIZE >
+template < typename _type_, int _size_ >
 class qpArray;
 
-template < typename T >
+template < typename _type_ >
 class qpArrayView {
 public:
-	struct ConstIterator
-	{
+	struct ConstIterator {
 	public:
 		using iterator_category = std::forward_iterator_tag;
 		using difference_type = std::ptrdiff_t;
-		using value_type = T;
-		using pointer = const T *;
-		using reference = const T &;
+		using value_type = _type_;
+		using pointer = const _type_ *;
+		using reference = const _type_ &;
 
-		ConstIterator( pointer ptr ) : m_ptr( ptr ) { }
+		ConstIterator( pointer ptr ) : m_ptr( ptr ) {}
 
 		reference operator *() const { return *m_ptr; }
 
@@ -37,19 +36,19 @@ public:
 			return it;
 		}
 
-		auto operator<=>( const qpArrayView< T >::ConstIterator & ) const = default;
-		bool operator==( const qpArrayView< T >::ConstIterator & ) const = default;
+		auto operator<=>( const qpArrayView::ConstIterator & ) const = default;
+		bool operator==( const qpArrayView::ConstIterator & ) const = default;
 	private:
 		pointer m_ptr = NULL;
 	};
-	qpArrayView( const qpList< T > & list );
-	template < int SIZE >
-	explicit qpArrayView( const qpStaticList< T, SIZE > & list );
-	template < int SIZE >
-	qpArrayView( const qpArray< T, SIZE > & arr );
+	qpArrayView( const qpList< _type_ > & list );
+	template < int _size_ >
+	explicit qpArrayView( const qpStaticList< _type_, _size_ > & list );
+	template < int _size_ >
+	qpArrayView( const qpArray< _type_, _size_ > & arr );
 
 	int Length() const { return m_length; }
-	const T * Data() const { return m_ptr; }
+	const _type_ * Data() const { return m_ptr; }
 
 	ConstIterator Begin() const { return ConstIterator( &m_ptr[ 0 ] ); }
 	ConstIterator End() const { return ConstIterator( &m_ptr[ m_length ] ); }
@@ -57,25 +56,25 @@ public:
 	ConstIterator end() const { return End(); }
 private:
 	int m_length = 0;
-	const T * m_ptr = NULL;
+	const _type_ * m_ptr = NULL;
 };
 
-template< typename T >
-qpArrayView<T>::qpArrayView( const qpList< T > & list ) {
+template< typename _type_ >
+qpArrayView< _type_ >::qpArrayView( const qpList< _type_ > & list ) {
 	m_ptr = list.m_data;
 	m_length = list.Length();
 }
 
-template< typename T >
-template< int SIZE >
-qpArrayView<T>::qpArrayView( const qpStaticList<T, SIZE> & list ) {
+template< typename _type_ >
+template< int _size_ >
+qpArrayView< _type_ >::qpArrayView( const qpStaticList<_type_, _size_> & list ) {
 	m_ptr = list.m_data;
 	m_length = list.Length();
 }
 
-template< typename T >
-template< int SIZE >
-qpArrayView<T>::qpArrayView( const qpArray< T, SIZE > & arr ) {
+template< typename _type_ >
+template< int _size_ >
+qpArrayView<_type_>::qpArrayView( const qpArray< _type_, _size_ > & arr ) {
 	m_ptr = &arr.m_data[ 0 ];
 	m_length = arr.Length();
 }

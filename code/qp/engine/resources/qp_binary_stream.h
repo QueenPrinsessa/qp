@@ -3,53 +3,53 @@
 #include "qp/common/string/qp_string.h"
 #include "qp/common/math/qp_math.h"
 
-template < typename T > class qpList;
+template < typename _type_ > class qpList;
 
 class qpBinaryStream {
 public:
 	qpBinaryStream() {}
 	~qpBinaryStream() { delete[] m_buffer; }
 
-	template < typename T >
-	void WriteBinary( const T & data ) {
-		GrowIfNeededToFit( sizeof( T ) );
-		m_offset += qpCopyBytesUnchecked( m_buffer + m_offset, &data, sizeof( T ) );
+	template < typename _type_ >
+	void WriteBinary( const _type_ & data ) {
+		GrowIfNeededToFit( sizeof( _type_ ) );
+		m_offset += qpCopyBytesUnchecked( m_buffer + m_offset, &data, sizeof( _type_ ) );
 	}
-	template < typename T >
-	void ReadBinary( T & outData ) {
-		m_offset += qpCopyBytesUnchecked( &outData, m_buffer + m_offset, sizeof( T ) );
-	}
-
-	template < typename T >
-	void WriteElements( const T * begin, const uint64 numElements ) {
-		GrowIfNeededToFit( numElements * sizeof( T ) );
-		m_offset += qpCopyBytesUnchecked( m_buffer + m_offset, begin, sizeof( T ) * numElements );
+	template < typename _type_ >
+	void ReadBinary( _type_ & outData ) {
+		m_offset += qpCopyBytesUnchecked( &outData, m_buffer + m_offset, sizeof( _type_ ) );
 	}
 
-	template < typename T >
-	void ReadElements( T * begin, const uint64 numElements ) {
-		m_offset += qpCopyBytesUnchecked( begin, m_buffer + m_offset, sizeof( T ) * numElements );
+	template < typename _type_ >
+	void WriteElements( const _type_ * begin, const uint64 numElements ) {
+		GrowIfNeededToFit( numElements * sizeof( _type_ ) );
+		m_offset += qpCopyBytesUnchecked( m_buffer + m_offset, begin, sizeof( _type_ ) * numElements );
 	}
 
-	template < typename T >
-	void ReadList( qpList< T > & list ) {
+	template < typename _type_ >
+	void ReadElements( _type_ * begin, const uint64 numElements ) {
+		m_offset += qpCopyBytesUnchecked( begin, m_buffer + m_offset, sizeof( _type_ ) * numElements );
+	}
+
+	template < typename _type_ >
+	void ReadList( qpList< _type_ > & list ) {
 		int length = 0;
-		ReadBinary< T >( length );
+		ReadBinary< _type_ >( length );
 		list.Resize( length );
-		ReadElements< T >( list.Begin(), length );
+		ReadElements< _type_ >( list.Begin(), length );
 	}
 
-	template < typename T >
-	void WriteList( const qpList< T > & list ) {
-		GrowIfNeededToFit( sizeof( int ) + ( list.Length() * sizeof( T ) ) );
-		WriteBinary< T >( list.Length() );
-		WriteElements< T >( list.Begin(), list.Length() );
+	template < typename _type_ >
+	void WriteList( const qpList< _type_ > & list ) {
+		GrowIfNeededToFit( sizeof( int ) + ( list.Length() * sizeof( _type_ ) ) );
+		WriteBinary< _type_ >( list.Length() );
+		WriteElements< _type_ >( list.Begin(), list.Length() );
 	}
 
 	void ConsumeBytes( const uint64  numBytes ) { m_offset += numBytes; }
 
-	template < typename T >
-	void Consume() { ConsumeBytes( sizeof( T ) ); }
+	template < typename _type_ >
+	void Consume() { ConsumeBytes( sizeof( _type_ ) ); }
 
 	uint64 GetOffset() const { return m_offset; }
 

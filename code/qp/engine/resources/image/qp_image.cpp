@@ -21,14 +21,14 @@ qpImage::qpImage( const imageHeader_t & header, byte * data )
 	: m_header( header ), m_data( data ) {}
 
 bool qpImage::SerializeToBinary( qpBinarySerializer & serializer ) {
-	serializer.SerializeBinary( m_header );
+	serializer.Serialize( m_header );
 
 	const uint64 numBytes = GetSize();
 	if ( serializer.IsReading() ) {
 		delete[] m_data;
 		m_data = new byte[ numBytes ];
 	}
-	serializer.SerializeElements( m_data, numBytes );
+	serializer.SerializeBytes( m_data, numBytes );
 
 	return true;
 }

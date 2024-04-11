@@ -2,120 +2,120 @@
 #include "qp_utility.h"
 #include <utility>
 
-template < typename T >
+template < typename _type_ >
 class Optional {
 public:
 	Optional();
-	Optional( const Optional< T > & other );
-	Optional( Optional< T > && other ) noexcept;
-	Optional( const T & other );
-	Optional( T && other );
+	Optional( const Optional & other );
+	Optional( Optional && other ) noexcept;
+	Optional( const _type_ & other );
+	Optional( _type_ && other );
 	~Optional();
 
-	Optional< T > & operator=( const T & rhs );
-	Optional< T > & operator=( const Optional< T > & rhs );
-	Optional< T > & operator=( T && rhs );
-	Optional< T > & operator=( Optional< T > && rhs ) noexcept;
+	Optional & operator=( const _type_ & rhs );
+	Optional & operator=( const Optional & rhs );
+	Optional & operator=( _type_ && rhs );
+	Optional & operator=( Optional && rhs ) noexcept;
 
-	T & GetValue() & { return *reinterpret_cast< T * >( &m_value[ 0 ] ); }
-	const T & GetValue() const & { return *reinterpret_cast< T * >( &m_value[ 0 ] ); }
+	_type_ & GetValue() & { return *reinterpret_cast< _type_ * >( &m_value[ 0 ] ); }
+	const _type_ & GetValue() const & { return *reinterpret_cast< _type_ * >( &m_value[ 0 ] ); }
 
-	template < typename ... ARGS >
-	void Emplace( ARGS... args );
+	template < typename ... _args_ >
+	void Emplace( _args_... args );
 	void Reset();
 
 	bool HasValue() const { return m_hasValue; }
 	operator bool() const { return m_hasValue; }
 private:
-	char m_value[ sizeof( T ) ] {};
+	char m_value[ sizeof( _type_ ) ] {};
 	bool m_hasValue = false;
 };
 
-template< typename T >
-Optional< T >::Optional() {
+template< typename _type_ >
+Optional< _type_ >::Optional() {
 }
 
-template< typename T >
-Optional< T >::Optional( const Optional< T > & other ) {
+template< typename _type_ >
+Optional< _type_ >::Optional( const Optional & other ) {
 	if( other.m_hasValue ) {
 		Emplace( other.GetValue() );
 	}
 }
 
-template< typename T >
-Optional< T > & Optional< T >::operator=( const Optional< T > & rhs ) {
+template< typename _type_ >
+Optional< _type_ > & Optional< _type_ >::operator=( const Optional & rhs ) {
 	if ( rhs.m_hasValue ) {
 		Emplace( rhs.GetValue() );
 	}
 	return *this;
 }
 
-template< typename T >
-Optional< T >::Optional( const T & other ) {
+template< typename _type_ >
+Optional< _type_ >::Optional( const _type_ & other ) {
 	Emplace( other );
 }
 
-template< typename T >
-Optional< T >::Optional( T && other ) {
+template< typename _type_ >
+Optional< _type_ >::Optional( _type_ && other ) {
 	Emplace( other );
 }
 
-template< typename T >
-Optional<T>::Optional( Optional<T> && other ) noexcept {
+template< typename _type_ >
+Optional< _type_ >::Optional( Optional && other ) noexcept {
 	Reset();
 	if ( other.m_hasValue ) {
 		other.m_hasValue = false;
-		memcpy( &m_value[ 0 ], &other.m_value[ 0 ], sizeof( T ) );
+		qpCopyBytesUnchecked( &m_value[ 0 ], &other.m_value[ 0 ], sizeof( _type_ ) );
 		m_hasValue = true;
 	}
 }
 
-template< typename T >
-Optional< T >::~Optional() {
+template< typename _type_ >
+Optional< _type_ >::~Optional() {
 	Reset();
 }
 
-template< typename T >
-Optional< T > & Optional< T >::operator=( const T & rhs ) {
+template< typename _type_ >
+Optional< _type_ > & Optional< _type_ >::operator=( const _type_ & rhs ) {
 	Emplace( rhs );
 	return *this;
 }
 
-template< typename T >
-Optional< T > & Optional< T >::operator=( T && rhs ) {
+template< typename _type_ >
+Optional< _type_ > & Optional< _type_ >::operator=( _type_ && rhs ) {
 	Emplace( rhs );
 	return *this;
 }
 
-template< typename T >
-Optional<T> & Optional<T>::operator=( Optional<T> && rhs ) noexcept {
+template< typename _type_ >
+Optional< _type_ > & Optional< _type_ >::operator=( Optional && rhs ) noexcept {
 	Reset();
-	if( rhs.m_hasValue ) {
+	if ( rhs.m_hasValue ) {
 		m_hasValue = true;
 		rhs.m_hasValue = false;
-		memcpy( &m_value[ 0 ], &rhs.m_value[ 0 ], sizeof( T ) );
+		qpCopyBytesUnchecked( &m_value[ 0 ], &rhs.m_value[ 0 ], sizeof( _type_ ) );
 	}
 
 	return *this;
 }
 
-template< typename T >
-template< typename ... ARGS >
-void Optional< T >::Emplace( ARGS... args ) {
+template< typename _type_ >
+template< typename ... _args_ >
+void Optional< _type_ >::Emplace( _args_... args ) {
 	Reset();
-	new ( &m_value[ 0 ] ) T( qpForward< ARGS >( args )... );
+	new ( &m_value[ 0 ] ) _type_( qpForward< _args_ >( args )... );
 	m_hasValue = true;
 }
 
-template< typename T >
-void Optional< T >::Reset() {
+template< typename _type_ >
+void Optional< _type_ >::Reset() {
 	if ( m_hasValue ) {
-		reinterpret_cast< T * >( &m_value[ 0 ] )->~T();
+		reinterpret_cast< _type_ * >( &m_value[ 0 ] )->~_type_();
 		m_hasValue = false;
 	}
 }
 
-template < typename T, typename ... ARGS >
-Optional< T > qpCreateOptional( ARGS... args ) {
-	return Optional< T >( qpMove( T( args ) ) );
+template < typename _type_, typename ... _args_ >
+Optional< _type_ > qpCreateOptional( _args_... args ) {
+	return Optional< _type_ >( qpMove( _type_( args ) ) );
 }

@@ -5,49 +5,49 @@
 //#define QP_USE_VECTOR_INTRINSICS 
 #define QP_ASSERT_NORMALIZE_ZERO_VECTOR
 
-template < typename T, typename VEC >
+template < typename _type_, typename _vector_ >
 class qpVecBase {
 public:
 
-	T LengthSqr() const;
-	T Length() const;
+	_type_ LengthSqr() const;
+	_type_ Length() const;
 
-	void Normalize() requires qpIsFloatingPoint< T >;
-	VEC Normalized() requires qpIsFloatingPoint< T >;
+	void Normalize() requires IsFloatingPoint< _type_ >;
+	_vector_ Normalized() requires IsFloatingPoint< _type_ >;
 
 	int NumElements() const { return QP_ARRAY_LENGTH( CRTP().m_data ); }
 
-	T & operator[]( int index ) { return CRTP().m_data[ index ]; }
-	const T & operator[]( int index ) const { return CRTP().m_data[ index ]; }
+	_type_ & operator[]( int index ) { return CRTP().m_data[ index ]; }
+	const _type_ & operator[]( int index ) const { return CRTP().m_data[ index ]; }
 
-	T * Data() const { return CRTP().m_data; }
+	_type_ * Data() const { return CRTP().m_data; }
 
 	void Zero();
 
-	VEC operator-() const;
+	_vector_ operator-() const;
 
-	VEC & CRTP() { return static_cast< VEC & >( *this ); }
-	const VEC & CRTP() const { return static_cast< const VEC & >( *this ); }
+	_vector_ & CRTP() { return static_cast< _vector_ & >( *this ); }
+	const _vector_ & CRTP() const { return static_cast< const _vector_ & >( *this ); }
 };
 
-template< typename T, typename VEC >
-T qpVecBase<T, VEC>::LengthSqr() const {
-	T length = 0;
+template< typename _type_, typename _vector_ >
+_type_ qpVecBase<_type_, _vector_>::LengthSqr() const {
+	_type_ length = 0;
 	for ( int index = 0; index < NumElements(); index++ ) {
 		length += qpMath::Pow2( CRTP().m_data[ index ] );
 	}
 	return length;
 }
 
-template< typename T, typename VEC >
-T qpVecBase<T, VEC>::Length() const {
+template< typename _type_, typename _vector_ >
+_type_ qpVecBase<_type_, _vector_>::Length() const {
 	return qpMath::Sqrt( LengthSqr() );
 }
 
-template< typename T, typename VEC >
-void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
-	T length = Length();
-	if( length == 0 ) {
+template< typename _type_, typename _vector_ >
+void qpVecBase< _type_, _vector_ >::Normalize() requires IsFloatingPoint< _type_ > {
+	_type_ length = Length();
+	if ( length == 0 ) {
 #if defined( QP_ASSERT_NORMALIZE_ZERO_VECTOR )
 		QP_ASSERT_MSG( length != 0, "Normalizing zero vector!" );
 #endif
@@ -59,165 +59,165 @@ void qpVecBase<T, VEC>::Normalize() requires qpIsFloatingPoint< T > {
 	}
 }
 
-template< typename T, typename VEC >
-VEC qpVecBase< T, VEC >::Normalized() requires qpIsFloatingPoint< T > {
-	VEC result = CRTP();
+template< typename _type_, typename _vector_ >
+_vector_ qpVecBase< _type_, _vector_ >::Normalized() requires IsFloatingPoint< _type_ > {
+	_vector_ result = CRTP();
 	result.Normalize();
 	return result;
 }
 
-template< typename T, typename VEC >
-void qpVecBase<T, VEC>::Zero() {
-	qpZeroMemory( &CRTP().m_data[ 0 ], sizeof(T) * NumElements());
+template< typename _type_, typename _vector_ >
+void qpVecBase<_type_, _vector_>::Zero() {
+	qpZeroMemory( &CRTP().m_data[ 0 ], sizeof( _type_ ) * NumElements() );
 }
 
-template< typename T, typename VEC >
-VEC qpVecBase< T, VEC >::operator-() const {
-	VEC result;
+template< typename _type_, typename _vector_ >
+_vector_ qpVecBase< _type_, _vector_ >::operator-() const {
+	_vector_ result;
 	for ( int index = 0; index < NumElements(); ++index ) {
 		result[ index ] = -CRTP().m_data[ index ];
 	}
 	return result;
 }
 
-template< typename T, typename VEC >
-inline VEC operator-=( qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+template< typename _type_, typename _vector_ >
+inline _vector_ operator-=( qpVecBase< _type_, _vector_ > & lhs, const qpVecBase< _type_, _vector_ > & rhs ) {
 	for ( int index = 0; index < lhs.NumElements(); ++index ) {
 		lhs[ index ] -= rhs[ index ];
 	}
 	return lhs.CRTP();
 }
 
-template< typename T, typename VEC >
-inline VEC operator-( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
-	VEC result( lhs.CRTP() );
+template< typename _type_, typename _vector_ >
+inline _vector_ operator-( const qpVecBase< _type_, _vector_ > & lhs, const qpVecBase< _type_, _vector_ > & rhs ) {
+	_vector_ result( lhs.CRTP() );
 	result -= rhs;
 	return result;
 }
 
-template< typename T, typename VEC >
-inline VEC operator+=( qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
+template< typename _type_, typename _vector_ >
+inline _vector_ operator+=( qpVecBase< _type_, _vector_ > & lhs, const qpVecBase< _type_, _vector_ > & rhs ) {
 	for ( int index = 0; index < lhs.NumElements(); ++index ) {
 		lhs[ index ] += rhs[ index ];
 	}
 	return lhs.CRTP();
 }
 
-template< typename T, typename VEC >
-inline VEC operator+( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
-	VEC result( lhs.CRTP() );
+template< typename _type_, typename _vector_ >
+inline _vector_ operator+( const qpVecBase< _type_, _vector_ > & lhs, const qpVecBase< _type_, _vector_ > & rhs ) {
+	_vector_ result( lhs.CRTP() );
 	result += rhs;
 	return result;
 }
 
-template< typename T, typename VEC >
-inline VEC operator*=( qpVecBase< T, VEC > & lhs, const T & rhs ) {
+template< typename _type_, typename _vector_ >
+inline _vector_ operator*=( qpVecBase< _type_, _vector_ > & lhs, const _type_ & rhs ) {
 	for ( int index = 0; index < lhs.NumElements(); ++index ) {
 		lhs[ index ] *= rhs;
 	}
 	return lhs.CRTP();
 }
 
-template< typename T, typename VEC >
-inline VEC operator*( const qpVecBase< T, VEC > & lhs, const T & rhs ) {
-	VEC result( lhs.CRTP() );
+template< typename _type_, typename _vector_ >
+inline _vector_ operator*( const qpVecBase< _type_, _vector_ > & lhs, const _type_ & rhs ) {
+	_vector_ result( lhs.CRTP() );
 	result *= rhs;
 	return result;
 }
 
-template < typename T, int LENGTH >
-class qpVec : public qpVecBase< T, qpVec< T, LENGTH > > {
+template < typename _type_, int _length_ >
+class qpVec : public qpVecBase< _type_, qpVec< _type_, _length_ > > {
 public:
 	union {
-		T m_data[ LENGTH ] {};
+		_type_ m_data[ _length_ ] {};
 		struct {
-			T x;
-			T y;
-			T z;
-			T w;
+			_type_ x;
+			_type_ y;
+			_type_ z;
+			_type_ w;
 		};
 	};
 };
 
-template < typename T >
-class qpVec< T, 2 > : public qpVecBase< T, qpVec< T, 2 > > {
+template < typename _type_ >
+class qpVec< _type_, 2 > : public qpVecBase< _type_, qpVec< _type_, 2 > > {
 public:
 	qpVec()
-		: qpVec( static_cast< T >( 0 ), static_cast< T >( 0 ) ) { }
-	qpVec( T n )
+		: qpVec( static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ) ) {}
+	qpVec( _type_ n )
 		: qpVec( n, n ) {}
-	qpVec( T _x, T _y )
+	qpVec( _type_ _x, _type_ _y )
 		: m_data { _x, _y } {}
-	explicit qpVec( const qpVec< T, 3 > & vec )
-		: qpVec( vec.x, vec.y ) { }
+	explicit qpVec( const qpVec< _type_, 3 > & vec )
+		: qpVec( vec.x, vec.y ) {}
 	union {
-		T m_data[ 2 ] {};
+		_type_ m_data[ 2 ] {};
 		struct {
-			T x;
-			T y;
+			_type_ x;
+			_type_ y;
 		};
 	};
 };
 
-template < typename T >
-class qpVec< T, 3 > : public qpVecBase< T, qpVec< T, 3 > > {
+template < typename _type_ >
+class qpVec< _type_, 3 > : public qpVecBase< _type_, qpVec< _type_, 3 > > {
 public:
 	qpVec()
-		: qpVec( static_cast< T >( 0 ), static_cast< T >( 0 ), static_cast< T >( 0 ) ) {}
-	qpVec( T n )
+		: qpVec( static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ) ) {}
+	qpVec( _type_ n )
 		: qpVec( n, n, n ) {}
-	qpVec( T _x, T _y, T _z )
-		: m_data { _x, _y, _z } { }
-	explicit qpVec( const qpVec< T, 4 > & vec )
+	qpVec( _type_ _x, _type_ _y, _type_ _z )
+		: m_data { _x, _y, _z } {}
+	explicit qpVec( const qpVec< _type_, 4 > & vec )
 		: qpVec( vec.x, vec.y, vec.z ) {}
-	explicit qpVec( const qpVec< T, 2 > & vec, const T & _z )
-		: qpVec( vec.x, vec.y, _z ) { }
+	explicit qpVec( const qpVec< _type_, 2 > & vec, const _type_ & _z )
+		: qpVec( vec.x, vec.y, _z ) {}
 	union {
-		T m_data[ 3 ] {};
+		_type_ m_data[ 3 ] {};
 		struct {
-			T x;
-			T y;
-			T z;
+			_type_ x;
+			_type_ y;
+			_type_ z;
 		};
 	};
 };
 
-template < typename T >
-class qpVec< T, 4 > : public qpVecBase< T, qpVec< T, 4 > > {
+template < typename _type_ >
+class qpVec< _type_, 4 > : public qpVecBase< _type_, qpVec< _type_, 4 > > {
 public:
 	qpVec()
-		: qpVec( static_cast< T >( 0 ), static_cast< T >( 0 ), static_cast< T >( 0 ), static_cast< T >( 0 ) ) { }
-	qpVec( T n )
+		: qpVec( static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ) ) {}
+	qpVec( _type_ n )
 		: qpVec( n, n, n, n ) {}
-	qpVec( T _x, T _y, T _z, T _w )
-		: m_data { _x, _y, _z, _w } { }
-	explicit qpVec( const qpVec< T, 3 > & vec, const T & _w )
-		: qpVec( vec.x, vec.y, vec.z, _w ) { }
+	qpVec( _type_ _x, _type_ _y, _type_ _z, _type_ _w )
+		: m_data { _x, _y, _z, _w } {}
+	explicit qpVec( const qpVec< _type_, 3 > & vec, const _type_ & _w )
+		: qpVec( vec.x, vec.y, vec.z, _w ) {}
 	union {
-		T m_data[ 4 ] {};
+		_type_ m_data[ 4 ] {};
 		struct {
-			T x;
-			T y;
-			T z;
-			T w;
+			_type_ x;
+			_type_ y;
+			_type_ z;
+			_type_ w;
 		};
 	};
 };
 
 //TODO: Add operators
 
-template < typename T, typename VEC >
-T qpDot( const qpVecBase< T, VEC > & lhs, const qpVecBase< T, VEC > & rhs ) {
-	T dot = static_cast< T >( 0 );
+template < typename _type_, typename _vector_ >
+_type_ qpDot( const qpVecBase< _type_, _vector_ > & lhs, const qpVecBase< _type_, _vector_ > & rhs ) {
+	_type_ dot = static_cast< _type_ >( 0 );
 	for ( int index = 0; index < lhs.NumElements(); ++index ) {
-		dot += lhs.CRTP().m_data[index] * rhs.CRTP().m_data[index];
+		dot += lhs.CRTP().m_data[ index ] * rhs.CRTP().m_data[ index ];
 	}
 	return dot;
 }
 
-template < typename T >
-qpVec< T, 3 > qpCross( const qpVec< T, 3 > & lhs, const qpVec< T, 3 > & rhs ) {
-	return qpVec< T, 3 >( ( ( lhs.y * rhs.z ) - ( lhs.z * rhs.y ) ),
+template < typename _type_ >
+qpVec< _type_, 3 > qpCross( const qpVec< _type_, 3 > & lhs, const qpVec< _type_, 3 > & rhs ) {
+	return qpVec< _type_, 3 >( ( ( lhs.y * rhs.z ) - ( lhs.z * rhs.y ) ),
 						  ( ( lhs.z * rhs.x ) - ( lhs.x * rhs.z ) ),
 						  ( ( lhs.x * rhs.y ) - ( lhs.y * rhs.x ) ) );
 }

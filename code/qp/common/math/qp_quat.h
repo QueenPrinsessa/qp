@@ -3,61 +3,61 @@
 #include "qp_math.h"
 #include "qp_vec.h"
 
-template < typename T >
+template < typename _type_ >
 class qpQuaternion {
 public:
-	T x = static_cast< T >( 0 );
-	T y = static_cast< T >( 0 );
-	T z = static_cast< T >( 0 );
-	T w = static_cast< T >( 1 );
+	_type_ x = static_cast< _type_ >( 0 );
+	_type_ y = static_cast< _type_ >( 0 );
+	_type_ z = static_cast< _type_ >( 0 );
+	_type_ w = static_cast< _type_ >( 1 );
 
 	qpQuaternion() = default;
-	qpQuaternion( const T & _x, const T & _y, const T & _z, const T & _w );
-	qpQuaternion( const T & xDeg, const T & yDeg, const T & zDeg );
-	qpQuaternion( const qpVec< T, 3 > & axis, const T & angleDeg );
-	explicit qpQuaternion( const qpMat< T, 3 > & mat );
-	explicit qpQuaternion( const qpMat< T, 4 > & mat );
+	qpQuaternion( const _type_ & _x, const _type_ & _y, const _type_ & _z, const _type_ & _w );
+	qpQuaternion( const _type_ & xDeg, const _type_ & yDeg, const _type_ & zDeg );
+	qpQuaternion( const qpVec< _type_, 3 > & axis, const _type_ & angleDeg );
+	explicit qpQuaternion( const qpMat< _type_, 3 > & mat );
+	explicit qpQuaternion( const qpMat< _type_, 4 > & mat );
 
-	T Length() const;
-	T LengthSqr() const;
+	_type_ Length() const;
+	_type_ LengthSqr() const;
 
 	qpQuaternion Normalized() const;
 	void Normalize();
 
-	qpVec< T, 3 > ToEulers() const;
+	qpVec< _type_, 3 > ToEulers() const;
 
-	qpVec< T, 3 > Forward() const;
-	qpVec< T, 3 > Right() const;
-	qpVec< T, 3 > Up() const;
+	qpVec< _type_, 3 > Forward() const;
+	qpVec< _type_, 3 > Right() const;
+	qpVec< _type_, 3 > Up() const;
 
-	qpMat< T, 3 > ToMat3() const;
-	qpMat< T, 4 > ToMat4() const;
+	qpMat< _type_, 3 > ToMat3() const;
+	qpMat< _type_, 4 > ToMat4() const;
 
 	qpQuaternion operator-() const;
 
-	qpVec< T, 3 > Axis() const;
+	qpVec< _type_, 3 > Axis() const;
 
-	T * Data() { return &x; }
-	const T * Data() const { return &x; }
+	_type_ * Data() { return &x; }
+	const _type_ * Data() const { return &x; }
 private:
 };
 
-template< typename T >
-qpQuaternion< T >::qpQuaternion( const T & _x, const T & _y, const T & _z, const T & _w )
+template< typename _type_ >
+qpQuaternion< _type_ >::qpQuaternion( const _type_ & _x, const _type_ & _y, const _type_ & _z, const _type_ & _w )
 	: x( _x ), y( _y ), z( _z ), w( _w ) {
 }
 
-template< typename T >
-qpQuaternion<T>::qpQuaternion( const T & xDeg, const T & yDeg, const T & zDeg ) {
-	qpVec< T, 3 > halfAngleRad( qpMath::Deg2Rad( xDeg * static_cast< T >( 0.5 ) ),
-								 qpMath::Deg2Rad( yDeg * static_cast< T >( 0.5 ) ),
-								 qpMath::Deg2Rad( zDeg * static_cast< T >( 0.5 ) ) );
+template< typename _type_ >
+qpQuaternion< _type_ >::qpQuaternion( const _type_ & xDeg, const _type_ & yDeg, const _type_ & zDeg ) {
+	qpVec< _type_, 3 > halfAngleRad( qpMath::Deg2Rad( xDeg * static_cast< _type_ >( 0.5 ) ),
+								 qpMath::Deg2Rad( yDeg * static_cast< _type_ >( 0.5 ) ),
+								 qpMath::Deg2Rad( zDeg * static_cast< _type_ >( 0.5 ) ) );
 
-	const qpQuaternion< T > pitch { qpMath::Sin( halfAngleRad.x ), static_cast< T >( 0 ), static_cast< T >( 0 ), qpMath::Cos( halfAngleRad.x ) };
-	const qpQuaternion< T > yaw { static_cast< T >( 0 ), qpMath::Sin( halfAngleRad.y ), static_cast< T >( 0 ), qpMath::Cos( halfAngleRad.y ) };
-	const qpQuaternion< T > roll { static_cast< T >( 0 ), static_cast< T >( 0 ), qpMath::Sin( halfAngleRad.z ), qpMath::Cos( halfAngleRad.z ) };
+	const qpQuaternion< _type_ > pitch { qpMath::Sin( halfAngleRad.x ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), qpMath::Cos( halfAngleRad.x ) };
+	const qpQuaternion< _type_ > yaw { static_cast< _type_ >( 0 ), qpMath::Sin( halfAngleRad.y ), static_cast< _type_ >( 0 ), qpMath::Cos( halfAngleRad.y ) };
+	const qpQuaternion< _type_ > roll { static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), qpMath::Sin( halfAngleRad.z ), qpMath::Cos( halfAngleRad.z ) };
 
-	qpQuaternion< T > result = roll * yaw * pitch;
+	qpQuaternion< _type_ > result = roll * yaw * pitch;
 	result.Normalize();
 	x = result.x;
 	y = result.y;
@@ -65,10 +65,10 @@ qpQuaternion<T>::qpQuaternion( const T & xDeg, const T & yDeg, const T & zDeg ) 
 	w = result.w;
 }
 
-template< typename T >
-qpQuaternion<T>::qpQuaternion( const qpVec<T, 3> & axis, const T & angleDeg ) {
-	T halfAngleRad = qpMath::Deg2Rad( angleDeg * static_cast< T >( 0.5 ) );
-	T sinHalfAngle = qpMath::Sin( halfAngleRad );
+template< typename _type_ >
+qpQuaternion<  _type_  >::qpQuaternion( const qpVec<_type_, 3> & axis, const _type_ & angleDeg ) {
+	_type_ halfAngleRad = qpMath::Deg2Rad( angleDeg * static_cast< _type_ >( 0.5 ) );
+	_type_ sinHalfAngle = qpMath::Sin( halfAngleRad );
 	x = axis.x * sinHalfAngle;
 	y = axis.y * sinHalfAngle;
 	z = axis.z * sinHalfAngle;
@@ -76,33 +76,33 @@ qpQuaternion<T>::qpQuaternion( const qpVec<T, 3> & axis, const T & angleDeg ) {
 }
 
 //From: https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2015/01/matrix-to-quat.pdf
-template< typename T >
-qpQuaternion<T>::qpQuaternion( const qpMat<T, 3> & mat ) {
-	const T m00 = mat( 1, 1 );
-	const T m01 = mat( 2, 1 );
-	const T m02 = mat( 3, 1 );
+template< typename _type_ >
+qpQuaternion<  _type_  >::qpQuaternion( const qpMat<_type_, 3> & mat ) {
+	const _type_ m00 = mat( 1, 1 );
+	const _type_ m01 = mat( 2, 1 );
+	const _type_ m02 = mat( 3, 1 );
 
-	const T m10 = mat( 1, 2 );
-	const T m11 = mat( 2, 2 );
-	const T m12 = mat( 3, 2 );
+	const _type_ m10 = mat( 1, 2 );
+	const _type_ m11 = mat( 2, 2 );
+	const _type_ m12 = mat( 3, 2 );
 
-	const T m20 = mat( 1, 3 );
-	const T m21 = mat( 2, 3 );
-	const T m22 = mat( 3, 3 );
+	const _type_ m20 = mat( 1, 3 );
+	const _type_ m21 = mat( 2, 3 );
+	const _type_ m22 = mat( 3, 3 );
 
-	qpQuaternion< T > quatFromMatrix;
+	qpQuaternion< _type_ > quatFromMatrix;
 
-	T t = static_cast< T >( 0 );
-	if ( m22 < static_cast< T >( 0 ) ) {
+	_type_ t = static_cast< _type_ >( 0 );
+	if ( m22 < static_cast< _type_ >( 0 ) ) {
 		if ( m00 > m11 ) {
-			t = static_cast< T >( 1 ) + m00 - m11 - m22;
+			t = static_cast< _type_ >( 1 ) + m00 - m11 - m22;
 
 			quatFromMatrix.x = t;
 			quatFromMatrix.y = m01 + m10;
 			quatFromMatrix.z = m20 + m02;
 			quatFromMatrix.w = m12 - m21;
 		} else {
-			t = static_cast< T >( 1 ) - m00 + m11 - m22;
+			t = static_cast< _type_ >( 1 ) - m00 + m11 - m22;
 			quatFromMatrix.x = m01 + m10;
 			quatFromMatrix.y = t;
 			quatFromMatrix.z = m12 + m21;
@@ -110,13 +110,13 @@ qpQuaternion<T>::qpQuaternion( const qpMat<T, 3> & mat ) {
 		}
 	} else {
 		if ( m00 < -m11 ) {
-			t = static_cast< T >( 1 ) - m00 - m11 + m22;
+			t = static_cast< _type_ >( 1 ) - m00 - m11 + m22;
 			quatFromMatrix.x = m20 + m02;
 			quatFromMatrix.y = m12 + m21;
 			quatFromMatrix.z = t;
 			quatFromMatrix.w = m01 - m10;
 		} else {
-			t = static_cast< T >( 1 ) + m00 + m11 + m22;
+			t = static_cast< _type_ >( 1 ) + m00 + m11 + m22;
 			quatFromMatrix.x = m12 - m21;
 			quatFromMatrix.y = m20 - m02;
 			quatFromMatrix.z = m01 - m10;
@@ -124,8 +124,8 @@ qpQuaternion<T>::qpQuaternion( const qpMat<T, 3> & mat ) {
 		}
 	}
 
-	quatFromMatrix *= static_cast< T >( 0.5 ) / qpMath::Sqrt( t );
-	quatFromMatrix.w *= static_cast< T >( -1 );
+	quatFromMatrix *= static_cast< _type_ >( 0.5 ) / qpMath::Sqrt( t );
+	quatFromMatrix.w *= static_cast< _type_ >( -1 );
 	quatFromMatrix.Normalize();
 
 	x = quatFromMatrix.x;
@@ -134,33 +134,33 @@ qpQuaternion<T>::qpQuaternion( const qpMat<T, 3> & mat ) {
 	w = quatFromMatrix.w;
 }
 
-template< typename T >
-qpQuaternion<T>::qpQuaternion( const qpMat<T, 4> & mat )
-	: qpQuaternion( static_cast< qpVec< T, 3 > >( mat.Right() ), static_cast< qpVec< T, 3 > >( mat.Up() ), static_cast< qpVec< T, 3 > >( mat.Forward() ) ){
+template< typename _type_ >
+qpQuaternion<  _type_  >::qpQuaternion( const qpMat<_type_, 4> & mat )
+	: qpQuaternion( static_cast< qpVec< _type_, 3 > >( mat.Right() ), static_cast< qpVec< _type_, 3 > >( mat.Up() ), static_cast< qpVec< _type_, 3 > >( mat.Forward() ) ){
 }
 
-template< typename T >
-T qpQuaternion<T>::Length() const {
+template< typename _type_ >
+_type_ qpQuaternion<  _type_  >::Length() const {
 	return qpMath::Sqrt( LengthSqr() );
 }
 
-template< typename T >
-T qpQuaternion<T>::LengthSqr() const {
+template< typename _type_ >
+_type_ qpQuaternion<  _type_  >::LengthSqr() const {
 	return qpDot( *this, *this );
 }
 
-template< typename T >
-qpQuaternion<T> qpQuaternion<T>::Normalized() const {
-	qpQuaternion< T > result;
+template< typename _type_ >
+qpQuaternion<  _type_  > qpQuaternion<  _type_  >::Normalized() const {
+	qpQuaternion< _type_ > result;
 	result.Normalize();
 	return result;
 }
 
-template< typename T >
-void qpQuaternion<T>::Normalize() {
-	T magnitude = Length();
+template< typename _type_ >
+void qpQuaternion<  _type_  >::Normalize() {
+	_type_ magnitude = Length();
 
-	if ( magnitude != static_cast< T >( 0 ) ) {
+	if ( magnitude != static_cast< _type_ >( 0 ) ) {
 		x /= magnitude;
 		y /= magnitude;
 		z /= magnitude;
@@ -168,104 +168,104 @@ void qpQuaternion<T>::Normalize() {
 	}
 }
 
-template< typename T >
-qpVec<T, 3> qpQuaternion<T>::ToEulers() const {
-	qpVec< T, 3 > angles( 0.0f );
+template< typename _type_ >
+qpVec<_type_, 3> qpQuaternion<  _type_  >::ToEulers() const {
+	qpVec< _type_, 3 > angles( 0.0f );
 
 	// x-axis rotation
-	T sinXCosY = static_cast< T >( 2 ) * ( w * x + y * z );
-	T cosXSinY = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( x * x + y * y );
+	_type_ sinXCosY = static_cast< _type_ >( 2 ) * ( w * x + y * z );
+	_type_ cosXSinY = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( x * x + y * y );
 	angles.x = qpMath::Atan2( sinXCosY, cosXSinY );
 
 	// y-axis rotation
-	T sinY = static_cast< T >( 2 ) * ( w * y - z * x );
-	if ( qpMath::Abs( sinY ) >= static_cast< T >( 1 ) ) {
+	_type_ sinY = static_cast< _type_ >( 2 ) * ( w * y - z * x );
+	if ( qpMath::Abs( sinY ) >= static_cast< _type_ >( 1 ) ) {
 		angles.y = qpMath::CopySign( qpMath::Pi / 2, sinY ); // use 90 degrees if out of range
 	} else {
 		angles.y = qpMath::Asin( sinY );
 	}
 
 	// z-axis rotation
-	T sinZCosY = static_cast< T >( 2 ) * ( w * z + x * y );
-	T cosZCosY = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( y * y + z * z );
+	_type_ sinZCosY = static_cast< _type_ >( 2 ) * ( w * z + x * y );
+	_type_ cosZCosY = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( y * y + z * z );
 	angles.z = qpMath::Atan2( sinZCosY, cosZCosY );
 
 	return angles;
 }
 
-template< typename T >
-qpVec<T, 3> qpQuaternion<T>::Forward() const {
-	qpVec< T, 3 > forward;
-	forward.x = static_cast< T >( 2 ) * ( x * z + w * y );
-	forward.y = static_cast< T >( 2 ) * ( y * z - w * x );
-	forward.z = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( x * x + y * y );
+template< typename _type_ >
+qpVec<_type_, 3> qpQuaternion<  _type_  >::Forward() const {
+	qpVec< _type_, 3 > forward;
+	forward.x = static_cast< _type_ >( 2 ) * ( x * z + w * y );
+	forward.y = static_cast< _type_ >( 2 ) * ( y * z - w * x );
+	forward.z = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( x * x + y * y );
 	return forward;
 }
 
-template< typename T >
-qpVec<T, 3> qpQuaternion<T>::Right() const {
-	qpVec< T, 3 > right;
-	right.x = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( y * y + z * z );
-	right.y = static_cast< T >( 2 ) * ( x * y + w * z );
-	right.z = static_cast< T >( 2 ) * ( x * z - w * y );
+template< typename _type_ >
+qpVec<_type_, 3> qpQuaternion<  _type_  >::Right() const {
+	qpVec< _type_, 3 > right;
+	right.x = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( y * y + z * z );
+	right.y = static_cast< _type_ >( 2 ) * ( x * y + w * z );
+	right.z = static_cast< _type_ >( 2 ) * ( x * z - w * y );
 	return right;
 }
 
-template< typename T >
-qpVec<T, 3> qpQuaternion<T>::Up() const {
-	qpVec< T, 3 > up;
-	up.x = static_cast< T >( 2 ) * ( x * y - w * z );
-	up.y = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( x * x + z * z );
-	up.z = static_cast< T >( 2 ) * ( y * z + w * x );
+template< typename _type_ >
+qpVec<_type_, 3> qpQuaternion<  _type_  >::Up() const {
+	qpVec< _type_, 3 > up;
+	up.x = static_cast< _type_ >( 2 ) * ( x * y - w * z );
+	up.y = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( x * x + z * z );
+	up.z = static_cast< _type_ >( 2 ) * ( y * z + w * x );
 	return up;
 }
 
-template< typename T >
-qpMat<T, 3> qpQuaternion<T>::ToMat3() const {
-	qpMat< T, 3 > rotationMatrix;
+template< typename _type_ >
+qpMat<_type_, 3> qpQuaternion<  _type_  >::ToMat3() const {
+	qpMat< _type_, 3 > rotationMatrix;
 
-	rotationMatrix( 1, 1 ) = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( y * y + z * z );
-	rotationMatrix( 1, 2 ) = static_cast< T >( 2 ) * ( x * y + w * z );
-	rotationMatrix( 1, 3 ) = static_cast< T >( 2 ) * ( x * z - w * y );
+	rotationMatrix( 1, 1 ) = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( y * y + z * z );
+	rotationMatrix( 1, 2 ) = static_cast< _type_ >( 2 ) * ( x * y + w * z );
+	rotationMatrix( 1, 3 ) = static_cast< _type_ >( 2 ) * ( x * z - w * y );
 
-	rotationMatrix( 2, 1 ) = static_cast< T >( 2 ) * ( x * y - w * z );
-	rotationMatrix( 2, 2 ) = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( x * x + z * z );
-	rotationMatrix( 2, 3 ) = static_cast< T >( 2 ) * ( y * z + w * x );
+	rotationMatrix( 2, 1 ) = static_cast< _type_ >( 2 ) * ( x * y - w * z );
+	rotationMatrix( 2, 2 ) = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( x * x + z * z );
+	rotationMatrix( 2, 3 ) = static_cast< _type_ >( 2 ) * ( y * z + w * x );
 
-	rotationMatrix( 3, 1 ) = static_cast< T >( 2 ) * ( x * z + w * y );
-	rotationMatrix( 3, 2 ) = static_cast< T >( 2 ) * ( y * z - w * x );
-	rotationMatrix( 3, 3 ) = static_cast< T >( 1 ) - static_cast< T >( 2 ) * ( x * x + y * y );
+	rotationMatrix( 3, 1 ) = static_cast< _type_ >( 2 ) * ( x * z + w * y );
+	rotationMatrix( 3, 2 ) = static_cast< _type_ >( 2 ) * ( y * z - w * x );
+	rotationMatrix( 3, 3 ) = static_cast< _type_ >( 1 ) - static_cast< _type_ >( 2 ) * ( x * x + y * y );
 
 	return rotationMatrix;
 }
 
-template< typename T >
-qpMat<T, 4> qpQuaternion<T>::ToMat4() const {
-	const qpMat< T, 3 > rotationMatrix = ToMat3();
-	return qpMat< T, 4 > {
-		qpVec< T, 4 >( rotationMatrix.Right(), static_cast< T >( 0 ) ),
-		qpVec< T, 4 >( rotationMatrix.Up(), static_cast< T >( 0 ) ),
-		qpVec< T, 4 >( rotationMatrix.Forward(), static_cast< T >( 0 ) ),
-		qpVec< T, 4 >( static_cast< T >( 0 ), static_cast< T >( 0 ), static_cast< T >( 0 ), static_cast< T >( 1 ) ),
+template< typename _type_ >
+qpMat<_type_, 4> qpQuaternion<  _type_  >::ToMat4() const {
+	const qpMat< _type_, 3 > rotationMatrix = ToMat3();
+	return qpMat< _type_, 4 > {
+		qpVec< _type_, 4 >( rotationMatrix.Right(), static_cast< _type_ >( 0 ) ),
+		qpVec< _type_, 4 >( rotationMatrix.Up(), static_cast< _type_ >( 0 ) ),
+		qpVec< _type_, 4 >( rotationMatrix.Forward(), static_cast< _type_ >( 0 ) ),
+		qpVec< _type_, 4 >( static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 0 ), static_cast< _type_ >( 1 ) ),
 	};
 }
 
-template< typename T >
-qpQuaternion<T> qpQuaternion<T>::operator-() const {
-	return qpQuaternion< T >( -x, -y, -z, -w );
+template< typename _type_ >
+qpQuaternion<  _type_  > qpQuaternion<  _type_  >::operator-() const {
+	return qpQuaternion< _type_ >( -x, -y, -z, -w );
 }
 
-template< typename T >
-qpVec<T, 3> qpQuaternion<T>::Axis() const {
-	return qpVec< T, 3 >( x, y, z );
+template< typename _type_ >
+qpVec<_type_, 3> qpQuaternion<  _type_  >::Axis() const {
+	return qpVec< _type_, 3 >( x, y, z );
 }
 
-template < typename T >
-static qpQuaternion< T > & operator*=( qpQuaternion< T > & lhs, const qpQuaternion< T > & rhs ) {
-	T x = lhs.x;
-	T y = lhs.y;
-	T z = lhs.z;
-	T w = lhs.w;
+template < typename _type_ >
+static qpQuaternion< _type_ > & operator*=( qpQuaternion< _type_ > & lhs, const qpQuaternion< _type_ > & rhs ) {
+	_type_ x = lhs.x;
+	_type_ y = lhs.y;
+	_type_ z = lhs.z;
+	_type_ w = lhs.w;
 
 	lhs.x = ( w * rhs.x ) + ( x * rhs.w ) + ( y * rhs.z ) - ( z * rhs.y );
 	lhs.y = ( w * rhs.y ) - ( x * rhs.z ) + ( y * rhs.w ) + ( z * rhs.x );
@@ -275,8 +275,8 @@ static qpQuaternion< T > & operator*=( qpQuaternion< T > & lhs, const qpQuaterni
 	return lhs;
 }
 
-template < typename T >
-static qpQuaternion< T > & operator*=( qpQuaternion< T > & lhs, const T & rhs ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > & operator*=( qpQuaternion< _type_ > & lhs, const _type_ & rhs ) {
 	lhs.x *= rhs.x;
 	lhs.y *= rhs.y;
 	lhs.z *= rhs.z;
@@ -284,29 +284,29 @@ static qpQuaternion< T > & operator*=( qpQuaternion< T > & lhs, const T & rhs ) 
 	return lhs;
 }
 
-template < typename T >
-static qpQuaternion< T > operator*( const qpQuaternion< T > & lhs, const qpQuaternion< T > & rhs ) {
-	qpQuaternion< T > result = lhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator*( const qpQuaternion< _type_ > & lhs, const qpQuaternion< _type_ > & rhs ) {
+	qpQuaternion< _type_ > result = lhs;
 	result *= rhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > operator*( const qpQuaternion< T > & lhs, const T & rhs ) {
-	qpQuaternion< T > result = lhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator*( const qpQuaternion< _type_ > & lhs, const _type_ & rhs ) {
+	qpQuaternion< _type_ > result = lhs;
 	result *= rhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > operator*( const T & lhs, const qpQuaternion< T > & rhs ) {
-	qpQuaternion< T > result = rhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator*( const _type_ & lhs, const qpQuaternion< _type_ > & rhs ) {
+	qpQuaternion< _type_ > result = rhs;
 	result *= lhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > & operator/=( qpQuaternion< T > & lhs, const T & rhs ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > & operator/=( qpQuaternion< _type_ > & lhs, const _type_ & rhs ) {
 	lhs.x /= rhs.x;
 	lhs.y /= rhs.y;
 	lhs.z /= rhs.z;
@@ -314,22 +314,22 @@ static qpQuaternion< T > & operator/=( qpQuaternion< T > & lhs, const T & rhs ) 
 	return lhs;
 }
 
-template < typename T >
-static qpQuaternion< T > operator/( const qpQuaternion< T > & lhs, const T & rhs ) {
-	qpQuaternion< T > result = lhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator/( const qpQuaternion< _type_ > & lhs, const _type_ & rhs ) {
+	qpQuaternion< _type_ > result = lhs;
 	result /= rhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > operator/( const T & lhs, const qpQuaternion< T > & rhs ) {
-	qpQuaternion< T > result = rhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator/( const _type_ & lhs, const qpQuaternion< _type_ > & rhs ) {
+	qpQuaternion< _type_ > result = rhs;
 	result /= lhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > & operator+=( qpQuaternion< T > & lhs, const qpQuaternion< T > & rhs ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > & operator+=( qpQuaternion< _type_ > & lhs, const qpQuaternion< _type_ > & rhs ) {
 	lhs.x += rhs.x;
 	lhs.y += rhs.y;
 	lhs.z += rhs.z;
@@ -337,93 +337,93 @@ static qpQuaternion< T > & operator+=( qpQuaternion< T > & lhs, const qpQuaterni
 	return lhs;
 }
 
-template < typename T >
-static qpQuaternion< T > operator+( const qpQuaternion< T > & lhs, const qpQuaternion< T > & rhs ) {
-	qpQuaternion< T > result = lhs;
+template < typename _type_ >
+static qpQuaternion< _type_ > operator+( const qpQuaternion< _type_ > & lhs, const qpQuaternion< _type_ > & rhs ) {
+	qpQuaternion< _type_ > result = lhs;
 	result += rhs;
 	return result;
 }
 
-template < typename T >
-static qpQuaternion< T > qpConjugate( const qpQuaternion< T > & quat ) {
-	return qpQuaternion< T >( -quat.x, -quat.y, -quat.z, quat.w );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpConjugate( const qpQuaternion< _type_ > & quat ) {
+	return qpQuaternion< _type_ >( -quat.x, -quat.y, -quat.z, quat.w );
 }
 
-template < typename T >
-static qpQuaternion< T > qpLookRotation( const qpVec< T, 3 > & forward, const qpVec< T, 3 > & up ) {
-	qpVec< T, 3 > lookRight = qpCross( up, forward );
-	qpVec< T, 3 > lookUp = qpCross( forward, lookRight );
-	return qpQuaternion< T >( qpMat< T, 3 >( lookRight, lookUp, forward ) );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpLookRotation( const qpVec< _type_, 3 > & forward, const qpVec< _type_, 3 > & up ) {
+	qpVec< _type_, 3 > lookRight = qpCross( up, forward );
+	qpVec< _type_, 3 > lookUp = qpCross( forward, lookRight );
+	return qpQuaternion< _type_ >( qpMat< _type_, 3 >( lookRight, lookUp, forward ) );
 }
 
-template < typename T >
-static qpQuaternion< T > qpLookRotation( const qpVec< T, 3 > & forward ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > qpLookRotation( const qpVec< _type_, 3 > & forward ) {
 	return qpLookRotation( forward, g_vec3Up );
 }
 
-template < typename T >
-static qpQuaternion< T > qpFromMat3( const qpMat< T, 3 > & mat ) {
-	return qpQuaternion< T >( mat );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpFromMat3( const qpMat< _type_, 3 > & mat ) {
+	return qpQuaternion< _type_ >( mat );
 }
 
-template < typename T >
-static qpQuaternion< T > qpFromMat4( const qpMat< T, 4 > & mat ) {
-	return qpQuaternion< T >( mat );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpFromMat4( const qpMat< _type_, 4 > & mat ) {
+	return qpQuaternion< _type_ >( mat );
 }
 
-template < typename T >
-static qpQuaternion< T > qpFromEulers( const T & xDeg, const T & yDeg, const T & zDeg ) {
-	return qpQuaternion< T >( xDeg, yDeg, zDeg );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpFromEulers( const _type_ & xDeg, const _type_ & yDeg, const _type_ & zDeg ) {
+	return qpQuaternion< _type_ >( xDeg, yDeg, zDeg );
 }
 
-template < typename T >
-static qpQuaternion< T > qpFromEulers( const qpVec< T, 3 > & eulersDeg ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > qpFromEulers( const qpVec< _type_, 3 > & eulersDeg ) {
 	return qpFromEulers( eulersDeg.x, eulersDeg.y, eulersDeg.z );
 }
 
-template < typename T >
-static qpQuaternion< T > qpFromAxisAngle( const qpVec< T, 3 > & axis, const T & angleDeg ) {
-	return qpQuaternion< T >( axis, angleDeg );
+template < typename _type_ >
+static qpQuaternion< _type_ > qpFromAxisAngle( const qpVec< _type_, 3 > & axis, const _type_ & angleDeg ) {
+	return qpQuaternion< _type_ >( axis, angleDeg );
 }
 
-template < typename T >
-static qpQuaternion< T > qpLerp( const qpQuaternion< T > & from, const qpQuaternion< T > & to, const T & time ) {
+template < typename _type_ >
+static qpQuaternion< _type_ > qpLerp( const qpQuaternion< _type_ > & from, const qpQuaternion< _type_ > & to, const _type_ & time ) {
 	return qpMath::Lerp( from, to, time );
 }
 
-template < typename T >
-static qpQuaternion< T > qpSlerp( const qpQuaternion< T > & from, const qpQuaternion< T > & to, const T & time ) {
-	const qpQuaternion< T > a = from;
-	qpQuaternion< T > b = to;
+template < typename _type_ >
+static qpQuaternion< _type_ > qpSlerp( const qpQuaternion< _type_ > & from, const qpQuaternion< _type_ > & to, const _type_ & time ) {
+	const qpQuaternion< _type_ > a = from;
+	qpQuaternion< _type_ > b = to;
 
-	T dot = qpDot( a, b );
+	_type_ dot = qpDot( a, b );
 
-	if ( dot < static_cast< T >( 0 ) ) {
+	if ( dot < static_cast< _type_ >( 0 ) ) {
 		b = -b;
-		dot *= static_cast< T >( -1 );
+		dot *= static_cast< _type_ >( -1 );
 	}
 
-	T dotABSqr = qpMath::Min( dot * dot, static_cast< T >( 1 ) );
-	T sinTheta = qpMath::Sqrt( static_cast< T >( 1 ) - dotABSqr );
-	if ( sinTheta < static_cast< T >( 0.0001 ) ) {
+	_type_ dotABSqr = qpMath::Min( dot * dot, static_cast< _type_ >( 1 ) );
+	_type_ sinTheta = qpMath::Sqrt( static_cast< _type_ >( 1 ) - dotABSqr );
+	if ( sinTheta < static_cast< _type_ >( 0.0001 ) ) {
 		return a;
 	}
 
-	return ( ( sinTheta * ( static_cast< T >( 1 ) - time ) ) / sinTheta ) * a + ( ( sinTheta * time ) / sinTheta ) * b;
+	return ( ( sinTheta * ( static_cast< _type_ >( 1 ) - time ) ) / sinTheta ) * a + ( ( sinTheta * time ) / sinTheta ) * b;
 }
 
-template < typename T >
-static T qpDot( const qpQuaternion< T > & lhs, const qpQuaternion< T > & rhs ) {
+template < typename _type_ >
+static _type_ qpDot( const qpQuaternion< _type_ > & lhs, const qpQuaternion< _type_ > & rhs ) {
 	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
-template < typename T >
-qpQuaternion< T > qpDeltaRotationLocal( const qpQuaternion< T > & from, const qpQuaternion< T > & to ) {
+template < typename _type_ >
+qpQuaternion< _type_ > qpDeltaRotationLocal( const qpQuaternion< _type_ > & from, const qpQuaternion< _type_ > & to ) {
 	return  qpConjugate( from ) * to;
 }
 
-template < typename T >
-qpQuaternion< T > qpDeltaRotationWorld( const qpQuaternion< T > & from, const qpQuaternion< T > & to ) {
+template < typename _type_ >
+qpQuaternion< _type_ > qpDeltaRotationWorld( const qpQuaternion< _type_ > & from, const qpQuaternion< _type_ > & to ) {
 	return  to * qpConjugate( from );
 }
 

@@ -1,137 +1,137 @@
 #pragma once
-#include "qp/common/utilities/qp_utility.h"
+#include "qp/common/core/qp_type_traits.h"
 #include <cstddef>
 #include <compare>
 
-template< typename T >
+template< typename _type_  >
 class qpUniquePtr {
 public:
 	qpUniquePtr();
-	explicit qpUniquePtr( T * ptr );
+	explicit qpUniquePtr( _type_ * ptr );
 	qpUniquePtr( nullptr_t null );
-	qpUniquePtr( const qpUniquePtr< T > & other ) = delete;
-	qpUniquePtr( qpUniquePtr< T > && other ) noexcept;
-	template< typename D >
-	qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D > );
+	qpUniquePtr( const qpUniquePtr< _type_ > & other ) = delete;
+	qpUniquePtr( qpUniquePtr< _type_ > && other ) noexcept;
+	template< typename _derived_  >
+	qpUniquePtr( qpUniquePtr< _derived_ > && other ) noexcept requires ( IsBaseOf< _type_, _derived_ > );
 	~qpUniquePtr();
 
-	qpUniquePtr< T > & operator=( const qpUniquePtr< T > & rhs ) = delete;
-	qpUniquePtr< T > & operator=( nullptr_t null );
-	qpUniquePtr< T > & operator=( qpUniquePtr< T > && rhs ) noexcept;
-	template< typename D >
-	qpUniquePtr< T > & operator=( qpUniquePtr< D > && rhs ) noexcept requires ( qpIsBaseOf< T, D > );
+	qpUniquePtr< _type_ > & operator=( const qpUniquePtr< _type_ > & rhs ) = delete;
+	qpUniquePtr< _type_ > & operator=( nullptr_t null );
+	qpUniquePtr< _type_ > & operator=( qpUniquePtr< _type_ > && rhs ) noexcept;
+	template< typename _derived_  >
+	qpUniquePtr< _type_ > & operator=( qpUniquePtr< _derived_ > && rhs ) noexcept requires ( IsBaseOf< _type_, _derived_ > );
 
-	auto operator<=>( const qpUniquePtr< T > & rhs ) const;
-	auto operator<=>( const T * rhs ) const;
-	bool operator==( const qpUniquePtr< T > & rhs ) const;
-	bool operator==( const T * rhs ) const;
+	auto operator<=>( const qpUniquePtr< _type_ > & rhs ) const;
+	auto operator<=>( const _type_ * rhs ) const;
+	bool operator==( const qpUniquePtr< _type_ > & rhs ) const;
+	bool operator==( const _type_ * rhs ) const;
 
-	T * operator->() { return m_ptr; }
-	const T * operator->() const { return m_ptr; }
+	_type_ * operator->() { return m_ptr; }
+	const _type_ * operator->() const { return m_ptr; }
 
-	T & operator*() { return *m_ptr; }
-	const T & operator*() const { return *m_ptr; }
+	_type_ & operator*() { return *m_ptr; }
+	const _type_ & operator*() const { return *m_ptr; }
 
-	T * Raw() const { return m_ptr; }
-	T * Release();
+	_type_ * Raw() const { return m_ptr; }
+	_type_ * Release();
 
 	void Reset();
-	void Reset( T * data );
+	void Reset( _type_ * data );
 private:
-	T * m_ptr = NULL;
+	_type_ * m_ptr = NULL;
 };
 
-template< typename T >
-qpUniquePtr< T >::qpUniquePtr() {
+template< typename _type_  >
+qpUniquePtr< _type_ >::qpUniquePtr() {
 }
 
-template< typename T >
-qpUniquePtr< T >::qpUniquePtr( T * ptr ) {
+template< typename _type_  >
+qpUniquePtr< _type_ >::qpUniquePtr( _type_ * ptr ) {
 	m_ptr = ptr;
 }
 
-template< typename T >
-qpUniquePtr< T >::qpUniquePtr( nullptr_t null ) {
+template< typename _type_  >
+qpUniquePtr< _type_ >::qpUniquePtr( nullptr_t null ) {
 	m_ptr = null;
 }
 
-template< typename T >
-qpUniquePtr< T >::qpUniquePtr( qpUniquePtr< T > && other ) noexcept {
+template< typename _type_  >
+qpUniquePtr< _type_ >::qpUniquePtr( qpUniquePtr< _type_ > && other ) noexcept {
 	m_ptr = other.Release();
 }
 
-template< typename T >
-template< typename D >
-qpUniquePtr< T >::qpUniquePtr( qpUniquePtr< D > && other ) noexcept requires ( qpIsBaseOf< T, D > ) {
+template< typename _type_  >
+template< typename _derived_  >
+qpUniquePtr< _type_ >::qpUniquePtr( qpUniquePtr< _derived_ > && other ) noexcept requires ( IsBaseOf< _type_, _derived_ > ) {
 	m_ptr = other.Release();
 }
 
-template< typename T >
-qpUniquePtr< T >::~qpUniquePtr() {
+template< typename _type_  >
+qpUniquePtr< _type_ >::~qpUniquePtr() {
 	delete m_ptr;
 }
 
-template< typename T >
-qpUniquePtr< T > & qpUniquePtr< T >::operator=( qpUniquePtr< T > && rhs ) noexcept {
+template< typename _type_  >
+qpUniquePtr< _type_ > & qpUniquePtr< _type_ >::operator=( qpUniquePtr< _type_ > && rhs ) noexcept {
 	delete m_ptr;
 	m_ptr = rhs.Release();
 	return *this;
 }
 
-template< typename T >
-qpUniquePtr< T > & qpUniquePtr< T >::operator=( nullptr_t null ) {
+template< typename _type_  >
+qpUniquePtr< _type_ > & qpUniquePtr< _type_ >::operator=( nullptr_t null ) {
 	delete m_ptr;
 	m_ptr = null;
 	return *this;
 }
 
-template< typename T >
-template< typename D >
-qpUniquePtr< T > & qpUniquePtr< T >::operator=( qpUniquePtr< D > && rhs ) noexcept requires ( qpIsBaseOf< T, D > ) {
+template< typename _type_  >
+template< typename _derived_  >
+qpUniquePtr< _type_ > & qpUniquePtr< _type_ >::operator=( qpUniquePtr< _derived_ > && rhs ) noexcept requires ( IsBaseOf< _type_, _derived_ > ) {
 	delete m_ptr;
 	m_ptr = rhs.Release();
 	return *this;
 }
 
-template< typename T >
-auto qpUniquePtr< T >::operator<=>( const qpUniquePtr< T > & rhs ) const {
+template< typename _type_  >
+auto qpUniquePtr< _type_ >::operator<=>( const qpUniquePtr< _type_ > & rhs ) const {
 	return ( m_ptr - rhs.m_ptr );
 }
 
-template< typename T >
-auto qpUniquePtr< T >::operator<=>( const T * rhs ) const {
+template< typename _type_  >
+auto qpUniquePtr< _type_ >::operator<=>( const _type_ * rhs ) const {
 	return ( m_ptr - rhs );
 }
 
-template< typename T >
-bool qpUniquePtr< T >::operator==( const qpUniquePtr< T > & rhs ) const {
+template< typename _type_  >
+bool qpUniquePtr< _type_ >::operator==( const qpUniquePtr< _type_ > & rhs ) const {
 	return m_ptr == rhs.m_ptr;
 }
 
-template< typename T >
-bool qpUniquePtr< T >::operator==( const T * rhs ) const {
+template< typename _type_  >
+bool qpUniquePtr< _type_ >::operator==( const _type_ * rhs ) const {
 	return m_ptr == rhs;
 }
 
-template< typename T >
-T * qpUniquePtr< T >::Release() {
-	T * ptr = m_ptr;
+template< typename _type_  >
+_type_ * qpUniquePtr< _type_ >::Release() {
+	_type_ * ptr = m_ptr;
 	m_ptr = NULL;
 	return ptr;
 }
 
-template< typename T >
-void qpUniquePtr< T >::Reset() {
+template< typename _type_  >
+void qpUniquePtr< _type_ >::Reset() {
 	return Reset( NULL );
 }
 
-template< typename T >
-void qpUniquePtr< T >::Reset( T * data ) {
+template< typename _type_  >
+void qpUniquePtr< _type_ >::Reset( _type_ * data ) {
 	delete m_ptr;
 	m_ptr = data;
 }
 
-template < typename T, typename ... ARGS >
-constexpr static inline qpUniquePtr< T > qpCreateUnique( ARGS&&... args ) {
-	return qpUniquePtr< T >( new T( qpForward< ARGS >( args )... ) );
+template < typename _type_ , typename ... _args_ >
+constexpr static inline qpUniquePtr< _type_ > qpCreateUnique( _args_&&... args ) {
+	return qpUniquePtr< _type_ >( new _type_( qpForward< _args_ >( args )... ) );
 }

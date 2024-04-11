@@ -6,7 +6,7 @@
 class qpKeyboard;
 class qpMouse;
 
-enum class qpWindowMode_t {
+enum class windowMode_t {
 	WINDOWED,
 	BORDERLESS,
 	COUNT
@@ -16,7 +16,7 @@ struct qpWindowProperties_t {
 	qpString title = "qpApp";
 	int width = 1280;
 	int height = 720;
-	qpWindowMode_t mode = qpWindowMode_t::WINDOWED;
+	windowMode_t mode = windowMode_t::WINDOWED;
 	bool allowResize = true;
 	void * platformData = NULL;
 };
@@ -32,7 +32,7 @@ public:
 	virtual int GetWidth() = 0;
 	virtual int GetHeight() = 0;
 
-	virtual qpWindowMode_t GetWindowMode() const = 0;
+	virtual windowMode_t GetWindowMode() const = 0;
 
 	virtual void * GetHandle() const = 0;
 

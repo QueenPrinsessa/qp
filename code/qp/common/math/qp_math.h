@@ -1,185 +1,186 @@
 #pragma once
 #include "qp/common/debug/qp_debug.h"
+#include "qp/common/core/qp_type_traits.h"
 #include <cmath>
 
 namespace qpMath {
 	constexpr static inline float Pi = 3.14159265359f;
 
-	template <typename T>
-	static T Abs( const T & n );
+	template <typename _type_>
+	static _type_ Abs( const _type_ & n );
 
-	template <typename T>
-	static T Min( const T & a, const T & b );
+	template <typename _type_>
+	static _type_ Min( const _type_ & a, const _type_ & b );
 
-	template <typename T>
-	static T Max( const T & a, const T & b );
+	template <typename _type_>
+	static _type_ Max( const _type_ & a, const _type_ & b );
 
-	template < typename T >
-	static T Clamp( const T & n, const T & min, const T & max );
+	template < typename _type_ >
+	static _type_ Clamp( const _type_ & n, const _type_ & min, const _type_ & max );
 
-	template < typename T >
-	static T Clamp01( const T & n );
+	template < typename _type_ >
+	static _type_ Clamp01( const _type_ & n );
 
-	template < typename T >
-	static T Deg2Rad( const T & n );
+	template < typename _type_ >
+	static _type_ Deg2Rad( const _type_ & n );
 
-	template < typename T >
-	static T Rad2Deg( const T & n );
+	template < typename _type_ >
+	static _type_ Rad2Deg( const _type_ & n );
 
-	template < typename T >
-	static T Cos( const T & n );
+	template < typename _type_ >
+	static _type_ Cos( const _type_ & n );
 
-	template < typename T >
-	static T Sin( const T & n );
+	template < typename _type_ >
+	static _type_ Sin( const _type_ & n );
 
-	template < typename T >
-	static T Asin( const T & n );
+	template < typename _type_ >
+	static _type_ Asin( const _type_ & n );
 
-	template < typename T >
-	static T Tan( const T & n );
+	template < typename _type_ >
+	static _type_ Tan( const _type_ & n );
 
-	template < typename T >
-	static T Atan( const T & n );
+	template < typename _type_ >
+	static _type_ Atan( const _type_ & n );
 
-	template < typename T >
-	static T Atan2( const T & y, const T & x );
+	template < typename _type_ >
+	static _type_ Atan2( const _type_ & y, const _type_ & x );
 
-	template < typename T >
-	static T Pow( const T & a, const T & b );
+	template < typename _type_ >
+	static _type_ Pow( const _type_ & a, const _type_ & b );
 
-	template < typename T >
-	static T Pow2( const T & n );
+	template < typename _type_ >
+	static _type_ Pow2( const _type_ & n );
 
-	template < typename T >
-	static T Sqrt( const T & n );
+	template < typename _type_ >
+	static _type_ Sqrt( const _type_ & n );
 
-	template < typename T >
-	static T Ceil( const T & n ) requires ( std::is_floating_point_v< T > );
+	template < typename _type_ >
+	static _type_ Ceil( const _type_ & n ) requires ( IsFloatingPoint< _type_ > );
 
-	template < typename T >
-	static T Log( const T & n ) requires ( std::is_floating_point_v< T > );
+	template < typename _type_ >
+	static _type_ Log( const _type_ & n ) requires ( IsFloatingPoint< _type_ > );
 
-	template < typename T >
-	static T Log2( const T & n ) requires ( std::is_floating_point_v< T > );
+	template < typename _type_ >
+	static _type_ Log2( const _type_ & n ) requires ( IsFloatingPoint< _type_ > );
 
-	template < typename T >
-	static T RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > );
+	template < typename _type_ >
+	static _type_ RoundToPow2( const _type_ & n ) requires ( IsFloatingPoint< _type_ > );
 
-	template < typename T, typename S >
-	static T Lerp( const T & a, const T & b, const S & time ) requires ( std::is_floating_point_v< S > );
+	template < typename _type_, typename _time_ >
+	static _type_ Lerp( const _type_ & a, const _type_ & b, const _time_ & time ) requires ( IsFloatingPoint< _time_ > );
 
-	template < typename T >
-	static T CopySign( const T & magnitude, const T & sign );
+	template < typename _type_ >
+	static _type_ CopySign( const _type_ & magnitude, const _type_ & sign );
 };
 
-template < typename T >
-T qpMath::Abs( const T & n ) {
+template < typename _type_ >
+_type_ qpMath::Abs( const _type_ & n ) {
 	return n >= 0 ? n : -n;
 }
 
-template < typename T >
-T qpMath::Min( const T & a, const T & b ) {
+template < typename _type_ >
+_type_ qpMath::Min( const _type_ & a, const _type_ & b ) {
 	return ( a < b ) ? a : b;
 }
 
-template < typename T >
-T qpMath::Max( const T & a, const T & b ) {
+template < typename _type_ >
+_type_ qpMath::Max( const _type_ & a, const _type_ & b ) {
 	return ( b < a ) ? a : b;
 }
 
-template < typename T >
-T qpMath::Clamp( const T & n, const T & min, const T & max ) {
+template < typename _type_ >
+_type_ qpMath::Clamp( const _type_ & n, const _type_ & min, const _type_ & max ) {
 	QP_ASSERT_MSG( min <= max, "Min can't be greater than max." );
 
 	return ( n < min ) ? min : ( !( n < max ) ? max : n );
 }
 
-template < typename T >
-T qpMath::Clamp01( const T & n ) {
-	return qpMath::Clamp( n, static_cast < T >( 0 ), static_cast < T >( 1 ) );
+template < typename _type_ >
+_type_ qpMath::Clamp01( const _type_ & n ) {
+	return qpMath::Clamp( n, static_cast < _type_ >( 0 ), static_cast < _type_ >( 1 ) );
 }
 
-template < typename T >
-T qpMath::Deg2Rad( const T & n ) {
-	return static_cast< T >( n * ( Pi / 180.0f ) );
+template < typename _type_ >
+_type_ qpMath::Deg2Rad( const _type_ & n ) {
+	return static_cast< _type_ >( n * ( Pi / 180.0f ) );
 }
 
-template < typename T >
-T qpMath::Rad2Deg( const T & n ) {
-	return static_cast< T > ( n * ( 180.0f / Pi ) );
+template < typename _type_ >
+_type_ qpMath::Rad2Deg( const _type_ & n ) {
+	return static_cast< _type_ > ( n * ( 180.0f / Pi ) );
 }
 
-template< typename T >
-T qpMath::Cos( const T & n ) {
-	return static_cast< T >( std::cos( n ) );
+template< typename _type_ >
+_type_ qpMath::Cos( const _type_ & n ) {
+	return static_cast< _type_ >( std::cos( n ) );
 }
 
-template< typename T >
-T qpMath::Sin( const T & n ) {
-	return static_cast< T >( std::sin( n ) );
+template< typename _type_ >
+_type_ qpMath::Sin( const _type_ & n ) {
+	return static_cast< _type_ >( std::sin( n ) );
 }
 
-template< typename T >
-T qpMath::Asin( const T & n ) {
-	return static_cast< T >( std::asin( n ) );
+template< typename _type_ >
+_type_ qpMath::Asin( const _type_ & n ) {
+	return static_cast< _type_ >( std::asin( n ) );
 }
 
-template< typename T >
-T qpMath::Tan( const T & n ) {
-	return static_cast< T >( std::tan( n ) );
+template< typename _type_ >
+_type_ qpMath::Tan( const _type_ & n ) {
+	return static_cast< _type_ >( std::tan( n ) );
 }
 
-template< typename T >
-T qpMath::Atan( const T & n ) {
-	return static_cast< T >( std::atan( n ) );
+template< typename _type_ >
+_type_ qpMath::Atan( const _type_ & n ) {
+	return static_cast< _type_ >( std::atan( n ) );
 }
 
-template< typename T >
-T qpMath::Atan2( const T & y, const T & x ) {
+template< typename _type_ >
+_type_ qpMath::Atan2( const _type_ & y, const _type_ & x ) {
 	return std::atan2( y, x );
 }
 
-template< typename T >
-T qpMath::Pow( const T & a, const T & b ) {
-	return std::pow< T >( a, b );
+template< typename _type_ >
+_type_ qpMath::Pow( const _type_ & a, const _type_ & b ) {
+	return std::pow< _type_ >( a, b );
 }
 
-template< typename T >
-T qpMath::Pow2( const T & n ) {
+template< typename _type_ >
+_type_ qpMath::Pow2( const _type_ & n ) {
 	return n * n;
 }
 
-template< typename T >
-T qpMath::Sqrt( const T & n ) {
+template< typename _type_ >
+_type_ qpMath::Sqrt( const _type_ & n ) {
 	return std::sqrt( n );
 }
 
-template< typename T >
-T qpMath::Ceil( const T & n ) requires ( std::is_floating_point_v<T> ) {
+template< typename _type_ >
+_type_ qpMath::Ceil( const _type_ & n ) requires ( IsFloatingPoint< _type_ > ) {
 	return std::ceil( n );
 }
 
-template< typename T >
-T qpMath::Log( const T & n ) requires (std::is_floating_point_v<T>) {
+template< typename _type_ >
+_type_ qpMath::Log( const _type_ & n ) requires ( IsFloatingPoint< _type_ >) {
 	return std::log( n );
 }
 
-template< typename T >
-T qpMath::Log2( const T & n ) requires ( std::is_floating_point_v<T> ) {
+template< typename _type_ >
+_type_ qpMath::Log2( const _type_ & n ) requires ( IsFloatingPoint< _type_ > ) {
 	return std::log2( n );
 }
 
-template < typename T >
-T qpMath::RoundToPow2( const T & n ) requires ( std::is_floating_point_v< T > ) {
-	return qpMath::Pow( static_cast< T >( 2 ), qpMath::Ceil( qpMath::Log( n ) / qpMath::Log( static_cast< T >( 2 ) ) ) );
+template < typename _type_ >
+_type_ qpMath::RoundToPow2( const _type_ & n ) requires ( IsFloatingPoint< _type_ > ) {
+	return qpMath::Pow( static_cast< _type_ >( 2 ), qpMath::Ceil( qpMath::Log( n ) / qpMath::Log( static_cast< _type_ >( 2 ) ) ) );
 }
 
-template< typename T, typename S >
-T qpMath::Lerp( const T & a, const T & b, const S & time ) requires ( std::is_floating_point_v< S > ) {
+template< typename _type_, typename _time_ >
+_type_ qpMath::Lerp( const _type_ & a, const _type_ & b, const _time_ & time ) requires ( IsFloatingPoint< _time_ > ) {
 	return a + ( b - a ) * time;
 }
 
-template< typename T >
-T qpMath::CopySign( const T & magnitude, const T & sign ) {
+template< typename _type_ >
+_type_ qpMath::CopySign( const _type_ & magnitude, const _type_ & sign ) {
 	return std::copysign( magnitude, sign );
 }

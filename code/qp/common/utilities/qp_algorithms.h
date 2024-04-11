@@ -1,18 +1,19 @@
 #pragma once
-#include "qp_utility.h"
+#include "qp/common/core/qp_type_traits.h"
+#include "qp/common/core/qp_types.h"
 #include "qp/common/debug/qp_debug.h"
 #include <cstddef>
 #include <cstring>
 
-template < typename T >
-T * qpBinarySearch( T * begin, T * end, const T & value ) {
+template < typename _type_ >
+_type_ * qpBinarySearch( _type_ * begin, _type_ * end, const _type_ & value ) {
 	int left = 0;
 	int right = static_cast< int >( end - begin );
 
 	while( left <= right ) {
 		int middle = ( left + right ) / 2;
 
-		T * middlePtr = begin + middle;
+		_type_ * middlePtr = begin + middle;
 		if( *middlePtr < value ) {
 			left = ( middle + 1 );
 		} else if( value < *middlePtr ) {
@@ -25,14 +26,14 @@ T * qpBinarySearch( T * begin, T * end, const T & value ) {
 	return end;
 }
 
-template < typename T >
-uint64 qpCopyUnchecked( T * to, const T * from, const uint64 num ) {
+template < typename _type_ >
+uint64 qpCopyUnchecked( _type_ * to, const _type_ * from, const uint64 num ) {
 	if ( num == 0 ) {
 		return num;
 	}
 
-	if constexpr ( qpIsTrivialToCopy< T > ) {
-		memcpy( to, from, num * sizeof( T ) );
+	if constexpr ( IsTrivialToCopy< _type_ > ) {
+		memcpy( to, from, num * sizeof( _type_ ) );
 	} else {
 		for ( int index = 0; index < num; index++ ) {
 			*to = *( from + index );
@@ -43,8 +44,8 @@ uint64 qpCopyUnchecked( T * to, const T * from, const uint64 num ) {
 	return num;
 }
 
-template < typename T >
-uint64 qpCopy( T * to, uint64 toCount, const T * from, const uint64 fromCount ) {
+template < typename _type_ >
+uint64 qpCopy( _type_ * to, uint64 toCount, const _type_ * from, const uint64 fromCount ) {
 	QP_ASSERT( toCount >= fromCount );
 
 	if( toCount < fromCount ) {
@@ -103,39 +104,25 @@ static uint64 qpCopyBytesOverlapped( void * to, uint64 toSizeBytes, const void *
 	return qpCopyBytesOverlappedUnchecked( to, from, numBytes );
 }
 
-template < typename T >
-void qpSwap( T & a, T & b ) {
-	const T temp = a;
+template < typename _type_ >
+void qpSwap( _type_ & a, _type_ & b ) {
+	const _type_ temp = a;
 	a = b;
 	b = temp;
 }
 
-template < typename T >
-void qpZeroMemory( T & memory ) {
-	memset( &memory, 0, sizeof( T ) );
+template < typename _type_ >
+void qpZeroMemory( _type_ & memory ) {
+	memset( &memory, 0, sizeof( _type_ ) );
 }
 
 inline void qpZeroMemory( void * memory, int numBytes ) {
 	memset( memory, 0, numBytes );
 }
 
-template < typename ... ARGS >
-constexpr size_t qpSizeOfBiggestType_Internal() {
-	size_t bytes = 0;
-	( [ & ] () {
-		if ( bytes < sizeof( ARGS ) ) {
-			bytes = sizeof( ARGS );
-		}
-	}( ), ... );
-	return bytes;
-}
-
-template < typename ... ARGS >
-constexpr size_t qpSizeOfBiggestTypeValue = qpSizeOfBiggestType_Internal< ARGS... >();
-
-template < typename TO, typename FROM >
-static TO qpVerifyStaticCast( const FROM a ) {
-	TO result = static_cast< TO >( a );
-	QP_ASSERT_MSG( static_cast< FROM >( result ) == a, "Truncation resulted in loss of data" );
+template < typename _type_, typename _from_ >
+static _type_ qpVerifyStaticCast( const _from_ a ) {
+	_type_ result = static_cast< _type_ >( a );
+	QP_ASSERT_MSG( static_cast< _from_ >( result ) == a, "Truncation resulted in loss of data" );
 	return result;
 }
