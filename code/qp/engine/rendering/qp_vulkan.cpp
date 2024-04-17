@@ -1,4 +1,6 @@
 #include "engine.pch.h"
+
+#if defined( QP_VULKAN )
 #include "qp_vulkan.h"
 #include "qp_buffer_structs.h"
 #include "qp_vertex_helper.h"
@@ -11,12 +13,13 @@
 #include "qp/common/time/qp_clock.h"
 #include "qp/engine/resources/image/qp_image.h"
 #include "qp/engine/resources/loaders/qp_tga_loader.h"
+#include "qp/engine/window/qp_input_codes.h"
 #include "qp/engine/window/qp_keyboard.h"
 #include "qp/engine/window/qp_window.h"
-#include "vulkan/vulkan.h"
 #include <stdexcept>
-#include <iostream>
-#include <qp/common/utilities/qp_optional.h>
+
+//include vulkan last since it includes platform headers.
+#include "vulkan/vulkan.h"
 
 #if defined( QP_DEV )
 const bool enableValidationLayers = true;
@@ -254,13 +257,13 @@ void InitializeDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT & cr
 void qpVulkan::SetupDebugMessenger() {
 	if constexpr ( !enableValidationLayers ) {
 		return;
-	}
+	} else {
+		VkDebugUtilsMessengerCreateInfoEXT createInfo {};
+		InitializeDebugMessengerCreateInfo( createInfo );
 
-	VkDebugUtilsMessengerCreateInfoEXT createInfo {};
-	InitializeDebugMessengerCreateInfo( createInfo );
-
-	if ( CreateDebugUtilsMessengerEXT( m_instance, &createInfo, NULL, &m_debugMessenger ) != VK_SUCCESS ) {
-		ThrowOnError( "Failed to set up debug messenger!" );
+		if ( CreateDebugUtilsMessengerEXT( m_instance, &createInfo, NULL, &m_debugMessenger ) != VK_SUCCESS ) {
+			ThrowOnError( "Failed to set up debug messenger!" );
+		}
 	}
 }
 
@@ -1338,24 +1341,24 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	static qpVec3 rotation( 0.0f, 0.0f, 0.0f );
 
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_X ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::X ) ) {
 		rotation.y += 45.0f * deltaTime;
 	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_Z ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Z ) ) {
 		rotation.y -= 45.0f * deltaTime;
 	}
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_C ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::C ) ) {
 		rotation.x += 45.0f * deltaTime;
 	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_V ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::V ) ) {
 		rotation.x -= 45.0f * deltaTime;
 	}
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_B ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::B ) ) {
 		rotation.z += 45.0f * deltaTime;
 	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_N ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::N ) ) {
 		rotation.z -= 45.0f * deltaTime;
 	}
 
@@ -1365,22 +1368,22 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	const float rightSpeed = 100.0f;
 	const float upSpeed = 100.0f;
 	float forwardDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_W ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::W ) ) {
 		forwardDir = 1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_S ) ) {
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::S ) ) {
 		forwardDir = -1.0f;
 	}
 	float rightDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_D ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::D ) ) {
 		rightDir = 1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_A ) ) {
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::A ) ) {
 		rightDir = -1.0f;
 	}
 
 	float upDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_Q ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Q ) ) {
 		upDir = -1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::KEY_E ) ) {
+	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::E ) ) {
 		upDir = 1.0f;
 	}
 	translation += orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
@@ -1389,7 +1392,7 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 
 	translation += g_vec3Up * upSpeed * deltaTime * upDir;
 
-	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::KEY_ENTER ) ) {
+	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::ENTER ) ) {
 		translation = qpVec3( 0.0f, 0.0f, -50.0f );
 	}
 
@@ -1514,3 +1517,5 @@ void qpVulkan::ThrowOnError( const qpString & msg ) {
 #endif
 	throw std::runtime_error( msg.c_str() );
 }
+
+#endif

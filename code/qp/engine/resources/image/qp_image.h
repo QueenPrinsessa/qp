@@ -1,5 +1,4 @@
 #pragma once
-#include "qp/common/containers/qp_list.h"
 #include "qp/engine/resources/qp_binary_serializer.h"
 #include "qp/engine/resources/qp_resource.h"
 

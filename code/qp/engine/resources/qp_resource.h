@@ -3,7 +3,7 @@
 #include "qp_binary_serializer.h"
 
 class qpResource {
-	QP_INTRUSIVE_REF_COUNTER;
+		;
 public:
 	virtual ~qpResource() = default;
 

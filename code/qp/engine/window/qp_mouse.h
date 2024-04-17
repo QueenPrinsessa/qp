@@ -1,17 +1,10 @@
 #pragma once
+#include "qp_input_codes.h"
 #include "qp/common/containers/qp_bitset.h"
 
 class qpMouse {
+	enum { MOUSE_BUTTON_COUNT = static_cast< int >( mouseButton_t::COUNT ) };
 public:
-	enum mouseButton_t {
-		LBUTTON,
-		RBUTTON,
-		MBUTTON,
-		MOUSE4,
-		MOUSE5,
-		COUNT
-	};
-
 	virtual ~qpMouse() = default;
 
 	bool IsButtonDown( const mouseButton_t button ) const { return m_state.GetBit( button ); }
@@ -21,12 +14,10 @@ public:
 
 	void Update();
 
-	qpBitSet< mouseButton_t::COUNT > GetState() const { return m_state; }
-	qpBitSet< mouseButton_t::COUNT > GetLastState() const { return m_lastState; }
+	const qpBitSet< MOUSE_BUTTON_COUNT > & GetState() const { return m_state; }
+	const qpBitSet< MOUSE_BUTTON_COUNT > & GetLastState() const { return m_lastState; }
 protected:
-	qpBitSet< mouseButton_t::COUNT > m_state;
-	qpBitSet< mouseButton_t::COUNT > m_lastState;
-	qpBitSet< mouseButton_t::COUNT > m_workingState;
+	qpBitSet< MOUSE_BUTTON_COUNT > m_state;
+	qpBitSet< MOUSE_BUTTON_COUNT > m_lastState;
+	qpBitSet< MOUSE_BUTTON_COUNT > m_workingState;
 };
-
-using mouseButton_t = qpMouse::mouseButton_t;

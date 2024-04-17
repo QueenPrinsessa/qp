@@ -2,9 +2,11 @@
 
 #if defined( QP_PLATFORM_WINDOWS )
 
-#include "qp_mouse_windows.h"
+#include "qp_mouse_win32.h"
 
-bool qpWindowsMouse::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
+#include "qp/common/platform/windows/qp_windows.h"
+
+bool qpMouse_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
 	 switch ( msg ) {
 	 	case WM_LBUTTONUP: {
 			m_workingState.ClearBit( mouseButton_t::LBUTTON );

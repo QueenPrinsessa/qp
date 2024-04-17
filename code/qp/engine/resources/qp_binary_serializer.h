@@ -1,5 +1,5 @@
 #pragma once
-#include "qp_binary_stream.h"
+#include "qp/common/containers/qp_list.h"
 
 enum class serializationMode_t {
 	READING,
@@ -53,15 +53,15 @@ public:
 		m_offset += serializeAsBinary_t< _type_ >()( m_mode, m_offset, &inOutData, m_buffer );
 	}
 
-	void SerializeBytes( void * data, const size_t numBytes ) { 
+	void SerializeBytes( void * data, const size_t numBytes ) {
 		serializeBytesParms_t parms { data, numBytes };
 		Serialize( parms );
 	}
 
 	size_t GetOffset() const { return m_offset; }
 
-	bool IsReading() const { return m_mode == serializationMode_t::READING;  }
-	bool IsWriting() const { return m_mode == serializationMode_t::WRITING;  }
+	bool IsReading() const { return m_mode == serializationMode_t::READING; }
+	bool IsWriting() const { return m_mode == serializationMode_t::WRITING; }
 protected:
 	qpBinarySerializer( const serializationMode_t state )
 		: m_mode( state ) {}
@@ -76,7 +76,7 @@ public:
 	BinaryReadSerializer( const void * buffer, const size_t numBytes )
 		: qpBinarySerializer( serializationMode_t::READING ) {
 		m_buffer.Resize( numBytes );
-		memcpy( m_buffer.Data(), buffer, m_buffer.Length() );
+		qpCopyBytesUnchecked( m_buffer.Data(), buffer, m_buffer.Length() );
 	}
 };
 

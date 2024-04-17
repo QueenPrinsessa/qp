@@ -3,6 +3,7 @@
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/common/filesystem/qp_file.h"
+#include "qp/common/platform/windows/qp_windows.h"
 
 DWORD qpFileAccessModeToWin32( fileAccessMode_t accessMode ) {
 	DWORD winAccessMode = 0;

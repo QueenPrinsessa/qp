@@ -1,10 +1,11 @@
 #pragma once
+#if defined( QP_VULKAN )
 #include "qp/common/utilities/qp_optional.h"
 #include "qp/common/containers/qp_array_view.h"
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/string/qp_string.h"
 #include <cstddef>
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 class qpWindow;
 
@@ -111,3 +112,5 @@ private:
 
 	void * m_windowHandle = NULL;
 };
+
+#endif

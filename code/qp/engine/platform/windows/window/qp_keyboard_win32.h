@@ -2,15 +2,14 @@
 
 #if defined( QP_PLATFORM_WINDOWS )
 
-#include "qp/common/platform/windows/qp_windows.h"
 #include "qp/engine/window/qp_keyboard.h"
+#include "qp/common/platform/windows/qp_types_win32.h"
 
-
-class qpWindowsKeyboard : public qpKeyboard {
-	friend class qpWindowsWindow;
+class qpKeyboard_Win32 : public qpKeyboard {
+	friend class qpWindow_Win32;
 public:
-	qpWindowsKeyboard() = default;
-	virtual ~qpWindowsKeyboard() override = default;
+	qpKeyboard_Win32() = default;
+	virtual ~qpKeyboard_Win32() override = default;
 
 private:
 	bool ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.

@@ -9,10 +9,6 @@
 #include <stdarg.h>
 #include <type_traits>
 
-#if defined( QP_PLATFORM_WINDOWS )
-#include "qp/common/platform/windows/qp_windows.h"
-#endif
-
 template< typename _type_ = char >
 static inline int qpStrLen( const _type_ * string ) {
 	int length = 0;
@@ -476,33 +472,6 @@ static inline qpWideString qpFormat( const wchar_t * const format, _args_&&... a
 	return formatted;
 }
 
-static inline qpWideString qpUTF8ToWide( const qpString & string );
-static inline qpString qpWideToUTF8( const qpWideString & string );
-
-#if defined( QP_PLATFORM_WINDOWS )
-
-static inline qpWideString qpUTF8ToWide( const qpString & string ) {
-	int length = ::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), NULL, 0 );
-
-	if ( length == 0 ) {
-		return qpWideString {};
-	}
-
-	qpWideString convertedString( length + 1 );
-	::MultiByteToWideChar( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length );
-	return convertedString;
-}
-
-static inline qpString qpWideToUTF8( const qpWideString & string ) {
-	int length = ::WideCharToMultiByte( CP_UTF8, 0, string.Data(), string.Length(), NULL, 0, NULL, NULL );
-
-	if ( length == 0 ) {
-		return qpString {};
-	}
-
-	qpString convertedString( string.Length() + 1 );
-	::WideCharToMultiByte( CP_UTF8, 0, string.Data(), string.Length(), convertedString.Data(), length, NULL, NULL );
-	return convertedString;
-}
-
-#endif
+// defined per platform
+extern qpWideString qpUTF8ToWide( const qpString & string );
+extern qpString qpWideToUTF8( const qpWideString & string );

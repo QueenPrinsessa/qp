@@ -28,7 +28,7 @@ enum fileShareMode_t : uint32 {
 	QP_FILE_SHARE_READ_WRITE = QP_FILE_SHARE_READ | QP_FILE_SHARE_WRITE
 };
 
-#define QP_FILE_FAILURE ( ~0u )
+enum : uint64 { QP_FILE_FAILURE = ~0u };
 
 /**
  * \brief A file for synchronous read/write.

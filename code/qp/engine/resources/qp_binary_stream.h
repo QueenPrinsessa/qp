@@ -1,7 +1,8 @@
 #pragma once
 #include "qp/common/core/qp_types.h"
-#include "qp/common/string/qp_string.h"
 #include "qp/common/math/qp_math.h"
+#include "qp/common/debug/qp_debug.h"
+#include "qp/common/utilities/qp_algorithms.h"
 
 template < typename _type_ > class qpList;
 
@@ -110,7 +111,7 @@ private:
 
 		if ( needsToGrow ) {
 			const uint64 newSize = static_cast< uint64 >( qpMath::RoundToPow2< double >( static_cast< double >( m_size + numBytes ) ) );
-			byte *       newData = new byte[ newSize ] {};
+			byte * newData = new byte[ newSize ] {};
 			qpCopyBytesUnchecked( newData, m_buffer, m_size );
 			delete[] m_buffer;
 			m_buffer = newData;

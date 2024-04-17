@@ -83,6 +83,9 @@ QP_INLINE constexpr bool IsIntegral = IsAnyOf< removeConstVolatile_t< _type_ >, 
 template < typename _type_ >
 QP_INLINE constexpr bool IsFloatingPoint = IsAnyOf< removeConstVolatile_t< _type_ >, float, double, long double >;
 
+template < typename _enum_ >
+QP_INLINE constexpr bool IsEnum = __is_enum( _enum_ );
+
 template < typename _base_, typename _derived_ >
 QP_INLINE constexpr bool IsBaseOf = __is_base_of( _base_, _derived_ );
 

@@ -1,19 +1,13 @@
 ﻿#include "game.pch.h"
-#include "common/string/qp_string.h"
-#include <chrono>
 #include <iostream>
-#include "engine/core/qp_app.h"
 #include "engine/core/qp_windowed_app.h"
-#include <common/math/qp_mat.h>
-#include <common/math/qp_quat.h>
-#include <common/utilities/qp_variant.h>
 
 #if defined( QP_PLATFORM_WINDOWS )
 
-#include "qp/engine/platform/windows/window/qp_window_windows.h"
-#include <variant>
+#include "qp/common/platform/windows/qp_types_win32.h"
+#include "qp/engine/platform/windows/window/qp_window_win32.h"
 
-int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow ) {
+int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow ) {
 	qpWindowProperties_t windowProperties;
 	windowProperties.width = 800;
 	windowProperties.height = 600;
@@ -21,7 +15,7 @@ int WINAPI wWinMain( _In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	windowProperties.mode = windowMode_t::WINDOWED;
 	windowProperties.title = "qpVulkanWindowsWindow";
 
-	qpWindowPropertiesWindows_t windowsProperties;
+	windowPropertiesWindows_t windowsProperties;
 	windowsProperties.instanceHandle = hInstance;
 
 	windowProperties.platformData = &windowsProperties;

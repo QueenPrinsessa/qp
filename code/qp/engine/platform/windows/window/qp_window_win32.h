@@ -1,19 +1,18 @@
 #pragma once
 #if defined( QP_PLATFORM_WINDOWS )
 
-#include "qp/common/platform/windows/qp_windows.h"
 #include "qp/engine/window/qp_window.h"
-#include "qp_mouse_windows.h"
-#include "qp_keyboard_windows.h"
+#include "qp/common/platform/windows/qp_types_win32.h"
 
-struct qpWindowPropertiesWindows_t {
+struct windowPropertiesWindows_t {
 	HINSTANCE instanceHandle = NULL;
 };
 
-class qpWindowsWindow : public qpWindow {
+struct windowWin32Data_t;
+class qpWindow_Win32 : public qpWindow {
 public:
-	qpWindowsWindow( const qpWindowProperties_t & properties );
-	virtual ~qpWindowsWindow() override;
+	qpWindow_Win32( const qpWindowProperties_t & properties );
+	virtual ~qpWindow_Win32() override;
 
 	virtual void OnUpdate() override;
 
@@ -24,20 +23,17 @@ public:
 
 	void SetWindowMode( const windowMode_t windowMode ) { m_windowMode = windowMode; }
 
-	virtual const qpMouse & GetMouse() const override { return m_mouse; }
-	virtual const qpKeyboard & GetKeyboard() const override { return m_keyboard; }
+	virtual const qpMouse & GetMouse() const override;
+	virtual const qpKeyboard & GetKeyboard() const override;
 private:
 	void Init( const qpWindowProperties_t & properties );
 	void ApplyWindowMode( const windowMode_t windowMode );
 
-	qpWindowsKeyboard m_keyboard;
-	qpWindowsMouse m_mouse;
-	WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };
+	qpUniquePtr< windowWin32Data_t > m_data;
 	HWND m_handle = NULL;
 	int m_width = 1280;
 	int m_height = 720;
 	windowMode_t m_windowMode = windowMode_t::WINDOWED;
-
 	static LRESULT CALLBACK WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam );
 };
 

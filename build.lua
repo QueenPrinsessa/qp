@@ -63,6 +63,7 @@ workspace "qp"
         architecture "x86_64"
     filter { "platforms:windows_*", "platforms:*_vulkan_*" }
         defines {
+            "QP_VULKAN",
             "VK_USE_PLATFORM_WIN32_KHR"
         }
     filter { "platforms:*_dev_*" }

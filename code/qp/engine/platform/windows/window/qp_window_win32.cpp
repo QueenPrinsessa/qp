@@ -2,17 +2,27 @@
 
 #if defined( QP_PLATFORM_WINDOWS )
 
-#include "qp/engine/platform/windows/window/qp_window_windows.h"
+#include "qp/engine/platform/windows/window/qp_window_win32.h"
+#include "qp_mouse_win32.h"
+#include "qp_keyboard_win32.h"
+#include "qp/common/platform/windows/qp_windows.h"
 
-qpWindowsWindow::qpWindowsWindow( const qpWindowProperties_t & properties ) {
+struct windowWin32Data_t {
+	qpKeyboard_Win32 m_keyboard;
+	qpMouse_Win32 m_mouse;
+	WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };
+};
+
+qpWindow_Win32::qpWindow_Win32( const qpWindowProperties_t & properties ) {
+	m_data = qpCreateUnique< windowWin32Data_t >();
 	Init( properties );
 }
 
-qpWindowsWindow::~qpWindowsWindow() {
+qpWindow_Win32::~qpWindow_Win32() {
 	DestroyWindow( m_handle );
 }
 
-void qpWindowsWindow::OnUpdate() {
+void qpWindow_Win32::OnUpdate() {
 
 	MSG msg { };
 	msg.hwnd = NULL;
@@ -25,11 +35,20 @@ void qpWindowsWindow::OnUpdate() {
 	ShowWindow( m_handle, SW_SHOW );
 	UpdateWindow( m_handle );
 
-	m_mouse.Update();
-	m_keyboard.Update();
+	m_data->m_mouse.Update();
+	m_data->m_keyboard.Update();
 }
 
-void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
+const qpMouse & qpWindow_Win32::GetMouse() const {
+	return m_data->m_mouse;
+}
+
+const qpKeyboard & qpWindow_Win32::GetKeyboard() const {
+	return m_data->m_keyboard;
+}
+
+void qpWindow_Win32::Init( const qpWindowProperties_t & properties ) {
+	QP_ASSERT( m_data != NULL );
 	const wchar_t * windowClassName = L"qpWindow";
 
 	WNDCLASS windowClass {};
@@ -55,7 +74,7 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 	HINSTANCE instanceHandle = NULL;
 
 	if ( properties.platformData != NULL ) {
-		qpWindowPropertiesWindows_t * windowsProperties = static_cast< qpWindowPropertiesWindows_t * >( properties.platformData );
+		windowPropertiesWindows_t * windowsProperties = static_cast< windowPropertiesWindows_t * >( properties.platformData );
 		instanceHandle = windowsProperties->instanceHandle;
 	}
 
@@ -64,19 +83,19 @@ void qpWindowsWindow::Init( const qpWindowProperties_t & properties ) {
 
 	SetForegroundWindow( m_handle );
 
-	GetWindowPlacement( m_handle, &m_lastWindowPlacement );
+	GetWindowPlacement( m_handle, &m_data->m_lastWindowPlacement );
 
 	m_windowMode = properties.mode;
 	ApplyWindowMode( m_windowMode );
 }
 
-void qpWindowsWindow::ApplyWindowMode( const windowMode_t windowMode ) {
+void qpWindow_Win32::ApplyWindowMode( const windowMode_t windowMode ) {
 	DWORD windowStyle = GetWindowLong( m_handle, GWL_STYLE );
 
 	switch ( windowMode ) {
 		case windowMode_t::WINDOWED: {
 			SetWindowLong( m_handle, GWL_STYLE, windowStyle | WS_OVERLAPPEDWINDOW );
-			SetWindowPlacement( m_handle, &m_lastWindowPlacement );
+			SetWindowPlacement( m_handle, &m_data->m_lastWindowPlacement );
 
 			RECT clientRect;
 			GetClientRect( m_handle, &clientRect );
@@ -89,7 +108,7 @@ void qpWindowsWindow::ApplyWindowMode( const windowMode_t windowMode ) {
 		}
 		case windowMode_t::BORDERLESS: {
 			MONITORINFO monitorInfo = { sizeof( monitorInfo ) };
-			if ( GetWindowPlacement( m_handle, &m_lastWindowPlacement ) &&
+			if ( GetWindowPlacement( m_handle, &m_data->m_lastWindowPlacement ) &&
 				 GetMonitorInfo( MonitorFromWindow( m_handle, MONITOR_DEFAULTTOPRIMARY ), &monitorInfo ) ) {
 				SetWindowLong( m_handle, GWL_STYLE, windowStyle & ~WS_OVERLAPPEDWINDOW );
 				SetWindowPos( m_handle, HWND_TOP,
@@ -105,24 +124,28 @@ void qpWindowsWindow::ApplyWindowMode( const windowMode_t windowMode ) {
 	}
 }
 
-LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam ) {
-	static qpWindowsWindow * window = NULL;
+namespace {
+	qpWindow_Win32 * wndProcWindow = NULL;
+}
+LRESULT CALLBACK qpWindow_Win32::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam ) {
 
-	if ( window->m_mouse.ProcessWindowEvent( msg, wparam, lparam ) ) {
-		return 0;
-	}
+	if ( wndProcWindow ) {
+		if ( wndProcWindow->m_data->m_mouse.ProcessWindowEvent( msg, wparam, lparam ) ) {
+			return 0;
+		}
 
-	if ( window->m_keyboard.ProcessWindowEvent( msg, wparam, lparam ) ) {
-		return 0;
+		if ( wndProcWindow->m_data->m_keyboard.ProcessWindowEvent( msg, wparam, lparam ) ) {
+			return 0;
+		}
 	}
 
 	switch ( msg ) {
 		case WM_DESTROY: {
 			DestroyWindow( handle );
 
-			window->m_handle = NULL;
-			if( window->m_destroyCallback ) {
-				window->m_destroyCallback();
+			wndProcWindow->m_handle = NULL;
+			if( wndProcWindow->m_destroyCallback ) {
+				wndProcWindow->m_destroyCallback();
 			}
 
 			PostQuitMessage( 0 );
@@ -131,8 +154,8 @@ LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_
 		case WM_SIZE: {
 			UINT width = LOWORD( lparam );
 			UINT height = HIWORD( lparam );
-			if ( window->m_resizeCallback ) {
-				window->m_resizeCallback( width, height );
+			if ( wndProcWindow->m_resizeCallback ) {
+				wndProcWindow->m_resizeCallback( width, height );
 			}
 		}
 		case WM_PAINT: {
@@ -141,7 +164,7 @@ LRESULT CALLBACK qpWindowsWindow::WndProc( _In_ HWND handle, _In_ UINT msg, _In_
 		}
 		case WM_CREATE: {
 			const CREATESTRUCT * createdStruct = reinterpret_cast< CREATESTRUCT * >( lparam );
-			window = static_cast< qpWindowsWindow * >( createdStruct->lpCreateParams );
+			wndProcWindow = static_cast< qpWindow_Win32 * >( createdStruct->lpCreateParams );
 			break;
 		}
 		default: {
