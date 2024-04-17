@@ -56,7 +56,8 @@ static void GetWindowFramebufferSize( void * windowHandle, int & width, int & he
 #endif
 }
 
-qpVulkan::qpVulkan() { }
+qpVulkan::qpVulkan() { 
+}
 
 qpVulkan::~qpVulkan() {
 	Cleanup();
@@ -121,8 +122,6 @@ void qpVulkan::Cleanup() {
 	vkDestroySampler( m_device, m_textureSampler, NULL );
 	vkDestroyImageView( m_device, m_textureImageView, NULL );
 
-	vkDestroyImageView( m_device, m_textureImageView, NULL );
-
 	vkDestroyImage( m_device, m_textureImage, NULL );
 	vkFreeMemory( m_device, m_textureImageMemory, NULL );
 
@@ -132,7 +131,6 @@ void qpVulkan::Cleanup() {
 	if ( enableValidationLayers ) {
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debugMessenger, NULL );
 	}
-
 	vkDestroyInstance( m_instance, NULL );
 }
 

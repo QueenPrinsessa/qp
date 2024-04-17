@@ -80,7 +80,7 @@ private:
 	VkSwapchainKHR m_swapchain = NULL;
 	VkRenderPass m_renderPass = NULL;
 	VkDescriptorSetLayout m_descriptorSetLayout = NULL;
-	VkDescriptorPool m_descriptorPool;
+	VkDescriptorPool m_descriptorPool = NULL;
 	qpList< VkDescriptorSet > m_descriptorSets;
 	VkPipelineLayout m_pipelineLayout = NULL;
 	VkPipeline m_graphicsPipeline = NULL;
@@ -109,7 +109,6 @@ private:
 	VkSampler m_textureSampler = NULL;
 	int m_currentFrame = 0;
 	bool m_framebufferResized = false;
-
 	void * m_windowHandle = NULL;
 };
 
