@@ -116,6 +116,11 @@ void qpZeroMemory( _type_ & memory ) {
 	memset( &memory, 0, sizeof( _type_ ) );
 }
 
+
+inline void qpSetMemory( void * memory, int value, int numBytes ) {
+	memset( memory, value, numBytes );
+}
+
 inline void qpZeroMemory( void * memory, int numBytes ) {
 	memset( memory, 0, numBytes );
 }

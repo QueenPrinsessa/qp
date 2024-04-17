@@ -21,7 +21,10 @@ static inline int qpStrLen( const _type_ * string ) {
 }
 
 template< typename _type_ = char >
-static inline bool qpStrCmp( const _type_ * a, const _type_ * b ) {
+static inline int qpStrCmp( const _type_ * a, const _type_ * b ) {
+	if ( a == b ) {
+		return 0;
+	}
 	using unsignedType = std::make_unsigned_t< _type_ >;
 	const unsignedType * ua = reinterpret_cast< const unsignedType * > ( a );
 	const unsignedType * ub = reinterpret_cast< const unsignedType * > ( b );
@@ -201,7 +204,7 @@ qpStringBase< _type_ >::qpStringBase( const qpStringBase< _type_ > & other ) {
 	m_length = other.m_length;
 	m_capacity = other.m_length + 1;
 	m_data = new _type_[ m_capacity ] { };
-	memcpy( m_data, other.m_data, other.m_length * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( m_data, other.m_data, other.m_length * sizeof( _type_ ) );
 }
 
 template < typename _type_ >
@@ -223,7 +226,7 @@ qpStringBase< _type_ >::~qpStringBase() {
 template < typename _type_ >
 qpStringBase< _type_ > & qpStringBase< _type_ >::Assign( const _type_ * string, const int length ) {
 	Reserve( length + 1 );
-	memcpy( m_data, string, length * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( m_data, string, length * sizeof( _type_ ) );
 	m_length = length;
 	return *this;
 }
@@ -308,9 +311,9 @@ void qpStringBase< _type_ >::Resize( const int newLength, const _type_ charToIns
 	int lengthDiff = newLength - m_length;
 
 	if ( lengthDiff > 0 ) {
-		memset( m_data + ( m_length * sizeof( _type_ ) ), charToInsert, lengthDiff * sizeof( _type_ ) );
+		qpSetMemory( m_data + ( m_length * sizeof( _type_ ) ), charToInsert, lengthDiff * sizeof( _type_ ) );
 	} else if ( lengthDiff < 0 ) {
-		memset( m_data + ( ( static_cast< size_t >( m_length ) + lengthDiff ) * sizeof( _type_ ) ), 0, qpMath::Abs( lengthDiff ) * sizeof( _type_ ) );
+		qpSetMemory( m_data + ( ( static_cast< size_t >( m_length ) + lengthDiff ) * sizeof( _type_ ) ), 0, qpMath::Abs( lengthDiff ) * sizeof( _type_ ) );
 	}
 
 	m_length = newLength;
@@ -330,7 +333,7 @@ void qpStringBase< _type_ >::Reserve( const int requestedCapacity ) {
 	int capacity = static_cast< int >( qpAllocationUtil::AlignSize( requestedCapacity, 16 * sizeof( _type_ ) ) );
 
 	_type_ * newData = new _type_[ capacity ] { };
-	memcpy( newData, m_data, m_capacity * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( newData, m_data, m_capacity * sizeof( _type_ ) );
 	delete m_data;
 	m_data = newData;
 
@@ -345,7 +348,7 @@ void qpStringBase< _type_ >::ShrinkToFit() {
 	}
 
 	_type_ * fittedData = new _type_[ fittedCapacity ] { };
-	memcpy( fittedData, m_data, fittedCapacity * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( fittedData, m_data, fittedCapacity * sizeof( _type_ ) );
 	delete m_data;
 	m_data = fittedData;
 
@@ -376,7 +379,7 @@ template < typename _type_ >
 qpStringBase< _type_ > & qpStringBase< _type_ >::operator+=( const _type_ rhs ) {
 	constexpr int rhsLength = 1;
 	Reserve( m_length + rhsLength + 1 );
-	memcpy( m_data + m_length, &rhs, rhsLength * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( m_data + m_length, &rhs, rhsLength * sizeof( _type_ ) );
 	m_length += rhsLength;
 	return *this;
 }
@@ -385,7 +388,7 @@ template < typename _type_ >
 qpStringBase< _type_ > & qpStringBase< _type_ >::operator+=( const _type_ * rhs ) {
 	const int rhsLength = qpStrLen( rhs );
 	Reserve( m_length + rhsLength + 1 );
-	memcpy( m_data + m_length, rhs, rhsLength * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( m_data + m_length, rhs, rhsLength * sizeof( _type_ ) );
 	m_length += rhsLength;
 	return *this;
 }
@@ -393,7 +396,7 @@ qpStringBase< _type_ > & qpStringBase< _type_ >::operator+=( const _type_ * rhs 
 template < typename _type_ >
 qpStringBase< _type_ > & qpStringBase< _type_ >::operator+=( const qpStringBase< _type_ > & rhs ) {
 	Reserve( m_length + rhs.m_length + 1 );
-	memcpy( m_data + m_length, rhs.m_data, rhs.m_length * sizeof( _type_ ) );
+	qpCopyBytesUnchecked( m_data + m_length, rhs.m_data, rhs.m_length * sizeof( _type_ ) );
 	m_length += rhs.m_length;
 	return *this;
 }
