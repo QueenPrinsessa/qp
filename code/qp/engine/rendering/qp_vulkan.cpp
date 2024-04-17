@@ -128,7 +128,7 @@ void qpVulkan::Cleanup() {
 	vkDestroyDevice( m_device, NULL );
 	vkDestroySurfaceKHR( m_instance, m_surface, NULL );
 
-	if ( enableValidationLayers ) {
+	if constexpr ( enableValidationLayers ) {
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debugMessenger, NULL );
 	}
 	vkDestroyInstance( m_instance, NULL );
@@ -166,7 +166,7 @@ void qpVulkan::CreateInstance() {
 	};
 
 	VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo {};
-	if ( enableValidationLayers ) {
+	if constexpr ( enableValidationLayers ) {
 		if ( !CheckValidationLayerSupport( validationLayers ) ) {
 			ThrowOnError( "Validation layers were requested but are not supported." );
 		}
@@ -253,9 +253,7 @@ void InitializeDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT & cr
 }
 
 void qpVulkan::SetupDebugMessenger() {
-	if constexpr ( !enableValidationLayers ) {
-		return;
-	} else {
+	if constexpr ( enableValidationLayers ) {
 		VkDebugUtilsMessengerCreateInfoEXT createInfo {};
 		InitializeDebugMessengerCreateInfo( createInfo );
 
