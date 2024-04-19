@@ -3,6 +3,6 @@
 
 class qpImageLoader : public qpResourceLoader {
 protected:
-	virtual const qpResource * LoadResource_Internal( const qpFile & file ) override;
+	virtual qpResource * LoadResource_Internal( const qpFile & file ) override;
 private:
 };

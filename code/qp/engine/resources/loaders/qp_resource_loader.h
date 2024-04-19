@@ -7,14 +7,14 @@ class qpResourceLoader {
 public:
 	virtual ~qpResourceLoader() = default;
 
-	const qpResource * LoadResource( const qpFilePath & filePath );
+	qpResource * LoadResource( const qpFilePath & filePath );
 
 	bool HasError() const { return !m_lastError.IsEmpty(); }
 	const qpString & GetLastError() const { return m_lastError; }
 
 	static void DeleteAllResources();
 protected:
-	virtual const qpResource * LoadResource_Internal( const qpFile & file ) = 0; // file is guaranteed to be opened here
+	virtual qpResource * LoadResource_Internal( const qpFile & file ) = 0; // file is guaranteed to be opened here
 	void SetLastError( const qpString & err ) { m_lastError = err; }
 private:
 	qpString m_lastError;

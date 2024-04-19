@@ -27,3 +27,6 @@ constexpr size_t SizeOfBiggestType() {
 	}( ), ... );
 	return bytes;
 }
+
+
+#define BIND_FUNCTION( func ) [ & ]( auto&& ... aArgs ) -> decltype( auto ) { return this->func( qpForward< decltype( aArgs ) >( aArgs )... ); }

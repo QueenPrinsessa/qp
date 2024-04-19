@@ -4,7 +4,7 @@
 #include "qp/engine/resources/image/qp_image.h"
 
 // http://www.paulbourke.net/dataformats/tga/
-const qpResource * qpTGALoader::LoadResource_Internal( const qpFile & file ) {
+qpResource * qpTGALoader::LoadResource_Internal( const qpFile & file ) {
 	qpList< byte > buffer;
 	file.Read( buffer );
 
@@ -48,7 +48,7 @@ const qpResource * qpTGALoader::LoadResource_Internal( const qpFile & file ) {
 
 	if ( header.dataTypeCode != dataType_t::UNCOMPRESSED_RGB || header.bitsPerPixel != 32 ) {
 		SetLastError( "Unsupported TGA type. Currently only uncompressed 32bpp RGB is supported." );
-		return NULL;
+		return new qpImage();
 	}
 
 	const uint64 pixelByteSize = static_cast< uint64 >( header.bitsPerPixel / 8 );

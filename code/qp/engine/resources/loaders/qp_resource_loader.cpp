@@ -4,7 +4,7 @@
 
 static qpList< qpResource * > resources;
 
-const qpResource * qpResourceLoader::LoadResource( const qpFilePath & filePath ) {
+qpResource * qpResourceLoader::LoadResource( const qpFilePath & filePath ) {
 	m_lastError.Clear();
 
 	qpFile file;
@@ -14,12 +14,15 @@ const qpResource * qpResourceLoader::LoadResource( const qpFilePath & filePath )
 		return NULL;
 	}
 
-	const qpResource * resource = LoadResource_Internal( file );
+	qpResource * resource = LoadResource_Internal( file );
 	file.Close();
 
-	if ( resource != NULL ) {
-		resources.Emplace( resource );
+	QP_ASSERT( resource != NULL );
+	if ( HasError() ) {
+		resource->m_isDefault = true;
+		resource->MakeResourceDefault();
 	}
+	resources.Emplace( resource );
 
 	return resource;
 }

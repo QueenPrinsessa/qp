@@ -71,18 +71,18 @@ protected:
 	size_t m_offset = 0;
 };
 
-class BinaryReadSerializer : public qpBinarySerializer {
+class qpBinaryReadSerializer : public qpBinarySerializer {
 public:
-	BinaryReadSerializer( const void * buffer, const size_t numBytes )
+	qpBinaryReadSerializer( const void * buffer, const size_t numBytes )
 		: qpBinarySerializer( serializationMode_t::READING ) {
 		m_buffer.Resize( numBytes );
 		qpCopyBytesUnchecked( m_buffer.Data(), buffer, m_buffer.Length() );
 	}
 };
 
-class BinaryWriteSerializer : public qpBinarySerializer {
+class qpBinaryWriteSerializer : public qpBinarySerializer {
 public:
-	BinaryWriteSerializer()
+	qpBinaryWriteSerializer()
 		: qpBinarySerializer( serializationMode_t::WRITING ) {}
 
 	void ReserveBytesToFit( const size_t numBytesToFit ) { m_buffer.Reserve( m_buffer.Length() + numBytesToFit ); }

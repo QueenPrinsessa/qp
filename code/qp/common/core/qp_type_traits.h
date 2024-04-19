@@ -45,6 +45,14 @@ struct RemoveConst< const _type_ > {
 };
 
 template < typename _type_ >
+struct RemoveConst< const _type_ * > {
+	using type = _type_ *;
+};
+
+template < typename _type_ >
+using removeConst_t = typename RemoveConst< _type_ >::type;
+
+template < typename _type_ >
 struct RemoveConstVolatile {
 	using type = _type_;
 };
@@ -66,6 +74,14 @@ struct RemoveConstVolatile< const volatile _type_ > {
 
 template < typename _type_ >
 using removeConstVolatile_t = typename RemoveConstVolatile< _type_ >::type;
+
+template < typename _type_ >
+struct AsConst {
+	using type = const _type_;
+};
+
+template < typename _type_ >
+using asConst_t = typename AsConst< _type_ >::type;
 
 template < typename, typename >
 QP_INLINE constexpr bool IsSame = false;//std::is_same_v< _type1_, _type2_ >;

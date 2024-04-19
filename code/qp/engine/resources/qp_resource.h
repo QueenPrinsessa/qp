@@ -3,10 +3,12 @@
 #include "qp_binary_serializer.h"
 
 class qpResource {
-		;
+	friend class qpResourceLoader;
 public:
 	virtual ~qpResource() = default;
 
-	virtual bool SerializeToBinary( qpBinarySerializer & serializer ) = 0;
+	virtual void MakeResourceDefault() = 0;
+	virtual bool Serialize( qpBinarySerializer & serializer ) = 0;
 private:
+	bool m_isDefault = false;
 };

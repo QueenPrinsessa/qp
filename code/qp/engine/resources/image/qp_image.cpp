@@ -17,10 +17,13 @@ qpImage::~qpImage() {
 	delete[] m_data;
 }
 
+void qpImage::MakeResourceDefault() {
+}
+
 qpImage::qpImage( const imageHeader_t & header, byte * data )
 	: m_header( header ), m_data( data ) {}
 
-bool qpImage::SerializeToBinary( qpBinarySerializer & serializer ) {
+bool qpImage::Serialize( qpBinarySerializer & serializer ) {
 	serializer.Serialize( m_header );
 
 	const uint64 numBytes = GetSize();
