@@ -75,14 +75,13 @@ static inline bool qpStrEquals( const _type_ * a, const _type_ * b ) {
 	return ( qpStrCmp( a, b ) == 0 );
 }
 
-template< typename _type_, bool _allowAlloc_ = true, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+template< typename _type_, bool _allowAlloc_ = true, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT, uint32 _staticBufferCapacity_ = 24u >
 class qpStringBase {
 public:
 	using charTraits_t = CharTraits< _type_ >;
 	using charType_t = _type_;
 	static inline const stringEncoding_t STRING_ENCODING = ( ( _encoding_ == stringEncoding_t::DEFAULT ) ? charTraits_t::DEFAULT_STRING_ENCODING : _encoding_ );
 	static inline const _type_ EMPTY_STRING [] { charTraits_t::NIL_CHAR };
-	enum { STATIC_BUFFER_SIZE = 24 };
 	struct Iterator {
 	public:
 		using iterator_category = std::forward_iterator_tag;
@@ -131,8 +130,8 @@ public:
 	int Compare( const _type_ * string ) const;
 	int Compare( const qpStringBase & string ) const;
 
-	void Resize( const int newLength, const _type_ charToInsert );
-	void Resize( const int newLength );
+	void Resize( const int requestedLength, const _type_ charToInsert );
+	void Resize( const int requestedLength );
 	void Reserve( const int requestedCapacity ) requires( _allowAlloc_ );
 	void ShrinkToFit() requires( _allowAlloc_ );
 
@@ -177,7 +176,7 @@ public:
 	Iterator begin() const { return Begin(); }
 	Iterator end() const { return End(); }
 
-	qpStringBase< _type_, _allowAlloc_, _encoding_ > & operator+=( const _type_ rhs );
+	qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & operator+=( const _type_ rhs );
 	qpStringBase & operator+=( const _type_ * rhs );
 	qpStringBase & operator+=( const qpStringBase & rhs );
 	qpStringBase & operator=( const _type_ rhs );
@@ -231,10 +230,10 @@ public:
 	}
 
 private:
-	int m_capacity = STATIC_BUFFER_SIZE;
+	int m_capacity = _staticBufferCapacity_;
 	int m_length = 0;
 	_type_ * m_data = m_staticBuffer;
-	_type_ m_staticBuffer[ STATIC_BUFFER_SIZE ] {};
+	_type_ m_staticBuffer[ _staticBufferCapacity_ ] {};
 };
 
 using qpString = qpStringBase< char >;
@@ -243,38 +242,54 @@ using qpWideString = qpStringBase< wchar_t >;
 // u8 strings are not fully supported yet, expect odd behavior when using non-ascii u8 strings
 using qpU8String = qpStringBase< char8_t, true, stringEncoding_t::UTF8 >;
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase() {}
+template < typename _type_, uint32 _capacity_, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+using qpStaticStringBase = qpStringBase< _type_, false, _encoding_, _capacity_ >;
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( const int capacity )  requires ( _allowAlloc_ ) {
+template < uint32 _capacity_ >
+using qpStaticString = qpStaticStringBase< char, _capacity_ >;
+template < uint32 _capacity_ >
+using qpStaticWideString = qpStaticStringBase< wchar_t, _capacity_ >;
+
+template < typename _type_, uint32 _capacity_, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+using qpDynamicStaticStringBase = qpStringBase< _type_, true, _encoding_, _capacity_ >;
+template < uint32 _capacity_ >
+using qpDynamicStaticString = qpDynamicStaticStringBase< char, _capacity_ >;
+template < uint32 _capacity_ >
+using qpDynamicStaticWideString = qpDynamicStaticStringBase< wchar_t, _capacity_ >;
+
+
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase() {}
+
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( const int capacity )  requires ( _allowAlloc_ ) {
 	QP_ASSERT_MSG( capacity >= 0, "Capacity can't be less than 0." );
 	Reserve( capacity );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( const int length, const _type_ charToInsert ) requires ( _allowAlloc_ ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( const int length, const _type_ charToInsert ) requires ( _allowAlloc_ ) {
 	QP_ASSERT_MSG( length >= 0, "Length can't be less than 0." );
 	Resize( length, charToInsert );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( _type_ c ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( _type_ c ) {
 	Assign( c );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( const _type_ * string ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( const _type_ * string ) {
 	Assign( string );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( const qpStringBase & other ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( const qpStringBase & other ) {
 	Assign( other );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( qpStringBase && rhs ) noexcept {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::qpStringBase( qpStringBase && rhs ) noexcept {
 	if constexpr ( _allowAlloc_ ) {
 		FreeMemory();
 	}
@@ -282,49 +297,45 @@ qpStringBase< _type_, _allowAlloc_, _encoding_ >::qpStringBase( qpStringBase && 
 		m_data = rhs.m_data;
 	} else {
 		m_data = m_staticBuffer;
-		QP_ASSERT( rhs.m_capacity == STATIC_BUFFER_SIZE );
-		qpCopyBytes( m_data, STATIC_BUFFER_SIZE * sizeof( _type_ ), rhs.m_data, STATIC_BUFFER_SIZE * sizeof( _type_ ) );
+		QP_ASSERT( rhs.m_capacity == _staticBufferCapacity_ );
+		qpCopyBytes( m_data, _staticBufferCapacity_ * sizeof( _type_ ), rhs.m_data, _staticBufferCapacity_ * sizeof( _type_ ) );
 	}
 
 	m_length = rhs.m_length;
 	m_capacity = rhs.m_capacity;
 
 	rhs.m_length = 0;
-	rhs.m_capacity = 0;
-	rhs.m_data = NULL;
+	rhs.m_capacity = _staticBufferCapacity_;
+	rhs.m_data = rhs.m_staticBuffer;
+
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ >::~qpStringBase() {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::~qpStringBase() {
 	if constexpr ( _allowAlloc_ ) {
 		FreeMemory();
 	}
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::Assign( const _type_ * string, const int length ) {
-	if constexpr ( _allowAlloc_ ) {
-		Reserve( length + 1 );
-	} else {
-		QP_ASSERT( ( length + 1 ) < m_capacity );
-	}
-	qpCopyBytesUnchecked( m_data, string, length * sizeof( _type_ ) );
-	m_length = length;
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Assign( const _type_ * string, const int length ) {
+	Resize( length );
+	qpCopyBytes( m_data, m_capacity * sizeof( _type_ ), string, m_length * sizeof( _type_ ) );
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::Assign( const _type_ c ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Assign( const _type_ c ) {
 	return Assign( &c, sizeof( c ) );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::Assign( const _type_ * string ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Assign( const _type_ * string ) {
 	return Assign( string, qpStrLen( string ) );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::Assign( const qpStringBase & string ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Assign( const qpStringBase & string ) {
 	return Assign( string.m_data, string.m_length );
 }
 
@@ -411,29 +422,31 @@ inline qpStringBase< wchar_t, false > & qpStringBase< wchar_t, false >::Format( 
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-int qpStringBase< _type_, _allowAlloc_, _encoding_ >::Compare( const _type_ * string ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+int qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Compare( const _type_ * string ) const {
 	return qpStrCmp< _type_ >( m_data, string );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-int qpStringBase< _type_, _allowAlloc_, _encoding_ >::Compare( const qpStringBase< _type_, _allowAlloc_, _encoding_ > & string ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+int qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Compare( const qpStringBase & string ) const {
 	return Compare( string.m_data );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_ >::Resize( const int newLength, const _type_ charToInsert ) {
-	if ( m_length == newLength ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Resize( const int requestedLength, const _type_ charToInsert ) {
+	if ( m_length == requestedLength ) {
 		return;
 	}
 
 	if constexpr ( _allowAlloc_ ) {
-		Reserve( newLength + 1 );
+		Reserve( requestedLength + 1 );
+		QP_ASSERT( requestedLength < m_capacity );
 	} else {
-		QP_ASSERT( newLength < STATIC_BUFFER_SIZE );
+		QP_ASSERT( requestedLength < _staticBufferCapacity_ );
 	}
 
-	int lengthDiff = newLength - m_length;
+	const int clampedLength = qpMath::Min( requestedLength, ( qpVerifyStaticCast< int >( m_capacity ) - 1 ) );
+	const int lengthDiff = clampedLength - m_length;
 
 	if ( lengthDiff > 0 ) {
 		qpSetMemory( m_data + ( m_length * sizeof( _type_ ) ), charToInsert, lengthDiff * sizeof( _type_ ) );
@@ -441,72 +454,73 @@ void qpStringBase< _type_, _allowAlloc_, _encoding_ >::Resize( const int newLeng
 		qpSetMemory( m_data + ( ( static_cast< size_t >( m_length ) + lengthDiff ) * sizeof( _type_ ) ), 0, qpMath::Abs( lengthDiff ) * sizeof( _type_ ) );
 	}
 
-	m_length = newLength;
+	m_length = clampedLength;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_ >::Resize( const int newLength ) {
-	Resize( newLength, static_cast< _type_ >( 0 ) );
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Resize( const int requestedLength ) {
+	Resize( requestedLength, charTraits_t::NIL_CHAR );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_ >::Reserve( const int requestedCapacity )  requires( _allowAlloc_ ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Reserve( const int requestedCapacity )  requires( _allowAlloc_ ) {
 	if ( m_capacity >= requestedCapacity ) {
 		return;
 	}
 
-	QP_ASSERT( requestedCapacity > STATIC_BUFFER_SIZE );
+	QP_ASSERT( requestedCapacity > _staticBufferCapacity_ );
 
 	int capacity = static_cast< int >( qpAllocationUtil::AlignSize( requestedCapacity, 8 * sizeof( _type_ ) ) );
 	_type_ * newData = new _type_[ capacity ] { };
-	qpCopyBytesUnchecked( newData, m_data, m_capacity * sizeof( _type_ ) );
+	qpCopyBytes( newData, capacity * sizeof( _type_ ), m_data, m_length * sizeof( _type_ ) );
 	FreeMemory();
 	m_data = newData;
-
 	m_capacity = capacity;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_ >::ShrinkToFit()  requires( _allowAlloc_ ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ShrinkToFit()  requires( _allowAlloc_ ) {
 	if ( !IsAllocated() ) {
 		return;
 	}
-	int fittedCapacity = m_length + 1;
-	if ( m_capacity == ( fittedCapacity ) ) {
+	int fittedCapacity = qpMath::Max( ( m_length + 1 ), qpVerifyStaticCast< int >( _staticBufferCapacity_ ) );
+	if ( m_capacity == fittedCapacity ) {
 		return;
 	}
 
-	_type_ * fittedData = ( fittedCapacity <= STATIC_BUFFER_SIZE ) ? m_staticBuffer : new _type_[ fittedCapacity ] {};
-	qpCopyBytesUnchecked( fittedData, m_data, fittedCapacity * sizeof( _type_ ) );
+	_type_ * fittedData = ( fittedCapacity == _staticBufferCapacity_ ) ? m_staticBuffer : new _type_[ fittedCapacity ] {};
+	qpCopyBytes( fittedData, fittedCapacity * sizeof( _type_ ), m_data, ( m_length + 1 ) * sizeof(_type_));
 	FreeMemory();
 	m_data = fittedData;
-
 	m_capacity = fittedCapacity;
+
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_ >::Clear() {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Clear() {
 	if ( m_data != NULL ) {
-		m_data[ 0 ] = static_cast< _type_ >( 0 );
+		m_data[ 0 ] = charTraits_t::NIL_CHAR;
 	}
 	m_length = 0;
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase<_type_, _allowAlloc_, _encoding_>::ClearAndFreeMemory() requires ( _allowAlloc_ ) {
-	Clear();
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ClearAndFreeMemory() requires ( _allowAlloc_ ) {
 	FreeMemory();
+	Clear();
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-void qpStringBase<_type_, _allowAlloc_, _encoding_>::FreeMemory() requires ( _allowAlloc_ ) {
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::FreeMemory() requires ( _allowAlloc_ ) {
 	if ( IsAllocated() ) {
 		delete[] m_data;
+		m_data = m_staticBuffer;
+		m_capacity = _staticBufferCapacity_;
 	}
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-bool qpStringBase<_type_, _allowAlloc_, _encoding_>::IsAllocated() const {
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+bool qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::IsAllocated() const {
 	if constexpr ( _allowAlloc_ ) {
 		return m_data != m_staticBuffer;
 	} else {
@@ -514,20 +528,20 @@ bool qpStringBase<_type_, _allowAlloc_, _encoding_>::IsAllocated() const {
 	}
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-_type_ & qpStringBase< _type_, _allowAlloc_, _encoding_ >::At( const int index ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+_type_ & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::At( const int index ) {
 	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index out of bounds." );
 	return m_data[ index ];
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-const _type_ & qpStringBase< _type_, _allowAlloc_, _encoding_ >::At( const int index ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+const _type_ & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::At( const int index ) const {
 	QP_ASSERT_MSG( index >= 0 && index < m_length, "Index out of bounds." );
 	return m_data[ index ];
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_ >::Find( const _type_ searchChar ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Find( const _type_ searchChar ) const {
 	const _type_ searchStr[ 2 ] {
 		searchChar,
 		charTraits_t::NIL_CHAR
@@ -535,8 +549,8 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase
 	return Find( searchStr );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_ >::ReverseFind( const _type_ searchChar ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ReverseFind( const _type_ searchChar ) const {
 	const _type_ searchStr[ 2 ] {
 		searchChar,
 		charTraits_t::NIL_CHAR
@@ -544,8 +558,8 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase
 	return ReverseFind( searchStr );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_ >::Find( const _type_ * searchStr ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Find( const _type_ * searchStr ) const {
 	if ( qpStrEmpty( searchStr ) || IsEmpty() ) {
 		return End();
 	}
@@ -568,8 +582,8 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase
 	return End();
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_ >::ReverseFind( const _type_ * searchStr ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ReverseFind( const _type_ * searchStr ) const {
 	if ( qpStrEmpty( searchStr ) || IsEmpty() ) {
 		return End();
 	}
@@ -602,8 +616,8 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_ >::Iterator qpStringBase
 	return End();
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase<_type_, _allowAlloc_, _encoding_>::Iterator qpStringBase<_type_, _allowAlloc_, _encoding_>::Find( const qpStringBase & searchStr ) const {
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Find( const qpStringBase & searchStr ) const {
 	if ( searchStr.IsEmpty() || IsEmpty() || ( searchStr.m_length > m_length ) ) {
 		return End();
 	}
@@ -632,8 +646,8 @@ typename qpStringBase<_type_, _allowAlloc_, _encoding_>::Iterator qpStringBase<_
 	return End();
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-typename qpStringBase<_type_, _allowAlloc_, _encoding_>::Iterator qpStringBase<_type_, _allowAlloc_, _encoding_>::ReverseFind( const qpStringBase & searchStr ) const {
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ReverseFind( const qpStringBase & searchStr ) const {
 	if ( searchStr.IsEmpty() || IsEmpty() || ( searchStr.m_length > m_length ) ) {
 		return End();
 	}
@@ -662,52 +676,52 @@ typename qpStringBase<_type_, _allowAlloc_, _encoding_>::Iterator qpStringBase<_
 	return End();
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator+=( const _type_ rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator+=( const _type_ rhs ) {
 	constexpr int rhsLength = 1;
 	Reserve( m_length + rhsLength + 1 );
-	qpCopyBytesUnchecked( m_data + m_length, &rhs, rhsLength * sizeof( _type_ ) );
+	qpCopyBytes( m_data + m_length, m_capacity * sizeof( _type_ ), &rhs, rhsLength * sizeof( _type_ ) );
 	m_length += rhsLength;
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator+=( const _type_ * rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator+=( const _type_ * rhs ) {
 	const int rhsLength = qpStrLen( rhs );
 	Reserve( m_length + rhsLength + 1 );
-	qpCopyBytesUnchecked( m_data + m_length, rhs, rhsLength * sizeof( _type_ ) );
+	qpCopyBytes( m_data + m_length, m_capacity * sizeof( _type_ ), &rhs, rhsLength * sizeof( _type_ ) );
 	m_length += rhsLength;
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator+=( const qpStringBase< _type_, _allowAlloc_, _encoding_ > & rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator+=( const qpStringBase & rhs ) {
 	Reserve( m_length + rhs.m_length + 1 );
-	qpCopyBytesUnchecked( m_data + m_length, rhs.m_data, rhs.m_length * sizeof( _type_ ) );
+	qpCopyBytes( m_data + m_length, m_capacity * sizeof( _type_ ), &rhs, rhs.m_length * sizeof( _type_ ) );
 	m_length += rhs.m_length;
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator=( const _type_ rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator=( const _type_ rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator=( const _type_ * rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator=( const _type_ * rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator=( const qpStringBase & rhs ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator=( const qpStringBase & rhs ) {
 	Assign( rhs );
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator=( qpStringBase && rhs ) noexcept {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator=( qpStringBase && rhs ) noexcept {
 	if constexpr ( _allowAlloc_ ) {
 		FreeMemory();
 	}
@@ -715,49 +729,49 @@ qpStringBase< _type_, _allowAlloc_, _encoding_ > & qpStringBase< _type_, _allowA
 		m_data = rhs.m_data;
 	} else {
 		m_data = m_staticBuffer;
-		QP_ASSERT( rhs.m_capacity == STATIC_BUFFER_SIZE );
-		qpCopyBytes( m_data, STATIC_BUFFER_SIZE * sizeof( _type_ ), rhs.m_data, STATIC_BUFFER_SIZE * sizeof( _type_ ) );
+		QP_ASSERT( rhs.m_capacity == _staticBufferCapacity_ );
+		qpCopyBytes( m_data, _staticBufferCapacity_ * sizeof( _type_ ), rhs.m_data, _staticBufferCapacity_ * sizeof( _type_ ) );
 	}
 
 	m_length = rhs.m_length;
 	m_capacity = rhs.m_capacity;
 
 	rhs.m_length = 0;
-	rhs.m_capacity = 0;
-	rhs.m_data = NULL;
+	rhs.m_capacity = _staticBufferCapacity_;
+	rhs.m_data = rhs.m_staticBuffer;
 
 	return *this;
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-_type_ & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator[]( const int index ) {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+_type_ & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator[]( const int index ) {
 	QP_ASSERT_MSG( index >= 0 && index < ( m_length + 1 ), "Index out of bounds." );
 	return m_data[ index ];
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-const _type_ & qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator[]( const int index ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+const _type_ & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator[]( const int index ) const {
 	QP_ASSERT_MSG( index >= 0 && index < ( m_length + 1 ), "Index out of bounds." );
 	return m_data[ index ];
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-auto qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator<=>( const qpStringBase< _type_, _allowAlloc_, _encoding_ > & rhs ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+auto qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator<=>( const qpStringBase & rhs ) const {
 	return Compare( rhs );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-auto qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator<=>( const _type_ * rhs ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+auto qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator<=>( const _type_ * rhs ) const {
 	return Compare( rhs );
 }
 
-template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-bool qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator==( const qpStringBase & rhs ) const {
+template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+bool qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator==( const qpStringBase & rhs ) const {
 	return ( m_length == rhs.m_length ) && ( m_data[ 0 ] == rhs.m_data[ 0 ] ) && ( Compare( rhs ) == 0 );
 }
 
-template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_ >
-bool qpStringBase< _type_, _allowAlloc_, _encoding_ >::operator==( const _type_ * rhs ) const {
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+bool qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::operator==( const _type_ * rhs ) const {
 	return ( qpStrCmp< _type_ >( m_data, rhs ) == 0 );
 }
 
