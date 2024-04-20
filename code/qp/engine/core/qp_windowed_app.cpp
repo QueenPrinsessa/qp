@@ -1,8 +1,5 @@
-#include "engine.pch.h"
+﻿#include "engine.pch.h"
 #include "qp_windowed_app.h"
-#include "qp/common/allocation/qp_stack_allocator.h"
-#include "..\debug\qp_log.h"
-#include "qp/engine/resources/loaders/qp_tga_loader.h"
 #if defined( QP_PLATFORM_WINDOWS )
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
 #endif
