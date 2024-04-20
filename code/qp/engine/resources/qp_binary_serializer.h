@@ -1,19 +1,23 @@
 #pragma once
 #include "qp/common/containers/qp_list.h"
 
+class qpFile;
+
 enum class serializationMode_t {
 	READING,
 	WRITING
 };
 
-template < typename _type_ >
-struct serializeAsBinary_t : public EnableIf< IsTrivialToCopy< _type_ >, void > {
+template < typename _type_ > requires(  IsTrivialToCopy< _type_ > )
+struct serializeAsBinary_t {
 	size_t operator()( const serializationMode_t state, const size_t offset, _type_ * inOutData, qpList< byte > & inOutBytes ) {
 		constexpr size_t numBytes = sizeof( _type_ );
 		QP_COMPILE_TIME_ASSERT( numBytes != 0 );
 		if ( state == serializationMode_t::READING ) {
 			QP_ASSERT( ( offset + numBytes ) <= inOutBytes.Length() );
-			qpCopyBytesUnchecked( inOutData, inOutBytes.Data() + offset, numBytes );
+			if ( ( offset + numBytes ) <= inOutBytes.Length() ) {
+				qpCopyBytesUnchecked( inOutData, inOutBytes.Data() + offset, numBytes );
+			}
 		} else {
 			inOutBytes.Resize( offset + numBytes );
 			qpCopyBytesUnchecked( inOutBytes.Data() + offset, inOutData, numBytes );
@@ -34,7 +38,9 @@ struct serializeAsBinary_t< serializeBytesParms_t > {
 		QP_ASSERT( parms.numBytes != 0 );
 		if ( state == serializationMode_t::READING ) {
 			QP_ASSERT( ( offset + parms.numBytes ) <= inOutBytes.Length() );
-			qpCopyBytesUnchecked( parms.data, inOutBytes.Data() + offset, parms.numBytes );
+			if ( ( offset + parms.numBytes ) <= inOutBytes.Length() ) {
+				qpCopyBytesUnchecked( parms.data, inOutBytes.Data() + offset, parms.numBytes );
+			}
 		} else {
 			inOutBytes.Resize( offset + parms.numBytes );
 			qpCopyBytesUnchecked( inOutBytes.Data() + offset, parms.data, parms.numBytes );
@@ -50,6 +56,7 @@ public:
 
 	template < typename _type_ >
 	void Serialize( _type_ & inOutData ) {
+		QP_ASSERT( !HasOverflowed() );
 		m_offset += serializeAsBinary_t< _type_ >()( m_mode, m_offset, &inOutData, m_buffer );
 	}
 
@@ -59,6 +66,10 @@ public:
 	}
 
 	size_t GetOffset() const { return m_offset; }
+	size_t GetBufferLength() const { return m_buffer.Length(); }
+	size_t GetBufferCapacity() const { return m_buffer.Capacity(); }
+
+	bool HasOverflowed() const { return m_offset > m_buffer.Length(); }
 
 	bool IsReading() const { return m_mode == serializationMode_t::READING; }
 	bool IsWriting() const { return m_mode == serializationMode_t::WRITING; }
@@ -77,7 +88,10 @@ public:
 		: qpBinarySerializer( serializationMode_t::READING ) {
 		m_buffer.Resize( numBytes );
 		qpCopyBytesUnchecked( m_buffer.Data(), buffer, m_buffer.Length() );
-	}
+	}	
+	qpBinaryReadSerializer( const qpFile & file );
+
+	bool ReadAll() const { return m_offset == m_buffer.Length(); }
 };
 
 class qpBinaryWriteSerializer : public qpBinarySerializer {

@@ -5,8 +5,8 @@
 
 namespace {
 	qpResourceLoader & GetResourceLoaderForPath( const qpFilePath & filePath ) {
-		static qpTGALoader tgaLoader;
-		return tgaLoader;
+		static qpImageLoader imageLoader;
+		return imageLoader;
 	}
 }
 
@@ -16,7 +16,14 @@ qpResourceRegistry::~qpResourceRegistry() {
 	}
 }
 
-const qpResource * qpResourceRegistry::Load( const qpFilePath & filePath ) {
+const qpResource * qpResourceRegistry::LoadResource( const qpFilePath & filePath, const returnDefault_t defaultResource ) {
+	m_lastError.Clear();
+
+	if ( filePath.IsEmpty() ) {
+		m_lastError = "Filepath can't be empty when loading resource";
+		qpLog::Error( "qpResourceRegistry: %s!", m_lastError.c_str() );
+		return NULL;
+	}
 	qpResourceLoader & resourceLoader = GetResourceLoaderForPath( filePath );
 
 	qpResource * resource = FindMutable( filePath.c_str() );
@@ -24,13 +31,17 @@ const qpResource * qpResourceRegistry::Load( const qpFilePath & filePath ) {
 		return resource;
 	}
 	resource = resourceLoader.LoadResource( filePath );
-	if ( resourceLoader.HasError() ) {
-		qpDebug::Error( R"(Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
-	}
 	resourceEntry_t entry;
 	entry.resource = resource;
 	entry.name = _strdup( filePath.c_str() );
 	CacheResource( entry );
+	if ( resourceLoader.HasError() ) {
+		qpLog::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
+		m_lastError = resourceLoader.GetLastError();
+		if ( defaultResource == returnDefault_t::RETURN_NULL ) {
+			return NULL;
+		}
+	}
 
 	return resource;
 }

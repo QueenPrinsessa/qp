@@ -2,14 +2,16 @@
 #include "qp_image.h"
 #include "qp/engine/resources/qp_binary_stream.h"
 
-static uint64 BitsPerPixelFromFormat( const imageFormat_t format ) {
-	switch ( format ) {
-		case imageFormat_t::R8G8B8A8: {
-			return 8ull * 4ull;
+namespace {
+	uint64 BitsPerPixelFromFormat( const imageFormat_t format ) {
+		switch ( format ) {
+			case imageFormat_t::R8G8B8A8: {
+				return 8ull * 4ull;
+			}
+			case imageFormat_t::UNKNOWN:
+			default:
+				return 0ull;
 		}
-		case imageFormat_t::UNKNOWN:
-		default:
-			return 0ull;
 	}
 }
 

@@ -38,6 +38,7 @@ public:
 	void Clear();
 
 	uint64 Length() const { return m_length; }
+	uint64 Capacity() const { return m_capacity; }
 	bool IsEmpty() const { return m_length == 0; }
 
 	_type_ & operator[]( const uint64 index );

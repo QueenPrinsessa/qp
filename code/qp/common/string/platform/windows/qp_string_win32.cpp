@@ -11,8 +11,7 @@ qpWideString qpUTF8ToWide( const char * string, const int length ) {
 		return qpWideString {};
 	}
 
-	qpWideString convertedString( wideStrLength + 1, L'\0' );
-	convertedString.Resize( wideStrLength );
+	qpWideString convertedString( wideStrLength, L'\0' );
 	::MultiByteToWideChar( CP_UTF8, 0, string, length, convertedString.Data(), wideStrLength );
 	return convertedString;
 }

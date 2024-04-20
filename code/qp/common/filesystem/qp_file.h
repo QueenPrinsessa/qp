@@ -1,7 +1,7 @@
 #pragma once
 #include "qp_file_path.h"
 #include "qp/common/core/qp_macros.h"
-#include "qp/engine/debug/qp_debug.h"
+#include "..\..\engine\debug\qp_log.h"
 #include "qp/common/containers/qp_list.h"
 #include <cstddef>
 
@@ -53,10 +53,13 @@ public:
 	fileAccessMode_t GetAccessMode() const { return m_accessMode; }
 	fileShareMode_t GetShareMode() const { return m_shareMode; }
 	qpFileHandle GetHandle() const { return m_handle;  }
+	const qpFilePath & GetFilePath() const { return m_filePath; }
+	bool GetExtension( qpString & outExtension ) const { return m_filePath.GetExtension( outExtension ); }
 private:
 	qpFileHandle m_handle = NULL;
 	fileAccessMode_t m_accessMode = QP_FILE_METADATA;
 	fileShareMode_t m_shareMode = QP_FILE_SHARE_EXCLUSIVE;
+	qpFilePath m_filePath;
 };
 
 static inline qpList< byte > qpReadFile( const qpFilePath & filePath ) {
@@ -64,10 +67,10 @@ static inline qpList< byte > qpReadFile( const qpFilePath & filePath ) {
 	qpFile file;
 	if( file.Open( filePath, fileAccessMode_t::QP_FILE_READ ) ) {
 		if( !file.Read( buffer ) ) {
-			qpDebug::Error( "Failed to read file at %s.", filePath.c_str() );
+			qpLog::Error( "Failed to read file at %s.", filePath.c_str() );
 		}
 	} else {
-		qpDebug::Error( "Failed to open file at %s.", filePath.c_str() );
+		qpLog::Error( "Failed to open file at %s.", filePath.c_str() );
 	}
 	return buffer;
 }

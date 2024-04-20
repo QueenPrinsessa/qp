@@ -1,11 +1,12 @@
 #include "engine.pch.h"
+#include "qp/engine/resources/qp_resource_registry.h"
 
 #if defined( QP_VULKAN )
 #include "qp_vulkan.h"
 #include "qp_buffer_structs.h"
 #include "qp_vertex_helper.h"
 #include "qp/common/filesystem/qp_file.h"
-#include "qp/engine/debug/qp_debug.h"
+#include "qp/engine/debug/qp_log.h"
 #include "qp/common/containers/qp_array.h"
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/containers/qp_set.h"
@@ -194,7 +195,7 @@ void qpVulkan::CreateInstance() {
 		ThrowOnError( "vkCreateInstance failed." );
 	}
 
-	qpDebug::Log( "Successfully initialized Vulkan." );
+	qpLog::Log( "Successfully initialized Vulkan." );
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT * callbackData, void * userData ) {
@@ -202,22 +203,22 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageS
 	switch ( messageSeverity ) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 		{
-			qpDebug::Log( "%s", callbackData->pMessage );
+			qpLog::Log( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 		{
-			qpDebug::Info( "%s", callbackData->pMessage );
+			qpLog::Info( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
 		{
-			qpDebug::Warning( "%s", callbackData->pMessage );
+			qpLog::Warning( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 		{
-			qpDebug::Error( "%s", callbackData->pMessage );
+			qpLog::Error( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
@@ -1134,20 +1135,21 @@ VkImageView qpVulkan::CreateImageView( VkImage image, VkFormat format ) {
 }
 
 void qpVulkan::CreateTextureImage() {
-	qpFilePath tgaPath = "user/kat.tga";
-	qpTGALoader tgaLoader;
-	const qpImage * katImage = static_cast< const qpImage * >( tgaLoader.LoadResource( tgaPath ) );
-	if ( tgaLoader.HasError() ) {
-		qpDebug::Error( "Failed to load resource \"%s\" with error: %s", tgaPath.c_str(), tgaLoader.GetLastError().c_str() );
+	qpResourceRegistry registry;
+	qpFilePath imagePath = "generated/user/pals.qpimage";// "user/kat.tga";
+	const qpImage * katImage = static_cast< const qpImage * >( registry.LoadResource( imagePath, returnDefault_t::RETURN_NULL ) );
+	if ( registry.HasResourceError() ) {
+		qpLog::Error( "Failed to load resource \"%s\" with error: %s", imagePath.c_str(), registry.GetLastResourceError().c_str() );
 		ThrowOnError( "Failed to create image." );
 	}
 
-	qpFile f;
-	if ( f.Open( "generated/user/kat.tga.bin", fileAccessMode_t::QP_FILE_WRITE ) ) {
-		qpBinaryWriteSerializer writeSerializer;
-		//katImage->Serialize( writeSerializer );
-		//f.Write()
-	}
+	//qpFile binFile;
+	//if ( binFile.Open( "generated/user/pals.qpimage", fileAccessMode_t::QP_FILE_READ_WRITE ) ) {
+	//	qpBinaryWriteSerializer writeSerializer;
+	//	registry.SerializeResource( writeSerializer, katImage );
+	//	binFile.Write( writeSerializer.GetBuffer(), writeSerializer.GetOffset() );
+	//	binFile.Close();
+	//}
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;

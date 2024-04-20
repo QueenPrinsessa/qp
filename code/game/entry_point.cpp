@@ -8,6 +8,10 @@
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow ) {
+#if !defined( QP_RETAIL )
+	Sys_InitializeConsole();
+#endif
+
 	qpWindowProperties_t windowProperties;
 	windowProperties.width = 800;
 	windowProperties.height = 600;
@@ -25,7 +29,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
-		std::cerr << e.what() << std::endl;
+		qpLog::Error( "%s", e.what() );
 	}
 
 	return 0;

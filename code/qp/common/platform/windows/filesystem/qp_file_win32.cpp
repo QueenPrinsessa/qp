@@ -41,6 +41,8 @@ bool qpFile::Open( const qpFilePath & filePath, fileAccessMode_t accessMode ) {
 bool qpFile::Open( const qpFilePath & filePath, fileAccessMode_t accessMode, fileShareMode_t shareMode ) {
 	QP_ASSERT_MSG( m_handle == NULL, "Close the file before opening a new one!" );
 
+	//Sys_CreateDirectory( filePath.c_str() );
+
 	if ( m_handle == NULL ) {
 		m_handle = CreateFileA( filePath.c_str(), qpFileAccessModeToWin32( accessMode ), qpFileShareModeToWin32( shareMode ), NULL, ( accessMode != fileAccessMode_t::QP_FILE_READ ) ? OPEN_ALWAYS : OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 
@@ -51,6 +53,7 @@ bool qpFile::Open( const qpFilePath & filePath, fileAccessMode_t accessMode, fil
 
 		m_accessMode = accessMode;
 		m_shareMode = shareMode;
+		m_filePath = filePath;
 
 		return true;
 	} 

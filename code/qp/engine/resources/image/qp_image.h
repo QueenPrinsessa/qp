@@ -2,7 +2,7 @@
 #include "qp/engine/resources/qp_binary_serializer.h"
 #include "qp/engine/resources/qp_resource.h"
 
-enum class imageFormat_t {
+enum class imageFormat_t : uint32 {
 	UNKNOWN,
 	R8G8B8A8
 };
