@@ -22,11 +22,67 @@ static inline int qpStrLen( const _type_ * string ) {
 	return length;
 }
 
-template < typename _type_ = char8_t >
-static inline int qpStrUTF8CodePoints( const _type_ * string ) {
+template < typename _type_ = char8_t, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT>
+static inline bool qpStrIsCodePoint( const _type_ c ) {
+	constexpr stringEncoding_t encoding = ( _encoding_ == stringEncoding_t::DEFAULT ) ? CharTraits< _type_ >::DEFAULT_STRING_ENCODING : _encoding_;
+	if constexpr ( encoding == stringEncoding_t::UTF8 ) {
+		return ( ( c & 0xC0 ) != 0x80 );
+	} else {
+		return true;
+	}
+}
+
+enum class searchDirection_t {
+	FORWARD,
+	BACKWARD
+};
+template < typename _type_ = char8_t, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+static inline int qpStrFindNextCodePoint( const _type_ * str, const int strLen, const int startPos, const searchDirection_t searchDir ) {
+	QP_ASSERT( startPos >= 0 && startPos < strLen );
+	QP_ASSERT( str != NULL );
+	constexpr stringEncoding_t encoding = ( _encoding_ == stringEncoding_t::DEFAULT ) ? CharTraits< _type_ >::DEFAULT_STRING_ENCODING : _encoding_;
+	const int direction = ( searchDir == searchDirection_t::FORWARD ) ? 1 : -1;
+	int pos = startPos;
+	if constexpr ( encoding == stringEncoding_t::UTF8 ) {
+		do {
+			pos += direction;
+			if ( ( pos == strLen ) || ( pos < 0 ) ) {
+				return pos;
+			}
+			if ( qpStrIsCodePoint< _type_, encoding >( str[ pos ] ) ) {
+				return pos;
+			}
+		} while ( ( pos >= 0 ) && ( pos < strLen ) && ( str[ pos ] != CharTraits< _type_ >::NIL_CHAR ) );
+	} else {
+		pos += direction;
+	}
+	return pos;
+}
+template < typename _type_ = char8_t, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+static inline int qpStrFindNextCodePoint( const _type_ * str, const int startPos, const searchDirection_t searchDir ) {
+	QP_ASSERT( startPos >= 0 );
+	QP_ASSERT( str != NULL );
+	QP_ASSERT( str[ startPos ] != CharTraits< _type_ >::NIL_CHAR );
+	constexpr stringEncoding_t encoding = ( _encoding_ == stringEncoding_t::DEFAULT ) ? CharTraits< _type_ >::DEFAULT_STRING_ENCODING : _encoding_;
+	const int direction = ( searchDir == searchDirection_t::FORWARD ) ? 1 : -1;
+	int pos = startPos;
+	do {
+		pos += direction;
+		if ( ( str[ pos ] == CharTraits< _type_ >::NIL_CHAR ) || ( pos < 0 ) ) {
+			return pos;
+		}
+		if ( qpStrIsCodePoint< _type_, encoding >( str[ pos ] ) ) {
+			return pos;
+		}
+	} while ( ( pos >= 0 ) && ( str[ pos ] != CharTraits< _type_ >::NIL_CHAR ) );
+	return pos;
+}
+template < typename _type_ = char8_t, stringEncoding_t _encoding_ = stringEncoding_t::DEFAULT >
+static inline int qpStrCodePoints( const _type_ * string ) {
+	constexpr stringEncoding_t encoding = ( _encoding_ == stringEncoding_t::DEFAULT ) ? CharTraits< _type_ >::DEFAULT_STRING_ENCODING : _encoding_;
 	int numCodePoints = 0;
-	while ( *string != static_cast< _type_ >( 0 ) ) {
-		if ( ( *string++ & 0xC0 ) != 0x80 ) {
+	while ( *string != CharTraits< _type_ >::NIL_CHAR ) {
+		if ( qpStrIsCodePoint< _type_, encoding >( *string++ ) ) {
 			++numCodePoints;
 		}
 	}
@@ -144,14 +200,8 @@ public:
 	_type_ & At( int index );
 	const _type_ & At( int index ) const;
 
-	int BufferLength() const { return m_length; }
-	int Length() const { 
-		if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
-			return qpStrUTF8CodePoints( m_data ); 
-		} else {
-			return m_length; 
-		}; 
-	}
+	int DataLength() const { return m_length; } // returns num chars in data
+	int Length() const;	// returns number of code points. same as num chars for non-utf8 strings
 	int Capacity() const { return m_capacity; }
 	bool IsEmpty() const { return m_length == 0 || m_data[ 0 ] == '\0'; }
 
@@ -540,6 +590,15 @@ const _type_ & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapa
 	return m_data[ index ];
 }
 
+template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
+int qpStringBase<_type_, _allowAlloc_, _encoding_, _staticBufferCapacity_>::Length () const {
+	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
+		return qpStrCodePoints< _type_, STRING_ENCODING >( m_data );
+	} else {
+		return m_length;
+	};
+}
+
 template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
 typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Iterator qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Find( const _type_ searchChar ) const {
 	const _type_ searchStr[ 2 ] {
@@ -563,16 +622,22 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	if ( qpStrEmpty( searchStr ) || IsEmpty() ) {
 		return End();
 	}
-
+	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
+		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
+			qpLog::Error( "Invalid UTF8 String" );
+			return End();
+		}
+	}
 	int pos = 0;
 	int posEnd = pos;
 	int searchPos = 0;
 	do {
 		if ( searchStr[ searchPos++ ] != m_data[ posEnd++ ] ) {
-			posEnd = ++pos;
+			pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, pos, searchDirection_t::FORWARD );
+			posEnd = pos;
 			searchPos = 0;
 		}
-	} while ( ( pos < m_length ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );
+	} while ( ( searchStr[ searchPos ] != charTraits_t::NIL_CHAR ) && ( pos < m_length ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );
 
 	const bool found = ( searchPos != 0 ) && ( searchStr[ searchPos ] == charTraits_t::NIL_CHAR );
 	if ( found && ( pos >= 0 ) && ( posEnd <= m_length ) ) {
@@ -587,7 +652,12 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	if ( qpStrEmpty( searchStr ) || IsEmpty() ) {
 		return End();
 	}
-
+	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
+		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
+			qpLog::Error( "Invalid UTF8 String" );
+			return End();
+		}
+	}
 	int searchStrLen = qpStrLen( searchStr );
 	if ( searchStrLen > m_length ) {
 		return End();
@@ -599,11 +669,15 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 		return End();
 	}
 	int pos = m_length - searchStrLen;
+	if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( m_data[ pos ] ) ) {
+		pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, m_length, pos, searchDirection_t::BACKWARD );
+	}
 	int posEnd = pos;
 	int searchPos = 0;
 	do {
 		if ( searchStr[ searchPos++ ] != m_data[ posEnd++ ] ) {
-			posEnd = --pos;
+			pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, m_length, pos, searchDirection_t::BACKWARD );
+			posEnd = pos;
 			searchPos = 0;
 		} 
 	} while ( ( ( posEnd - pos ) != searchStrLen ) && ( pos >= 0 ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );
@@ -621,6 +695,12 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	if ( searchStr.IsEmpty() || IsEmpty() || ( searchStr.m_length > m_length ) ) {
 		return End();
 	}
+	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
+		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
+			qpLog::Error( "Invalid UTF8 String" );
+			return End();
+		}
+	}
 	if ( searchStr.m_length == m_length ) {
 		if ( *this == searchStr ) {
 			return Begin();
@@ -633,10 +713,11 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	int searchPos = 0;
 	do {
 		if ( searchStr[ searchPos++ ] != m_data[ posEnd++ ] ) {
-			pos = posEnd;
+			pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, pos, searchDirection_t::FORWARD );
+			posEnd = pos;
 			searchPos = 0;
 		}
-	} while ( ( pos < m_length ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );
+	} while ( ( searchStr[ searchPos ] != charTraits_t::NIL_CHAR ) && ( pos < m_length ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );
 
 	const bool found = ( searchPos != 0 ) && ( searchStr[ searchPos ] == charTraits_t::NIL_CHAR );
 	if ( found && ( pos >= 0 ) && ( posEnd <= m_length ) ) {
@@ -659,11 +740,15 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	}
 
 	int pos = m_length - searchStr.m_length;
+	if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( m_data[ pos ] ) ) {
+		pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, m_length, pos, searchDirection_t::BACKWARD );
+	}
 	int posEnd = pos;
 	int searchPos = 0;
 	do {
 		if ( searchStr[ searchPos++ ] != m_data[ posEnd++ ] ) {
-			posEnd = --pos;
+			pos = qpStrFindNextCodePoint< _type_, STRING_ENCODING >( m_data, m_length, pos, searchDirection_t::BACKWARD );
+			posEnd = pos;
 			searchPos = 0;
 		}
 	} while ( ( ( posEnd - pos ) != searchStr.Length() ) && ( pos >= 0 ) && ( posEnd < m_length ) && ( m_data[ posEnd ] != charTraits_t::NIL_CHAR ) );

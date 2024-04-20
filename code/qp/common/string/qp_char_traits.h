@@ -10,16 +10,7 @@ enum class stringEncoding_t {
 };
 
 template < typename _type_ >
-struct CharTraitsBase {
-	static bool	IsDigit( const _type_ c ) { return false; }
-	static bool	IsUpper( const _type_ c ) { return false; }
-	static bool	IsLower( const _type_ c ) { return false; }
-	static bool	IsAlphabetic( const _type_ c ) { return false; }
-	static bool	IsAlphanumeric( const _type_ c ) { return false; }
-	static _type_ ToLower( const _type_ c ) { return false; }
-	enum : _type_ { NIL_CHAR = static_cast< _type_ >( 0 ) };
-	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::DEFAULT;
-};
+struct CharTraitsBase {};
 
 template <>
 struct CharTraitsBase< char > {
@@ -43,6 +34,18 @@ struct CharTraitsBase< unsigned char > {
 	static unsigned char ToLower( const unsigned char c ) { return static_cast< unsigned char >( tolower( c ) ); }
 	enum : unsigned char { NIL_CHAR = 0 };
 	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::ASCII;
+};
+
+template <>
+struct CharTraitsBase< char8_t > {
+	//static bool IsDigit( const char8_t c ) { return isdigit( c ); }
+	//static bool IsUpper( const char8_t c ) { return isupper( c ); }
+	//static bool IsLower( const char8_t c ) { return islower( c ); }
+	//static bool IsAlphabetic( const char8_t c ) { return isalpha( c ); }
+	//static bool IsAlphanumeric( const char8_t c ) { return isalnum( c ); }
+	//static char ToLower( const char8_t c ) { return static_cast< char >( tolower( c ) ); }
+	enum : char { NIL_CHAR = u8'\0' };
+	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF8;
 };
 
 template <>
