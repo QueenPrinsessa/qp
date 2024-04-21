@@ -54,7 +54,7 @@ public:
 	fileShareMode_t GetShareMode() const { return m_shareMode; }
 	qpFileHandle GetHandle() const { return m_handle;  }
 	const qpFilePath & GetFilePath() const { return m_filePath; }
-	bool GetExtension( qpString & outExtension ) const { return m_filePath.GetExtension( outExtension ); }
+	bool GetExtension( qpFilePath::stringType_t & outExtension ) const { return m_filePath.GetExtension( outExtension ); }
 private:
 	qpFileHandle m_handle = NULL;
 	fileAccessMode_t m_accessMode = QP_FILE_METADATA;

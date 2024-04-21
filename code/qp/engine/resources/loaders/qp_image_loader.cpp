@@ -5,7 +5,7 @@
 
 qpResource * qpImageLoader::LoadResource_Internal( const qpFile & file ) {
 	const qpFilePath & path = file.GetFilePath();
-	qpString extension; 
+	qpFilePath::stringType_t extension; 
 	path.GetExtension( extension );
 	qpResourceLoader * resourceLoader = GetImageLoaderFromExtension( extension );
 	if ( resourceLoader == NULL ) {
@@ -21,7 +21,7 @@ qpResource * qpImageLoader::LoadResource_Internal( const qpFile & file ) {
 	return resourceLoader->LoadResourceFromFile( file );
 }
 
-qpResourceLoader * qpImageLoader::GetImageLoaderFromExtension( const qpString & ext ) {
+qpResourceLoader * qpImageLoader::GetImageLoaderFromExtension( const qpFilePath::stringType_t & ext ) {
 	if ( ext == ".tga" ) {
 		static qpTGALoader loader;
 		return &loader;
