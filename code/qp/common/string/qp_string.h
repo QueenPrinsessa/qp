@@ -203,7 +203,7 @@ public:
 	int DataLength() const { return m_length; } // returns num chars in data
 	int Length() const;	// returns number of code points. same as num chars for non-utf8 strings
 	int Capacity() const { return m_capacity; }
-	bool IsEmpty() const { return m_length == 0 || m_data[ 0 ] == '\0'; }
+	bool IsEmpty() const { return m_length == 0 || m_data[ 0 ] == charTraits_t::NIL_CHAR; }
 
 	stringEncoding_t GetEncoding() const { return STRING_ENCODING; }
 
