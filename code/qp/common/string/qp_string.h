@@ -192,7 +192,7 @@ public:
 	void ShrinkToFit() requires( _allowAlloc_ );
 
 	void Clear();
-	void ClearAndFreeMemory() requires( _allowAlloc_ );
+	void ClearAndFreeMemory();
 	void FreeMemory() requires( _allowAlloc_ );
 
 	bool IsAllocated() const;
@@ -555,8 +555,10 @@ void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::C
 }
 
 template< typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
-void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ClearAndFreeMemory() requires ( _allowAlloc_ ) {
-	FreeMemory();
+void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::ClearAndFreeMemory() {
+	if constexpr ( _allowAlloc_ ) {
+		FreeMemory();
+	}
 	Clear();
 }
 
