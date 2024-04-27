@@ -42,33 +42,33 @@ public:
 	
 	bool operator[]( const int pos ) const { QP_ASSERT( pos < _numBits_ ); return QP_GET_BIT( m_data[ DataIndex( pos ) ], BitPos( pos ) ); }
 	qpReference operator[]( const int pos ) { QP_ASSERT( pos < _numBits_ ); return qpReference( this, pos ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	bool operator[]( const _type_ pos ) const { return operator[]( qpVerifyStaticCast< int >( pos ) ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	qpReference operator[]( const _type_ pos ) { return operator[]( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	bool operator[]( const _posType_ pos ) const { return operator[]( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	qpReference operator[]( const _posType_ pos ) { return operator[]( qpVerifyStaticCast< int >( pos ) ); }
 	qpBitSet operator~() { qpBitSet tmp = *this; tmp.ToggleAll(); return tmp; }
 
 	void SetBit( const int pos ) { QP_ASSERT( pos < _numBits_ ); QP_SET_BIT( m_data[ DataIndex( pos ) ], BitPos( pos ) ); }
 	void SetBit( const int pos, const bool value ) { QP_ASSERT( pos < _numBits_ ); QP_SET_BIT_TO( m_data[ DataIndex( pos ) ], BitPos( pos ), value ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	void SetBit( const _type_ pos ) { SetBit( qpVerifyStaticCast< int >( pos ) ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	void SetBit( const _type_ pos, const bool value ) { SetBit( qpVerifyStaticCast< int >( pos ), value ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	void SetBit( const _posType_ pos ) { SetBit( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	void SetBit( const _posType_ pos, const bool value ) { SetBit( qpVerifyStaticCast< int >( pos ), value ); }
 
 	void ClearBit( const int pos ) { QP_ASSERT( pos < _numBits_ ); QP_CLEAR_BIT( m_data[ DataIndex( pos ) ], BitPos( pos ) ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	void ClearBit( const _type_ pos ) { ClearBit( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	void ClearBit( const _posType_ pos ) { ClearBit( qpVerifyStaticCast< int >( pos ) ); }
 
 	void ToggleBit( const int pos ) { QP_ASSERT( pos < _numBits_ ); QP_TOGGLE_BIT( m_data[ DataIndex( pos ) ], BitPos( pos ) ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	void ToggleBit( const _type_ pos ) { ToggleBit( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	void ToggleBit( const _posType_ pos ) { ToggleBit( qpVerifyStaticCast< int >( pos ) ); }
 
 	void ToggleAll();
 	void ClearAll();
 
 	bool GetBit( const int pos ) const { QP_ASSERT( pos < _numBits_ ); return QP_GET_BIT( m_data[ DataIndex( pos ) ], BitPos( pos ) ); }
-	template < typename _type_ > requires ( IsIntegral< _type_ > || IsEnum< _type_ > )
-	bool GetBit( const _type_ pos ) const { return GetBit( qpVerifyStaticCast< int >( pos ) ); }
+	template < typename _posType_ > requires ( IsIntegral< _posType_ > || IsEnum< _posType_ > )
+	bool GetBit( const _posType_ pos ) const { return GetBit( qpVerifyStaticCast< int >( pos ) ); }
 
 	bool All() const;
 	bool Any() const;

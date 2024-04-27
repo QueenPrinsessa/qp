@@ -2,6 +2,7 @@
 #include "qp_resource_registry.h"
 #include "loaders/qp_resource_loader.h"
 #include "loaders/qp_tga_loader.h"
+#include "qp/common/string/qp_string_util.h"
 
 namespace {
 	qpResourceLoader & GetResourceLoaderForPath( const qpFilePath & filePath ) {
@@ -33,7 +34,7 @@ const qpResource * qpResourceRegistry::LoadResource( const qpFilePath & filePath
 	resource = resourceLoader.LoadResource( filePath );
 	resourceEntry_t entry;
 	entry.resource = resource;
-	entry.name = _strdup( filePath.c_str() );
+	entry.name = qpStringUtil::Duplicate( filePath.c_str() );
 	CacheResource( entry );
 	if ( resourceLoader.HasError() ) {
 		qpLog::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
@@ -83,6 +84,6 @@ void qpResourceRegistry::CacheResource( const resourceEntry_t & entry ) {
 
 void qpResourceRegistry::ClearEntry( resourceEntry_t & entry ) {
 	delete entry.resource;
-	free( entry.name );
+	qpStringUtil::Free( entry.name );
 	entry = resourceEntry_t();
 }

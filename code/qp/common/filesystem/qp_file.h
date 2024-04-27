@@ -1,7 +1,7 @@
 #pragma once
 #include "qp_file_path.h"
 #include "qp/common/core/qp_macros.h"
-#include "..\..\engine\debug\qp_log.h"
+#include "qp/engine/debug/qp_log.h"
 #include "qp/common/containers/qp_list.h"
 #include <cstddef>
 

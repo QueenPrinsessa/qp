@@ -2,24 +2,10 @@
 #include "qp/common/core/qp_types.h"
 #include "qp/common/utilities/qp_function.h"
 #include "qp/common/string/qp_string.h"
+#include "qp_window_structs.h"
 
 class qpKeyboard;
 class qpMouse;
-
-enum class windowMode_t {
-	WINDOWED,
-	BORDERLESS,
-	COUNT
-};
-
-struct qpWindowProperties_t {
-	qpString title = "qpApp";
-	int width = 1280;
-	int height = 720;
-	windowMode_t mode = windowMode_t::WINDOWED;
-	bool allowResize = true;
-	void * platformData = NULL;
-};
 
 class qpWindow {
 	using DestroyCallback = qpFunction< void() >;

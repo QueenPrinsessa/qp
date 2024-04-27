@@ -1,6 +1,6 @@
 #pragma once
 #include <cctype>
-
+#include <cwctype>
 enum class stringEncoding_t {
 	DEFAULT,
 	ASCII,
@@ -59,6 +59,8 @@ struct CharTraitsBase< wchar_t > {
 	enum : wchar_t { NIL_CHAR = L'\0' };
 #if defined( QP_PLATFORM_WINDOWS )
 	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF16;
+#elif defined( QP_PLATFORM_LINUX )
+	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF32;
 #else
 #error "Default string encoding for platform hasn't been setup"
 #endif

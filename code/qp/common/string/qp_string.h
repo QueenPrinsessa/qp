@@ -393,7 +393,7 @@ template<>
 inline qpStringBase< char, true > & qpStringBase< char, true >::Format( const char * const format, ... ) {
 	QP_ASSERT( format != NULL );
 	QP_ASSERT( m_data != NULL );
-	va_list args = NULL;
+	va_list args;
 	va_start( args, format );
 	int length = vsnprintf( NULL, 0, format, args );
 	va_end( args );
@@ -416,7 +416,7 @@ inline qpStringBase< char, false > & qpStringBase< char, false >::Format( const 
 	QP_ASSERT( format != NULL );
 	QP_ASSERT( m_data != NULL );
 
-	va_list args = NULL;
+	va_list args;
 	va_start( args, format );
 	int length = vsnprintf( m_data, m_capacity, format, args );
 	va_end( args );
@@ -437,15 +437,15 @@ inline qpStringBase< wchar_t, true > & qpStringBase< wchar_t >::Format( const wc
 	QP_ASSERT( format != NULL );
 	QP_ASSERT( m_data != NULL );
 
-	va_list args = NULL;
+	va_list args;
 	va_start( args, format );
-	int length = _vsnwprintf( NULL, 0, format, args );
+	int length = vswprintf( NULL, 0, format, args );
 	va_end( args );
 
 	Reserve( length + 1 );
 
 	va_start( args, format );
-	length = _vsnwprintf( m_data, m_capacity, format, args );
+	length = vswprintf( m_data, m_capacity, format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
@@ -460,9 +460,9 @@ inline qpStringBase< wchar_t, false > & qpStringBase< wchar_t, false >::Format( 
 	QP_ASSERT( format != NULL );
 	QP_ASSERT( m_data != NULL );
 
-	va_list args = NULL;
+	va_list args;
 	va_start( args, format );
-	int length = _vsnwprintf( m_data, m_capacity, format, args );
+	int length = vswprintf( m_data, m_capacity, format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );

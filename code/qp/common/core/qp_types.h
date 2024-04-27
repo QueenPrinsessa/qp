@@ -12,6 +12,7 @@ using uint32 = unsigned int;
 using uint64 = unsigned long long int;
 
 using byte = unsigned char;
+using nullptr_t = decltype( nullptr );
 
 // Verify sizes.
 static_assert( sizeof( int8 ) == 1, "sizeof int8 needs to be 1 byte." );

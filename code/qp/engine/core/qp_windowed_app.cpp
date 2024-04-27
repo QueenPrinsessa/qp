@@ -1,7 +1,10 @@
 ﻿#include "engine.pch.h"
 #include "qp_windowed_app.h"
+#include "qp/engine/rendering/qp_vulkan.h"
 #if defined( QP_PLATFORM_WINDOWS )
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
+#else
+#error "Window include not added for platform!"
 #endif
 
 qpWindowedApp::qpWindowedApp( const qpWindowProperties_t & windowProperties ) {
@@ -11,6 +14,8 @@ qpWindowedApp::qpWindowedApp( const qpWindowProperties_t & windowProperties ) {
 void qpWindowedApp::OnInit() {
 #if defined( QP_PLATFORM_WINDOWS )
 	m_window = qpCreateUnique< qpWindow_Win32 >( m_windowProperties );
+#else
+#error "Window creation not setup for platform!"
 #endif
 	m_window->SetDestroyCallback( [ & ] () {
 		RequestShutdown();
