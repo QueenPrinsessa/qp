@@ -12,18 +12,8 @@ objdir (tempdir .. "/" .. outputdir .. "/%{prj.name}")
 pchheader "game.pch.h"
 pchsource "game.pch.h.cpp"
 
-disablewarnings {
-    "4100", -- unreferenced formal parameter
-    "4201" -- nonstandard extension used: nameless struct/union
-}
-
 defines {
     "_CRT_SECURE_NO_WARNINGS"
-}
-
-flags {
-    "MultiProcessorCompile",
-    "FatalCompileWarnings"
 }
 
 files {

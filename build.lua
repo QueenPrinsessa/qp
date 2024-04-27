@@ -17,8 +17,8 @@ workspace "qp"
     platforms {
         "windows_vulkan_dev_x64",
         "windows_vulkan_x64",
-        -- "linux_vulkan_dev_x64",
-        -- "linux_vulkan_x64",
+        "linux_vulkan_dev_x64",
+        "linux_vulkan_x64",
     }
     filter { "system:windows" }
         systemversion "latest"
@@ -30,11 +30,13 @@ workspace "qp"
         defines {
             "QP_PLATFORM_WINDOWS"
         }
-    -- filter { "system:linux" }
-    --     systemversion "latest"
-    --     defines {
-    --         "QP_PLATFORM_LINUX"
-    --     }
+        toolset "msc"
+    filter { "system:linux" }
+        systemversion "latest"
+        defines {
+            "QP_PLATFORM_LINUX"
+        }
+        toolset "clang"
     filter { "configurations:debug" }
         defines {
             "QP_DEBUG"
@@ -57,8 +59,8 @@ workspace "qp"
         symbols "off"
     filter { "platforms:windows_*" }
         system "windows"
-    -- filter { "platforms:linux_*" }
-    --     system "linux"
+    filter { "platforms:linux_*" }
+        system "linux"
     filter { "platforms:*_x64" }
         architecture "x86_64"
     filter { "platforms:windows_*", "platforms:*_vulkan_*" }
@@ -74,6 +76,18 @@ workspace "qp"
         externalincludedirs {
             include_dirs["vulkan"]
         }
+    filter { "toolset:msc" }
+        disablewarnings {
+            "4100", -- unreferenced formal parameter
+            "4201" -- nonstandard extension used: nameless struct/union
+        }
+        flags {
+            "MultiProcessorCompile",
+            "FatalCompileWarnings"
+        }
+    filter { "toolset:clang" }
+        disablewarnings {}
+        flags {}
     filter {}
 
 outputdir = "code/%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"

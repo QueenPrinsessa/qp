@@ -13,18 +13,8 @@ pchsource "engine.pch.h.cpp"
 
 linkoptions {} 
 
-disablewarnings {
-    "4100", -- unreferenced formal parameter
-    "4201" -- nonstandard extension used: nameless struct/union
-}
-
 defines {
     "_CRT_SECURE_NO_WARNINGS"
-}
-
-flags {
-    "MultiProcessorCompile",
-    "FatalCompileWarnings"
 }
 
 files {
@@ -35,7 +25,8 @@ files {
 }
 
 includedirs {
-    codedir
+    codedir,
+    codedir .. "/qp"
 }
 
 externalwarnings "Off"
