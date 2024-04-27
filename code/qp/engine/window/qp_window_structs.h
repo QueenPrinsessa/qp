@@ -1,3 +1,4 @@
+#pragma once
 #include "qp/common/string/qp_string.h"
 
 enum class windowMode_t {

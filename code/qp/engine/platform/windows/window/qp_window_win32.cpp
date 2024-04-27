@@ -13,7 +13,7 @@ struct windowWin32Data_t {
 	WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };
 };
 
-qpWindow_Win32::qpWindow_Win32( const qpWindowProperties_t & properties ) {
+qpWindow_Win32::qpWindow_Win32( const windowProperties_t & properties ) {
 	m_data = qpCreateUnique< windowWin32Data_t >();
 	Init( properties );
 }
@@ -47,7 +47,7 @@ const qpKeyboard & qpWindow_Win32::GetKeyboard() const {
 	return m_data->m_keyboard;
 }
 
-void qpWindow_Win32::Init( const qpWindowProperties_t & properties ) {
+void qpWindow_Win32::Init( const windowProperties_t & properties ) {
 	QP_ASSERT( m_data != NULL );
 	const wchar_t * windowClassName = L"qpWindow";
 

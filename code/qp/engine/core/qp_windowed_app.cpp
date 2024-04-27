@@ -1,13 +1,12 @@
 ﻿#include "engine.pch.h"
 #include "qp_windowed_app.h"
-#include "qp/engine/rendering/qp_vulkan.h"
 #if defined( QP_PLATFORM_WINDOWS )
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
 #else
 #error "Window include not added for platform!"
 #endif
 
-qpWindowedApp::qpWindowedApp( const qpWindowProperties_t & windowProperties ) {
+qpWindowedApp::qpWindowedApp( const windowProperties_t & windowProperties ) {
 	m_windowProperties = windowProperties;
 }
 

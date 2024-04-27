@@ -11,7 +11,7 @@ struct windowPropertiesWindows_t {
 struct windowWin32Data_t;
 class qpWindow_Win32 : public qpWindow {
 public:
-	qpWindow_Win32( const qpWindowProperties_t & properties );
+	qpWindow_Win32( const windowProperties_t & properties );
 	virtual ~qpWindow_Win32() override;
 
 	virtual void OnUpdate() override;
@@ -26,7 +26,7 @@ public:
 	virtual const qpMouse & GetMouse() const override;
 	virtual const qpKeyboard & GetKeyboard() const override;
 private:
-	void Init( const qpWindowProperties_t & properties );
+	void Init( const windowProperties_t & properties );
 	void ApplyWindowMode( const windowMode_t windowMode );
 
 	qpUniquePtr< windowWin32Data_t > m_data;

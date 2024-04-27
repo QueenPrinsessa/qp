@@ -12,7 +12,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	Sys_InitializeConsole();
 #endif
 
-	qpWindowProperties_t windowProperties;
+	windowProperties_t windowProperties;
 	windowProperties.width = 800;
 	windowProperties.height = 600;
 	windowProperties.allowResize = true;

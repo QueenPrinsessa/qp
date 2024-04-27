@@ -5,6 +5,7 @@
 #include "qp/common/utilities/qp_utility.h"
 #include "qp/common/math/qp_math.h"
 #include "qp/engine/debug/qp_log.h"
+#include "qp/common/utilities/qp_algorithms.h"
 #include <cstddef>
 #include <ostream>
 #include <compare>
