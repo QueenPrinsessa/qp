@@ -77,7 +77,7 @@ workspace "qp"
         externalincludedirs {
             include_dirs["vulkan"]
         }
-    filter { "platforms: *_headless_*" }
+    filter { "platforms:*_headless_*" }
         defines {
             "QP_HEADLESS"
         }
