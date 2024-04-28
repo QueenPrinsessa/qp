@@ -15,8 +15,10 @@ workspace "qp"
     platforms {
         "windows_vulkan_dev_x64",
         "windows_vulkan_x64",
+        "windows_headless_x64",
         "linux_vulkan_dev_x64",
         "linux_vulkan_x64",
+        "linux_headless_x64",
     }
     filter { "system:windows" }
         systemversion "latest"
@@ -74,6 +76,10 @@ workspace "qp"
     filter { "platforms:*_vulkan_*" }
         externalincludedirs {
             include_dirs["vulkan"]
+        }
+    filter { "platforms: *_headless_*" }
+        defines {
+            "QP_HEADLESS"
         }
     filter { "toolset:msc" }
         disablewarnings {
