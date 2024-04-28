@@ -1,6 +1,7 @@
 include("dependencies.lua")
 
 workspace "qp"
+    location "."
     architecture "x64"
     startproject "game"
     configurations {
@@ -37,6 +38,7 @@ workspace "qp"
             "QP_PLATFORM_LINUX"
         }
         toolset "clang"
+        toolchainversion "wsl2"
     filter { "configurations:debug" }
         defines {
             "QP_DEBUG"
@@ -90,11 +92,12 @@ workspace "qp"
         flags {}
     filter {}
 
-outputdir = "code/%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-codedir = "%{wks.location}/code"
-bindir = "%{wks.location}/bin"
-tempdir = "%{wks.location}/temp"
-gamedir = "%{wks.location}/game"
+slnDir = "%{wks.location}/"
+outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+codedir = slnDir .. "code/"
+bindir = slnDir .. "bin/"
+tempdir = slnDir .. "temp/"
+gamedir = slnDir .. "game/"
 
-include("code/qp/build-engine.lua")
-include("code/game/build-game.lua")
+include("build-engine.lua")
+include("build-game.lua")

@@ -1,5 +1,5 @@
 project "qp"
-location "."
+location( slnDir .. "projects/" ) 
 kind "StaticLib"
 language "C++"
 cppdialect "C++20"
@@ -26,7 +26,7 @@ files {
 
 includedirs {
     codedir,
-    codedir .. "/qp"
+    codedir .. "/qp/"
 }
 
 externalwarnings "Off"

@@ -38,6 +38,8 @@
 *.out
 *.app
 
+!premake/*.exe
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db

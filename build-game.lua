@@ -1,5 +1,5 @@
 project "game"
-location "."
+location( slnDir .. "projects/" ) 
 kind "WindowedApp"
 language "C++"
 cppdialect "C++20"
@@ -25,7 +25,7 @@ files {
 
 includedirs {
     codedir,
-    "%{codedir}/qp",
+    codedir .. "/qp/",
     include_dirs["vulkan"]
 }
 
