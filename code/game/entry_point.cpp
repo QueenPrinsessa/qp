@@ -1,6 +1,10 @@
 ﻿#include "game.pch.h"
 #include <iostream>
-#include "engine/core/qp_windowed_app.h"
+#if defined( QP_HEADLESS )
+#include "qp/engine/core/qp_headless_app.h"
+#else
+#include "qp/engine/core/qp_windowed_app.h"
+#endif
 
 #if defined( QP_PLATFORM_WINDOWS )
 
@@ -12,6 +16,9 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	Sys_InitializeConsole();
 #endif
 
+#if defined( QP_HEADLESS )
+	qpHeadlessApp app;
+#else
 	windowProperties_t windowProperties;
 	windowProperties.width = 800;
 	windowProperties.height = 600;
@@ -25,6 +32,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	windowProperties.platformData = &windowsProperties;
 
 	qpWindowedApp app( windowProperties );
+#endif
 
 	try {
 		app.Run();

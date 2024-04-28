@@ -1,14 +1,14 @@
 #pragma once
+
+#if defined( QP_VULKAN )
+
 #include "qp_vertex.h"
 #include "qp/common/containers/qp_array.h"
 #include <vulkan/vulkan_core.h>
 
-class qpVertexHelper {
-public:
-	qpVertexHelper() = delete;
-	~qpVertexHelper() = delete;
-	static VkVertexInputBindingDescription GetBindingDescription();
-	static qpArray< VkVertexInputAttributeDescription, 3 > GetAttributeDescriptions();
+namespace qpVertexHelper {
+	VkVertexInputBindingDescription GetBindingDescription();
+	qpArray< VkVertexInputAttributeDescription, 3 > GetAttributeDescriptions();
 };
 
 inline VkVertexInputBindingDescription qpVertexHelper::GetBindingDescription() {
@@ -39,3 +39,5 @@ inline qpArray< VkVertexInputAttributeDescription, 3 > qpVertexHelper::GetAttrib
 
 	return attributeDescriptions;
 }
+
+#endif

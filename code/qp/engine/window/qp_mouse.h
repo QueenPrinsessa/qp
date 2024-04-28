@@ -1,4 +1,7 @@
 #pragma once
+
+#if !defined( QP_HEADLESS )
+
 #include "qp_input_codes.h"
 #include "qp/common/containers/qp_bitset.h"
 
@@ -21,3 +24,5 @@ protected:
 	qpBitSet< MOUSE_BUTTON_COUNT > m_lastState;
 	qpBitSet< MOUSE_BUTTON_COUNT > m_workingState;
 };
+
+#endif

@@ -1,7 +1,8 @@
 #include "engine.pch.h"
-#include "qp/engine/resources/qp_resource_registry.h"
 
 #if defined( QP_VULKAN )
+
+#include "qp/engine/resources/qp_resource_registry.h"
 #include "qp_vulkan.h"
 #include "qp_buffer_structs.h"
 #include "qp_vertex_helper.h"

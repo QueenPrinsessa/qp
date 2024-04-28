@@ -1,5 +1,9 @@
 ﻿#include "engine.pch.h"
+
+#if !defined( QP_HEADLESS )
+
 #include "qp_windowed_app.h"
+
 #if defined( QP_PLATFORM_WINDOWS )
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
 #else
@@ -37,3 +41,5 @@ void qpWindowedApp::OnCleanup() {
 	m_vulkan.Reset();
 	m_window.Reset();
 }
+
+#endif 

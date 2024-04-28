@@ -1,4 +1,7 @@
 #pragma once
+
+#if !defined( QP_HEADLESS )
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/engine/window/qp_mouse.h"
@@ -13,5 +16,7 @@ public:
 private:
 	bool ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
 };
+
+#endif
 
 #endif

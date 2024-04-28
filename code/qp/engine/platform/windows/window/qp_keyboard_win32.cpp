@@ -1,5 +1,7 @@
 #include "engine.pch.h"
 
+#if !defined( QP_HEADLESS )
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp_keyboard_win32.h"
@@ -148,5 +150,7 @@ bool qpKeyboard_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lpara
 		}
 	}
 }
+
+#endif
 
 #endif

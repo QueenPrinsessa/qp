@@ -1,4 +1,7 @@
 #pragma once
+
+#if !defined( QP_HEADLESS )
+
 #include "qp/common/core/qp_types.h"
 #include "qp/common/utilities/qp_function.h"
 #include "qp/common/string/qp_string.h"
@@ -31,3 +34,5 @@ protected:
 	DestroyCallback m_destroyCallback;
 	ResizeCallback m_resizeCallback;
 };
+
+#endif

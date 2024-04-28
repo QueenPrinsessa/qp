@@ -1,5 +1,7 @@
 #include "engine.pch.h"
 
+#if !defined( QP_HEADLESS )
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
@@ -174,5 +176,7 @@ LRESULT CALLBACK qpWindow_Win32::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ 
 
 	return 0;
 }
+
+#endif
 
 #endif

@@ -1,4 +1,5 @@
 #pragma once
+
 #if defined( QP_VULKAN )
 #include "qp/common/utilities/qp_optional.h"
 #include "qp/common/containers/qp_array_view.h"

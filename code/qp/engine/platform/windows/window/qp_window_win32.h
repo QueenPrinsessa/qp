@@ -1,4 +1,7 @@
 #pragma once
+
+#if !defined( QP_HEADLESS )
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/engine/window/qp_window.h"
@@ -36,5 +39,7 @@ private:
 	windowMode_t m_windowMode = windowMode_t::WINDOWED;
 	static LRESULT CALLBACK WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam );
 };
+
+#endif
 
 #endif

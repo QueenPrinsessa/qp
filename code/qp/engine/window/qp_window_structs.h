@@ -1,4 +1,7 @@
 #pragma once
+
+#if !defined( QP_HEADLESS )
+
 #include "qp/common/string/qp_string.h"
 
 enum class windowMode_t {
@@ -15,3 +18,5 @@ struct windowProperties_t {
 	bool allowResize = true;
 	void * platformData = NULL;
 };
+
+#endif

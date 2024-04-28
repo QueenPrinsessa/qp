@@ -1,5 +1,7 @@
 #include "engine.pch.h"
 
+#if !defined( QP_HEADLESS )
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp_mouse_win32.h"
@@ -55,4 +57,6 @@ bool qpMouse_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam )
 	 	}
 	 }
 }
+#endif
+
 #endif
