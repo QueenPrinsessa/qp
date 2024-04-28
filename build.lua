@@ -92,7 +92,9 @@ workspace "qp"
             "FatalCompileWarnings"
         }
     filter { "toolset:clang" }
-        disablewarnings {}
+        disablewarnings {
+            "unused-function"
+        }
         flags {}
     filter {}
 

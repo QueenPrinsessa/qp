@@ -8,7 +8,7 @@ public:
 	int64 AsNanoseconds() const { return ( m_ticks * 1000ll * 1000ll * 1000ll ) / m_ticksPerSecond; }
 	int64 AsMicroseconds() const { return ( m_ticks * 1000ll * 1000ll ) / m_ticksPerSecond; }
 	int64 AsMilliseconds() const { return ( m_ticks * 1000ll ) / m_ticksPerSecond; }
-	float AsSeconds() const { return static_cast< float >( m_ticks ) / m_ticksPerSecond; }
+	float AsSeconds() const { return static_cast< float >( m_ticks ) / static_cast< float >( m_ticksPerSecond ); }
 	int64 AsFPS() const { int64 microseconds = AsMicroseconds(); return ( microseconds == 0 ) ? 0 : ( ( 1000ll * 1000ll ) / microseconds ); }
 
 	auto operator<=>( const qpTimePoint & rhs ) const = default;

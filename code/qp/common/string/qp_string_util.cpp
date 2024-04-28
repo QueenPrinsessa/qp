@@ -5,7 +5,7 @@
 
 namespace qpStringUtil {
     char * Duplicate( const char * str ) {
-        int len = qpStrLen( str );
+        uint32 len = qpVerifyStaticCast< uint32 >( qpStrLen( str ) );
         char * copy = new char[ len + 1 ];
         qpCopyBytesUnchecked( copy, str, ( len + 1 ) );
         return copy;

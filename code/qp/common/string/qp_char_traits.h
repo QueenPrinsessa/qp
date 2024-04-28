@@ -50,12 +50,12 @@ struct CharTraitsBase< char8_t > {
 
 template <>
 struct CharTraitsBase< wchar_t > {
-	static bool IsDigit( const wchar_t c ) { return iswdigit( c ); }
-	static bool IsUpper( const wchar_t c ) { return iswupper( c ); }
-	static bool IsLower( const wchar_t c ) { return iswlower( c ); }
-	static bool IsAlphabetic( const wchar_t c ) { return iswalpha( c ); }
-	static bool IsAlphanumeric( const wchar_t c ) { return iswalnum( c ); }
-	static wchar_t ToLower( const wchar_t c ) { return towlower( c ); }
+	static bool IsDigit( const wchar_t c ) { return iswdigit( qpVerifyStaticCast< wint_t >( c ) ); }
+	static bool IsUpper( const wchar_t c ) { return iswupper( qpVerifyStaticCast< wint_t >( c ) ); }
+	static bool IsLower( const wchar_t c ) { return iswlower( qpVerifyStaticCast< wint_t >( c ) ); }
+	static bool IsAlphabetic( const wchar_t c ) { return iswalpha( qpVerifyStaticCast< wint_t >( c ) ); }
+	static bool IsAlphanumeric( const wchar_t c ) { return iswalnum( qpVerifyStaticCast< wint_t >( c ) ); }
+	static wchar_t ToLower( const wchar_t c ) { return qpVerifyStaticCast< wchar_t >( towlower( qpVerifyStaticCast< wint_t >( c ) ) ); }
 	enum : wchar_t { NIL_CHAR = L'\0' };
 #if defined( QP_PLATFORM_WINDOWS )
 	static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF16;

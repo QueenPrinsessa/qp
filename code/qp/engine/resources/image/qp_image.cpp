@@ -39,5 +39,5 @@ bool qpImage::Serialize( qpBinarySerializer & serializer ) {
 }
 
 uint64 qpImage::GetSize() const {
-	return ( BitsPerPixelFromFormat( m_header.format ) / 8ull ) * m_header.width * m_header.height;
+	return ( BitsPerPixelFromFormat( m_header.format ) / 8ull ) * qpVerifyStaticCast< uint64 >( m_header.width ) * qpVerifyStaticCast< uint64 >( m_header.height );
 }

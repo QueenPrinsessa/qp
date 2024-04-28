@@ -45,7 +45,7 @@ uint64 qpCopyUnchecked( _type_ * to, const _type_ * from, const uint64 num ) {
 }
 
 template < typename _type_ >
-uint64 qpCopy( _type_ * to, uint64 toCount, const _type_ * from, const uint64 fromCount ) {
+uint64 qpCopy( _type_ * to, const uint64 toCount, const _type_ * from, const uint64 fromCount ) {
 	QP_ASSERT( toCount >= fromCount );
 
 	if( toCount < fromCount ) {
@@ -67,7 +67,7 @@ static uint64 qpCopyBytesUnchecked( void * to, const void * from, const uint64 n
 	return numBytes;
 }
 
-static uint64 qpCopyBytes( void * to, uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
+static uint64 qpCopyBytes( void * to, const uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
 	QP_ASSERT( toSizeBytes >= numBytes );
 
 	if ( toSizeBytes < numBytes ) {
@@ -90,7 +90,7 @@ static uint64 qpCopyBytesOverlappedUnchecked( void * to, const void * from, cons
 }
 
 
-static uint64 qpCopyBytesOverlapped( void * to, uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
+static uint64 qpCopyBytesOverlapped( void * to, const uint64 toSizeBytes, const void * from, const uint64 numBytes ) {
 	QP_ASSERT( toSizeBytes >= numBytes );
 
 	if ( toSizeBytes < numBytes ) {
@@ -117,11 +117,11 @@ void qpZeroMemory( _type_ & memory ) {
 }
 
 
-inline void qpSetMemory( void * memory, int value, int numBytes ) {
+inline void qpSetMemory( void * memory, const int value, const uint64 numBytes ) {
 	memset( memory, value, numBytes );
 }
 
-inline void qpZeroMemory( void * memory, int numBytes ) {
+inline void qpZeroMemory( void * memory, const uint64 numBytes ) {
 	memset( memory, 0, numBytes );
 }
 

@@ -65,7 +65,7 @@ bool qpFilePathBase<_type_>::GetExtension( _type_ * inOutBuffer, const int buffe
 		outExtensionLength = extLength;
 		return false;
 	}
-	qpCopyBytes( inOutBuffer, bufferLength * sizeof( _type_ ), ext, ( extLength + 1 ) * sizeof( _type_ ) );
+	qpCopyBytes( inOutBuffer, qpVerifyStaticCast< uint64 >( bufferLength ) * sizeof( _type_ ), ext, qpVerifyStaticCast< uint64 >( extLength + 1 ) * sizeof( _type_ ) );
 	outExtensionLength = extLength;
 	return true;
 }

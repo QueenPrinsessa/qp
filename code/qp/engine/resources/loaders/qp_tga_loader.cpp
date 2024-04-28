@@ -52,15 +52,15 @@ qpResource * qpTGALoader::LoadResource_Internal( const qpFile & file ) {
 	}
 
 	const uint64 pixelByteSize = static_cast< uint64 >( header.bitsPerPixel / 8 );
-	const uint64 numBytes = pixelByteSize * header.width * header.height;
+	const uint64 numBytes = pixelByteSize * qpVerifyStaticCast< uint64 >( header.width ) * qpVerifyStaticCast< uint64 >( header.height );
 	byte * data = new byte[ numBytes ];
 	stream.ReadElements( data, numBytes );
 
 	// TARGA stores its images in B8G8R8A8 while we want the image in R8G8B8A8
 	// so we need to swap the blue and red channels.
-	for ( int row = 0; row < header.height; ++row ) {
-		const uint64 rowStart = ( row * ( sizeof( byte ) * pixelByteSize ) * header.width );
-		for ( int x = 0; x < header.width; ++x ) {
+	for ( uint64 row = 0; row < qpVerifyStaticCast< uint64 >( header.height ); ++row ) {
+		const uint64 rowStart = ( row * ( sizeof( byte ) * pixelByteSize ) * qpVerifyStaticCast< uint64 >( header.width ) );
+		for ( uint64 x = 0; x < qpVerifyStaticCast< uint64 >( header.width ); ++x ) {
 			qpSwap( data[ rowStart + x * pixelByteSize ],
 					data[ rowStart + x * pixelByteSize + 2 ]);
 		}

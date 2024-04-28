@@ -371,7 +371,7 @@ qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::~qpStr
 template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
 qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ > & qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::Assign( const _type_ * string, const int length ) {
 	Resize( length );
-	qpCopyBytes( m_data, m_capacity * sizeof( _type_ ), string, m_length * sizeof( _type_ ) );
+	qpCopyBytes( m_data, qpVerifyStaticCast< uint64 >( m_capacity ) * sizeof( _type_ ), string, qpVerifyStaticCast< uint64 >( m_length ) * sizeof( _type_ ) );
 	return *this;
 }
 
@@ -402,7 +402,7 @@ inline qpStringBase< char, true > & qpStringBase< char, true >::Format( const ch
 	Reserve( length + 1 );
 
 	va_start( args, format );
-	length = vsnprintf( m_data, m_capacity, format, args );
+	length = vsnprintf( m_data, qpVerifyStaticCast< size_t >( m_capacity ), format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
@@ -419,7 +419,7 @@ inline qpStringBase< char, false > & qpStringBase< char, false >::Format( const 
 
 	va_list args;
 	va_start( args, format );
-	int length = vsnprintf( m_data, m_capacity, format, args );
+	int length = vsnprintf( m_data, qpVerifyStaticCast< size_t >( m_capacity ), format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
@@ -446,7 +446,7 @@ inline qpStringBase< wchar_t, true > & qpStringBase< wchar_t >::Format( const wc
 	Reserve( length + 1 );
 
 	va_start( args, format );
-	length = vswprintf( m_data, m_capacity, format, args );
+	length = vswprintf( m_data, qpVerifyStaticCast< size_t >( m_capacity ), format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
@@ -463,7 +463,7 @@ inline qpStringBase< wchar_t, false > & qpStringBase< wchar_t, false >::Format( 
 
 	va_list args;
 	va_start( args, format );
-	int length = vswprintf( m_data, m_capacity, format, args );
+	int length = vswprintf( m_data, qpVerifyStaticCast< size_t >( m_capacity ), format, args );
 	va_end( args );
 
 	QP_ASSERT_MSG( length >= 0, "Failed to format string." );
@@ -500,9 +500,9 @@ void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::R
 	const int lengthDiff = clampedLength - m_length;
 
 	if ( lengthDiff > 0 ) {
-		qpSetMemory( m_data + ( m_length * sizeof( _type_ ) ), charToInsert, lengthDiff * sizeof( _type_ ) );
+		qpSetMemory( m_data + m_length, charToInsert, qpVerifyStaticCast< uint64 >( lengthDiff ) * sizeof( _type_ ) );
 	} else if ( lengthDiff < 0 ) {
-		qpSetMemory( m_data + ( ( static_cast< size_t >( m_length ) + lengthDiff ) * sizeof( _type_ ) ), 0, qpMath::Abs( lengthDiff ) * sizeof( _type_ ) );
+		qpSetMemory( m_data + m_length + lengthDiff, 0, qpVerifyStaticCast< uint64 >( qpMath::Abs( lengthDiff ) ) * sizeof( _type_ ) );
 	}
 
 	m_length = clampedLength;
@@ -521,12 +521,12 @@ void qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ >::R
 
 	QP_ASSERT( requestedCapacity > _staticBufferCapacity_ );
 
-	int capacity = static_cast< int >( qpAllocationUtil::AlignSize( requestedCapacity, 8 * sizeof( _type_ ) ) );
+	uint64 capacity = qpAllocationUtil::AlignSize( qpVerifyStaticCast< size_t >( requestedCapacity ), 8 * sizeof( _type_ ) );
 	_type_ * newData = new _type_[ capacity ] { };
-	qpCopyBytes( newData, capacity * sizeof( _type_ ), m_data, m_length * sizeof( _type_ ) );
+	qpCopyBytes( newData, capacity * sizeof( _type_ ), m_data, qpVerifyStaticCast< uint64 >( m_length ) * sizeof( _type_ ) );
 	FreeMemory();
 	m_data = newData;
-	m_capacity = capacity;
+	m_capacity = qpVerifyStaticCast< int >( capacity );
 }
 
 template < typename _type_, bool _allowAlloc_, stringEncoding_t _encoding_, uint32 _staticBufferCapacity_ >
