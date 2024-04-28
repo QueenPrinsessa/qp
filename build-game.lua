@@ -9,23 +9,26 @@ debugdir(gamedir)
 targetdir (bindir .."/" .. outputdir .. "%{prj.name}")
 objdir (tempdir .. "/" .. outputdir .. "/%{prj.name}")
 
-pchheader "game.pch.h"
-pchsource "game.pch.h.cpp"
+game_src_dir = codedir .. "game/"
+
+pchheader ( "game.pch.h" )
+pchsource ( game_src_dir .. "game.pch.h.cpp" )
 
 defines {
     "_CRT_SECURE_NO_WARNINGS"
 }
 
 files {
-    "**.h",
-    "**.cpp",
-    "**.hpp",
-    "**.inl"
+    game_src_dir .. "**.h",
+    game_src_dir .. "**.cpp",
+    game_src_dir .. "**.hpp",
+    game_src_dir .. "**.inl"
 }
 
 includedirs {
     codedir,
-    codedir .. "/qp/",
+    game_src_dir,
+    engine_src_dir,
     include_dirs["vulkan"]
 }
 

@@ -8,8 +8,8 @@ staticruntime "Off"
 targetdir (bindir .. "/" .. outputdir .. "/%{prj.name}")
 objdir (tempdir .. "/" .. outputdir .. "/%{prj.name}")
 
-pchheader "engine.pch.h"
-pchsource "engine.pch.h.cpp"
+pchheader ( "engine.pch.h" )
+pchsource ( codedir .. "qp/engine.pch.h.cpp" )
 
 linkoptions {} 
 
@@ -17,16 +17,18 @@ defines {
     "_CRT_SECURE_NO_WARNINGS"
 }
 
+engine_src_dir = codedir .. "qp/"
+
 files {
-    "**.h",
-    "**.cpp",
-    "**.hpp",
-    "**.inl"
+    engine_src_dir .. "**.h",
+    engine_src_dir .. "**.cpp",
+    engine_src_dir .. "**.hpp",
+    engine_src_dir .. "**.inl",
 }
 
 includedirs {
     codedir,
-    codedir .. "/qp/"
+    engine_src_dir
 }
 
 externalwarnings "Off"
