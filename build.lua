@@ -9,9 +9,6 @@ workspace "qp"
         "release", -- optimized internal build with symbols
         "retail" -- optimized without symbols, for distribution.
     }
-    disablewarnings {
-        "4505"
-    }
     --platform naming:
     --dev builds: platform_graphics_dev_architecture
     --builds: platform_graphics_architectures
@@ -81,7 +78,8 @@ workspace "qp"
     filter { "toolset:msc" }
         disablewarnings {
             "4100", -- unreferenced formal parameter
-            "4201" -- nonstandard extension used: nameless struct/union
+            "4201", -- nonstandard extension used: nameless struct/union
+            "4505" -- unreferenced local function has been removed
         }
         flags {
             "MultiProcessorCompile",
