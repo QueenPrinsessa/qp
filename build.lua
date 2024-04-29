@@ -15,10 +15,12 @@ workspace "qp"
     platforms {
         "windows_vulkan_dev_x64",
         "windows_vulkan_x64",
-        "windows_headless_x64",
+        "windows_headless_dev_x64",
+	"windows_headless_x64",
         "linux_vulkan_dev_x64",
         "linux_vulkan_x64",
-        "linux_headless_x64",
+        "linux_headless_dev_x64",
+	"linux_headless_x64"
     }
     filter { "system:windows" }
         systemversion "latest"
