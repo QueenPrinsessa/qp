@@ -24,8 +24,11 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	windowProperties.height = 600;
 	windowProperties.allowResize = true;
 	windowProperties.mode = windowMode_t::WINDOWED;
-	windowProperties.title = "qpVulkanWindowsWindow";
-
+#if defined( QP_VULKAN )
+	windowProperties.title = "qpVulkan Window Win32";
+#elif defined( QP_D3D11 )
+	windowProperties.title = "qpD3D11 Window Win32";
+#endif
 	windowPropertiesWindows_t windowsProperties;
 	windowsProperties.instanceHandle = hInstance;
 

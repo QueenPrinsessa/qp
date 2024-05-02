@@ -28,8 +28,7 @@ files {
 includedirs {
     codedir,
     game_src_dir,
-    engine_src_dir,
-    include_dirs["vulkan"]
+    engine_src_dir
 }
 
 links {
@@ -47,4 +46,11 @@ filter { "platforms:*_vulkan_*" }
     }
     links {
         libs["vulkan"]
+    }
+
+filter { "platforms:*_d3d11_*" }
+    links {
+        "d3d11.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib"
     }

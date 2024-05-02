@@ -1,6 +1,8 @@
 #pragma once
 #include <cctype>
 #include <cwctype>
+#include "qp/common/utilities/qp_algorithms.h"
+
 enum class stringEncoding_t {
 	DEFAULT,
 	ASCII,

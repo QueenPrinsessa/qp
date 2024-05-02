@@ -65,9 +65,8 @@ qpVulkan::~qpVulkan() {
 	Cleanup();
 }
 const qpWindow * windowForTesting = NULL;
-void qpVulkan::Init( void * windowHandle, const qpWindow * window ) {
+void qpVulkan::Init( void * windowHandle ) {
 	m_windowHandle = windowHandle;
-	windowForTesting = window;
 	CreateInstance();
 	SetupDebugMessenger();
 	CreateSurface( windowHandle );
@@ -134,6 +133,10 @@ void qpVulkan::Cleanup() {
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debugMessenger, NULL );
 	}
 	vkDestroyInstance( m_instance, NULL );
+}
+
+void qpVulkan::SetTestWindow ( const qpWindow * testWindow ) {
+	windowForTesting = testWindow;
 }
 
 void InitializeDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT & createInfo );

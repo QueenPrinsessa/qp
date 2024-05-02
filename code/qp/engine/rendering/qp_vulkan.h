@@ -7,17 +7,18 @@
 #include "qp/common/string/qp_string.h"
 #include <cstddef>
 #include <vulkan/vulkan_core.h>
-
+#include "qp_graphics_api.h"
 class qpWindow;
 
-class qpVulkan {
+class qpVulkan : public qpGraphicsAPI {
 public:
 	qpVulkan();
-	~qpVulkan();
-	void Init( void * windowHandle, const qpWindow * window );
-	void Cleanup();
-	void DrawFrame();
-	void RequestFramebufferResize();
+	virtual ~qpVulkan() override;
+	virtual void Init( void * windowHandle ) override;
+	virtual void DrawFrame() override;
+	virtual void Cleanup() override;
+
+	void SetTestWindow( const qpWindow * testWindow );
 private:
 	struct queueFamilyIndices_t {
 		Optional< uint32 > graphicsFamily;
@@ -109,7 +110,6 @@ private:
 	VkImageView m_textureImageView = NULL;
 	VkSampler m_textureSampler = NULL;
 	int m_currentFrame = 0;
-	bool m_framebufferResized = false;
 	void * m_windowHandle = NULL;
 };
 

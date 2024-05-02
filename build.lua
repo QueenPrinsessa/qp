@@ -13,14 +13,16 @@ workspace "qp"
     --dev builds: platform_graphics_dev_architecture
     --builds: platform_graphics_architectures
     platforms {
+        "windows_d3d11_dev_x64",
+        "windows_d3d11_x64",
         "windows_vulkan_dev_x64",
         "windows_vulkan_x64",
         "windows_headless_dev_x64",
-	"windows_headless_x64",
+	    "windows_headless_x64",
         "linux_vulkan_dev_x64",
         "linux_vulkan_x64",
         "linux_headless_dev_x64",
-	"linux_headless_x64"
+	    "linux_headless_x64",
     }
     filter { "system:windows" }
         systemversion "latest"
@@ -68,14 +70,20 @@ workspace "qp"
         architecture "x86_64"
     filter { "platforms:windows_*", "platforms:*_vulkan_*" }
         defines {
-            "QP_VULKAN",
             "VK_USE_PLATFORM_WIN32_KHR"
         }
     filter { "platforms:*_dev_*" }
         defines {
             "QP_DEV"
         }
+    filter { "platforms:*_d3d11_*" }
+        defines {
+            "QP_D3D11"
+        }
     filter { "platforms:*_vulkan_*" }
+        defines {
+            "QP_VULKAN"
+        }
         externalincludedirs {
             include_dirs["vulkan"]
         }

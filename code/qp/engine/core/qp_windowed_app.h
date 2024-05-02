@@ -5,9 +5,8 @@
 #include "qp_app.h"
 #include "qp/common/core/qp_unique_ptr.h"
 #include "qp/engine/window/qp_window_structs.h"
-#include "qp/engine/rendering/qp_vulkan.h"
+#include "engine/rendering/qp_graphics_api.h"
 
-class qpVulkan;
 class qpWindow;
 class qpWindowedApp : public qpApp {
 public:
@@ -17,7 +16,7 @@ public:
 	virtual void OnCleanup() override;
 private:
 	qpUniquePtr< qpWindow > m_window;
-	qpUniquePtr< qpVulkan > m_vulkan;
+	qpUniquePtr< qpGraphicsAPI > m_graphicsAPI;
 	windowProperties_t m_windowProperties;
 };
 
