@@ -1,5 +1,6 @@
 #pragma once
 #include "qp/common/core/qp_macros.h"
+#include "qp/common/math/qp_math.h"
 
 // todo: implement vector intrinsics support
 //#define QP_USE_VECTOR_INTRINSICS 
@@ -20,7 +21,8 @@ public:
 	_type_ & operator[]( int index ) { return CRTP().m_data[ index ]; }
 	const _type_ & operator[]( int index ) const { return CRTP().m_data[ index ]; }
 
-	_type_ * Data() const { return CRTP().m_data; }
+	_type_ * Data() { return CRTP().m_data; }
+	const _type_ * Data() const { return CRTP().m_data; }
 
 	void Zero();
 
@@ -221,7 +223,6 @@ qpVec< _type_, 3 > qpCross( const qpVec< _type_, 3 > & lhs, const qpVec< _type_,
 						  ( ( lhs.z * rhs.x ) - ( lhs.x * rhs.z ) ),
 						  ( ( lhs.x * rhs.y ) - ( lhs.y * rhs.x ) ) );
 }
-
 
 using qpVec2 = qpVec< float, 2 >;
 using qpVec2d = qpVec< double, 2 >;

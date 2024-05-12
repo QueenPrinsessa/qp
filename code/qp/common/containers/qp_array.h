@@ -4,6 +4,9 @@
 #include <cstddef>
 #include <iterator>
 
+template < typename _type_ >
+class qpArrayView;
+
 template < typename _type_, int _size_ >
 class qpArray {
 public:

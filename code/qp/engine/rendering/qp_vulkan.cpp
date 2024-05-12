@@ -1428,8 +1428,8 @@ void qpVulkan::DrawFrame() {
 	uint32 imageIndex;
 	VkResult result = vkAcquireNextImageKHR( m_device, m_swapchain, UINT64_MAX, m_imageAvailableSemaphores[ m_currentFrame ], VK_NULL_HANDLE, &imageIndex );
 
-	if( ( result == VK_ERROR_OUT_OF_DATE_KHR ) || m_framebufferResized ) {
-		m_framebufferResized = false;
+	if( ( result == VK_ERROR_OUT_OF_DATE_KHR ) || m_frameBufferResized ) {
+		m_frameBufferResized = false;
 		RecreateSwapchain();
 		return;
 	}
@@ -1487,10 +1487,6 @@ void qpVulkan::DrawFrame() {
 	result = vkQueuePresentKHR( m_presentQueue, &presentInfo );
 
 	m_currentFrame = ( m_currentFrame + 1 ) % MAX_FRAMES_IN_FLIGHT;
-}
-
-void qpVulkan::RequestFramebufferResize() {
-	m_framebufferResized = true;
 }
 
 bool qpVulkan::CheckValidationLayerSupport( const qpArrayView< const char * > & layersView ) {
