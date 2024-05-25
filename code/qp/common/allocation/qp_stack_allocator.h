@@ -1,5 +1,6 @@
 #pragma once
 #include "qp/common/core/qp_types.h"
+#include "qp/common/debug/qp_debug.h"
 
 class qpStackAllocator {
 public:
