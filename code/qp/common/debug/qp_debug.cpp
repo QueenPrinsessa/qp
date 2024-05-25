@@ -40,8 +40,7 @@ namespace qpDebug {
 				CASE_RETURN_STRINGIFIED( INFO );
 				CASE_RETURN_STRINGIFIED( WARNING );
 				CASE_RETURN_STRINGIFIED( ERROR );
-				case category_t::PRINT:
-					return "";
+				case category_t::PRINT: return "";
 			}
 #undef CASE_RETURN_STRINGIFIED
 			return "";
