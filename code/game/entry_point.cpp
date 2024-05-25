@@ -36,7 +36,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 
 	qpWindowedApp app( windowProperties );
 #endif
-	qpDebug::Error( "TestError" );
+
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {

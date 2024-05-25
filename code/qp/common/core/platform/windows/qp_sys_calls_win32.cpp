@@ -78,6 +78,19 @@ bool Sys_InitializeConsole() {
 	if ( !( ( stdoutError == 0 ) && ( stderrError == 0 ) && ( stdinError == 0 ) ) ) {
 		return false;
 	}
+
+	HANDLE consoleHandle = GetStdHandle( STD_OUTPUT_HANDLE );
+	if ( consoleHandle == INVALID_HANDLE_VALUE ) {
+		return false;
+	}
+	DWORD consoleMode = 0;
+	if ( !GetConsoleMode( consoleHandle, &consoleMode ) ) {
+		return false;
+	}
+	consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	if ( !SetConsoleMode( consoleHandle, consoleMode ) ) {
+		return false;
+	}
 	
 	SetConsoleOutputCP( CP_UTF8 );
 	if ( setvbuf( consoleOut, NULL, _IOLBF, 1024 ) == 0 ) {
@@ -89,7 +102,7 @@ bool Sys_InitializeConsole() {
 		consoleFontInfo.FontFamily = FF_DONTCARE;
 		consoleFontInfo.FontWeight = FW_NORMAL;
 		wcscpy_s( consoleFontInfo.FaceName, L"Consolas" );
-		SetCurrentConsoleFontEx( GetStdHandle( STD_OUTPUT_HANDLE ), FALSE, &consoleFontInfo );
+		SetCurrentConsoleFontEx( consoleHandle, FALSE, &consoleFontInfo );
 	}
 
 	return true;
