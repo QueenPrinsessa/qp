@@ -67,10 +67,10 @@ static inline qpList< byte > qpReadFile( const qpFilePath & filePath ) {
 	qpFile file;
 	if( file.Open( filePath, fileAccessMode_t::QP_FILE_READ ) ) {
 		if( !file.Read( buffer ) ) {
-			qpLog::Error( "Failed to read file at %s.", filePath.c_str() );
+			qpDebug::Error( "Failed to read file at %s.", filePath.c_str() );
 		}
 	} else {
-		qpLog::Error( "Failed to open file at %s.", filePath.c_str() );
+		qpDebug::Error( "Failed to open file at %s.", filePath.c_str() );
 	}
 	return buffer;
 }

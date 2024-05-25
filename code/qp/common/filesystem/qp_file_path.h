@@ -48,7 +48,7 @@ template< typename _type_ >
 bool qpFilePathBase<_type_>::GetExtension( _type_ * inOutBuffer, const int bufferLength, int & outExtensionLength ) const {
 	if ( ( inOutBuffer != NULL ) && ( bufferLength == 0 ) ) {
 		outExtensionLength = 0;
-		qpLog::Error( "Empty buffer supplied for getting extension!" );
+		qpDebug::Error( "Empty buffer supplied for getting extension!" );
 		return false;
 	}
 

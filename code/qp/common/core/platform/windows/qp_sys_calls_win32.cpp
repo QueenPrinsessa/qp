@@ -1,4 +1,5 @@
 #include "engine.pch.h"
+#include "common/math/qp_math.h"
 #include <cstdio>
 
 #if defined( QP_PLATFORM_WINDOWS )
@@ -15,6 +16,15 @@ FILE * Sys_GetConsoleOut() {
 
 void Sys_FlushConsole() {
 	( void )fflush( consoleOut );
+}
+
+void Sys_OutputDebugString( const char * fmt, ... ) {
+	char buffer[ 16384 ] {};
+	va_list args;
+	va_start( args, fmt );
+	QP_DISCARD_RESULT vsnprintf( buffer, sizeof( buffer ), fmt, args );
+	va_end( args );
+	OutputDebugStringA( buffer );
 }
 
 bool Sys_DebuggerPresent() {
@@ -45,7 +55,7 @@ bool Sys_CreateDirectory( const char * path ) {
 	//		case ERROR_ALREADY_EXISTS: { errStr = QP_STRINGIFY( ERROR_ALREADY_EXISTS ); break; }
 	//		case ERROR_CANCELLED: { errStr = QP_STRINGIFY( ERROR_CANCELLED ); break; }
 	//	}
-	//	qpLog::Error( "Failed to create directory with error: %s", errStr );
+	//	qpDebug::Error( "Failed to create directory with error: %s", errStr );
 	//	return false;
 	//}
 	return true;

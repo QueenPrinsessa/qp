@@ -36,11 +36,11 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 
 	qpWindowedApp app( windowProperties );
 #endif
-
+	qpDebug::Error( "TestError" );
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
-		qpLog::Error( "%s", e.what() );
+		qpDebug::Error( "%s", e.what() );
 	}
 
 	return 0;
@@ -73,7 +73,7 @@ int main() {
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
-		qpLog::Error( "%s", e.what() );
+		qpDebug::Error( "%s", e.what() );
 	}
 
 	return 0;

@@ -32,7 +32,7 @@ void qpWindowedApp::OnInit() {
 		RequestShutdown();
 	} );
 	m_window->SetResizeCallback( [ & ] ( int width, int height ) {
-		qpLog::Info( "Window resized to ( w:%d , h:%d ).", width, height );
+		qpDebug::Info( "Window resized to ( w:%d , h:%d ).", width, height );
 		m_graphicsAPI->RequestFramebufferResize();
 	} );
 

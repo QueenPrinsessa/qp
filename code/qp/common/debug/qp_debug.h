@@ -16,7 +16,6 @@
 #define QP_COMPILE_TIME_ASSERT_MSG( expression, msg ) static_assert( expression, msg );
 
 #if defined( QP_ASSERTS_ENABLED )
-
 namespace qpDebug {
 	enum class assertLevel_t {
 		DEBUG,
@@ -46,12 +45,12 @@ namespace qpDebug {
 #define QP_VERIFY_MSG( expression, msg ) QP_VERIFY_IMPL( ( expression ), DEBUG, msg )
 #define QP_VERIFY_RELEASE_MSG( expression, msg ) QP_VERIFY_IMPL( ( expression ), RELEASE, msg )
 
-namespace qpLog {
+namespace qpDebug {
 	extern void PrintMessage( FILE * stream, const char * prefix, const char * format, va_list args );
 	static void Printf( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		QP_DISCARD_RESULT vfprintf( stdout, format, args );
+		PrintMessage( stdout, "", format, args);
 		va_end( args );
 	}
 	static void Log( const char * format, ... ) {
@@ -78,6 +77,7 @@ namespace qpLog {
 		va_start( args, format );
 		PrintMessage( stderr, "ERROR: ", format, args );
 		va_end( args );
+
 		Sys_DebugBreak();
 	}
 };

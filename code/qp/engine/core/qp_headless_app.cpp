@@ -4,12 +4,12 @@
 #include <iostream>
 
 void qpHeadlessApp::OnInit () {
-    qpLog::Printf( "%s\n", __FUNCTION__ );
+    qpDebug::Printf( "%s\n", __FUNCTION__ );
 }
 
 void qpHeadlessApp::OnUpdate () {
-    qpLog::Printf( "%s\n", __FUNCTION__ );
-    qpLog::Printf( "Type 'q' to shutdown.\n" );
+    qpDebug::Printf( "%s\n", __FUNCTION__ );
+    qpDebug::Printf( "Type 'q' to shutdown.\n" );
     char input = -1;
     std::cin >> input;
     if ( input == 'q' ) {
@@ -18,5 +18,5 @@ void qpHeadlessApp::OnUpdate () {
 }
 
 void qpHeadlessApp::OnCleanup () {
-    qpLog::Printf( "%s\n", __FUNCTION__ );
+    qpDebug::Printf( "%s\n", __FUNCTION__ );
 }

@@ -55,7 +55,7 @@ bool qpD3D11::CreateSwapChain() {
 		UINT dxgiFactoryFlags = deviceDebug ? DXGI_CREATE_FACTORY_DEBUG : 0u;
 		HRESULT result = CreateDXGIFactory2( dxgiFactoryFlags, IID_PPV_ARGS ( m_data->dxgiFactory.ReleaseAndGetAddressOf() ) );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create DXGIFactory." );
+			qpDebug::Error( "Failed to create DXGIFactory." );
 			return false;
 		}
 	}
@@ -68,7 +68,7 @@ bool qpD3D11::CreateSwapChain() {
 			if ( SUCCEEDED( result ) ) {
 				m_data->supportsTearing = static_cast< bool >( supportsTearing );
 			} else {
-				qpLog::Info( "Tearing is unsupported." );
+				qpDebug::Info( "Tearing is unsupported." );
 				m_data->supportsTearing = false;
 			}
 		}
@@ -78,7 +78,7 @@ bool qpD3D11::CreateSwapChain() {
 	{
 		HRESULT result = m_data->dxgiFactory->EnumAdapters1( 0, &adapter );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to find an adapter." );
+			qpDebug::Error( "Failed to find an adapter." );
 			return false;
 		}
 	} 
@@ -95,12 +95,12 @@ bool qpD3D11::CreateSwapChain() {
 			double sharedRAM = static_cast< double >( adapterDesc.SharedSystemMemory );
 			sharedRAM /= 1000;
 			sharedRAM /= 1000;
-			qpLog::Info( "Adapter: %s", qpWideToUTF8( adapterDesc.Description ).c_str() );
-			qpLog::Info( "Dedicated Video Memory: %.3lf", dedicatedVRAM );
-			qpLog::Info( "Dedicated System Memory: %.3lf", dedicatedRAM );
-			qpLog::Info( "Shared System Memory: %.3lf", sharedRAM );
-			qpLog::Info( "Device ID: %u", adapterDesc.DeviceId );
-			qpLog::Info( "SubSysID: %u", adapterDesc.SubSysId );
+			qpDebug::Info( "Adapter: %s", qpWideToUTF8( adapterDesc.Description ).c_str() );
+			qpDebug::Info( "Dedicated Video Memory: %.3lf", dedicatedVRAM );
+			qpDebug::Info( "Dedicated System Memory: %.3lf", dedicatedRAM );
+			qpDebug::Info( "Shared System Memory: %.3lf", sharedRAM );
+			qpDebug::Info( "Device ID: %u", adapterDesc.DeviceId );
+			qpDebug::Info( "SubSysID: %u", adapterDesc.SubSysId );
 
 		}
 	}
@@ -114,7 +114,7 @@ bool qpD3D11::CreateSwapChain() {
 		D3D_FEATURE_LEVEL selectedFeatureLevel;
 		HRESULT result = D3D11CreateDevice( adapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, NULL, creationFlags, &featureLevels[ 0 ], numFeatureLevels, D3D11_SDK_VERSION, &m_data->device, &selectedFeatureLevel, &m_data->deviceContext );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create device!" );
+			qpDebug::Error( "Failed to create device!" );
 			return false;
 		}
 	}
@@ -138,14 +138,14 @@ bool qpD3D11::CreateSwapChain() {
 		swapChainFullscreenDesc.Windowed = TRUE;
 		HRESULT result = m_data->dxgiFactory->CreateSwapChainForHwnd( m_data->device.Get(), m_data->windowHandle, &swapChainDesc, &swapChainFullscreenDesc, NULL, &m_data->swapChain );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create swap chain." );
+			qpDebug::Error( "Failed to create swap chain." );
 			return false;
 		}
 	}
 	{
 		HRESULT result = m_data->dxgiFactory->MakeWindowAssociation( m_data->windowHandle, DXGI_MWA_NO_ALT_ENTER );
 		if ( FAILED( result ) ) {
-			qpLog::Warning( "Failed to disable using alt+enter for fullscreen." );
+			qpDebug::Warning( "Failed to disable using alt+enter for fullscreen." );
 		}
 	}
 
@@ -158,14 +158,14 @@ bool qpD3D11::CreateBackBuffer() {
 	{
 		HRESULT result = m_data->swapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), &backBufferTexture );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create back buffer texture." );
+			qpDebug::Error( "Failed to create back buffer texture." );
 			return false;
 		}
 	}
 	{
 		HRESULT result = m_data->device.Get()->CreateRenderTargetView( backBufferTexture.Get(), NULL, m_data->backBuffer.GetAddressOf() );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create back buffer." );
+			qpDebug::Error( "Failed to create back buffer." );
 			return false;
 		}
 	}
@@ -178,7 +178,7 @@ bool qpD3D11::CreateDepthBuffer() {
 	{
 		RECT rect;
 		if ( !GetClientRect( m_data->windowHandle, &rect ) ) {
-			qpLog::Error( "Failed to get width and height for depth buffer." );
+			qpDebug::Error( "Failed to get width and height for depth buffer." );
 			return false;
 		}
 
@@ -191,14 +191,14 @@ bool qpD3D11::CreateDepthBuffer() {
 		depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 		HRESULT result = m_data->device->CreateTexture2D( &depthBufferDesc, NULL, depthBufferTexture.GetAddressOf() );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create depth buffer texture." );
+			qpDebug::Error( "Failed to create depth buffer texture." );
 			return false;
 		}
 	}
 	{
 		HRESULT result = m_data->device->CreateDepthStencilView( depthBufferTexture.Get(), NULL, m_data->depthBuffer.GetAddressOf() );
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create depth stencil view for depth buffer." );
+			qpDebug::Error( "Failed to create depth stencil view for depth buffer." );
 			return false;
 		}
 	}
@@ -217,7 +217,7 @@ static void SetupViewport( const int width, const int height, D3D11_VIEWPORT & o
 bool qpD3D11::SetViewportFromWindow() {
 	RECT clientRect;
 	if ( !GetClientRect( m_data->windowHandle, &clientRect ) ) {
-		qpLog::Error( "Failed to get window size for setting viewport" );
+		qpDebug::Error( "Failed to get window size for setting viewport" );
 		return false;
 	}
 	const int numViewports = 1;
@@ -245,7 +245,7 @@ bool qpD3D11::CreateRasterizerStates() {
 		HRESULT result = m_data->device->CreateRasterizerState( &rasterizerStateDesc, &m_data->rasterizerStates[ RS_BACK_FACE_CULLING ] );
 
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create back face culling rasterizer state." );
+			qpDebug::Error( "Failed to create back face culling rasterizer state." );
 			return false;
 		}
 	}
@@ -269,7 +269,7 @@ bool qpD3D11::CreateDepthStencilStates() {
 		HRESULT result = m_data->device->CreateDepthStencilState( &depthStencilDesc, &m_data->depthStencilStates[ DS_READ_WRITE ] );
 
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create read write depth stencil state." );
+			qpDebug::Error( "Failed to create read write depth stencil state." );
 			return false;
 		}
 	}
@@ -296,7 +296,7 @@ bool qpD3D11::CreateSamplerStates() {
 		HRESULT result = m_data->device->CreateSamplerState( &samplerStateDesc, m_data->samplerStates[ SS_DEFAULT ].GetAddressOf() );
 
 		if ( FAILED( result ) ) {
-			qpLog::Error( "Failed to create default sampler state." );
+			qpDebug::Error( "Failed to create default sampler state." );
 			return false;
 		}
 	}
@@ -336,54 +336,54 @@ void qpD3D11::Init ( void * windowHandle ) {
 	m_data = new d3d11Data_t;
 	m_data->windowHandle = static_cast< HWND >( windowHandle );
 
-	qpLog::Log( "Creating swap chain." );
+	qpDebug::Log( "Creating swap chain." );
 	if ( !CreateSwapChain() ) {
-		qpLog::Error( "Failed to create swap chain." );
+		qpDebug::Error( "Failed to create swap chain." );
 		return;
 	}
-	qpLog::Log( "Swap chain created." );
+	qpDebug::Log( "Swap chain created." );
 
-	qpLog::Log( "Creating back buffer." );
+	qpDebug::Log( "Creating back buffer." );
 	if ( !CreateBackBuffer() ) {
-		qpLog::Error( "Failed to create back buffer." );
+		qpDebug::Error( "Failed to create back buffer." );
 		return;
 	}
-	qpLog::Log( "Back buffer created." );
+	qpDebug::Log( "Back buffer created." );
 
-	qpLog::Log( "Creating depth buffer!" );
+	qpDebug::Log( "Creating depth buffer!" );
 	if ( !CreateDepthBuffer() ) {
-		qpLog::Error( "Failed to create depth buffer." );
+		qpDebug::Error( "Failed to create depth buffer." );
 		return;
 	}
-	qpLog::Log( "Depth buffer created." );
+	qpDebug::Log( "Depth buffer created." );
 
-	qpLog::Log( "Creating rasterizer states." );
+	qpDebug::Log( "Creating rasterizer states." );
 	if ( !CreateRasterizerStates() ) {
-		qpLog::Error( "Failed to create rasterizer states." );
+		qpDebug::Error( "Failed to create rasterizer states." );
 		return;
 	}
-	qpLog::Log( "Rasterizer states created." );
+	qpDebug::Log( "Rasterizer states created." );
 
-	qpLog::Log( "Creating blend states." );
+	qpDebug::Log( "Creating blend states." );
 	if ( !CreateBlendStates() ) {
-		qpLog::Error( "Failed to create blend states." );
+		qpDebug::Error( "Failed to create blend states." );
 		return;
 	}
-	qpLog::Log( "Blend states created." );
+	qpDebug::Log( "Blend states created." );
 
-	qpLog::Log( "Creating depth stencil states." );
+	qpDebug::Log( "Creating depth stencil states." );
 	if ( !CreateDepthStencilStates() ) {
-		qpLog::Error( "Failed to create depth stencil states." );
+		qpDebug::Error( "Failed to create depth stencil states." );
 		return;
 	}
-	qpLog::Log( "Depth stencil states created." );
+	qpDebug::Log( "Depth stencil states created." );
 
-	qpLog::Log( "Creating sampler states." );
+	qpDebug::Log( "Creating sampler states." );
 	if ( !CreateSamplerStates() ) {
-		qpLog::Error( "Failed to create sampler states." );
+		qpDebug::Error( "Failed to create sampler states." );
 		return;
 	}
-	qpLog::Log( "Sampler states created." );
+	qpDebug::Log( "Sampler states created." );
 }
 
 void qpD3D11::DrawFrame () {

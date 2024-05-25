@@ -22,7 +22,7 @@ const qpResource * qpResourceRegistry::LoadResource( const qpFilePath & filePath
 
 	if ( filePath.IsEmpty() ) {
 		m_lastError = "Filepath can't be empty when loading resource";
-		qpLog::Error( "qpResourceRegistry: %s!", m_lastError.c_str() );
+		qpDebug::Error( "qpResourceRegistry: %s!", m_lastError.c_str() );
 		return NULL;
 	}
 	qpResourceLoader & resourceLoader = GetResourceLoaderForPath( filePath );
@@ -37,7 +37,7 @@ const qpResource * qpResourceRegistry::LoadResource( const qpFilePath & filePath
 	entry.name = qpStringUtil::Duplicate( filePath.c_str() );
 	CacheResource( entry );
 	if ( resourceLoader.HasError() ) {
-		qpLog::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
+		qpDebug::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
 		m_lastError = resourceLoader.GetLastError();
 		if ( defaultResource == returnDefault_t::RETURN_NULL ) {
 			return NULL;

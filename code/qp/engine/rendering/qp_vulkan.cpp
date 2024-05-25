@@ -199,7 +199,7 @@ void qpVulkan::CreateInstance() {
 		ThrowOnError( "vkCreateInstance failed." );
 	}
 
-	qpLog::Log( "Successfully initialized Vulkan." );
+	qpDebug::Log( "Successfully initialized Vulkan." );
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT * callbackData, void * userData ) {
@@ -207,22 +207,22 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageS
 	switch ( messageSeverity ) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 		{
-			qpLog::Log( "%s", callbackData->pMessage );
+			qpDebug::Log( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 		{
-			qpLog::Info( "%s", callbackData->pMessage );
+			qpDebug::Info( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
 		{
-			qpLog::Warning( "%s", callbackData->pMessage );
+			qpDebug::Warning( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 		{
-			qpLog::Error( "%s", callbackData->pMessage );
+			qpDebug::Error( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
@@ -1143,7 +1143,7 @@ void qpVulkan::CreateTextureImage() {
 	qpFilePath imagePath = "generated/user/pals.qpimage";// "user/kat.tga";
 	const qpImage * katImage = static_cast< const qpImage * >( registry.LoadResource( imagePath, returnDefault_t::RETURN_NULL ) );
 	if ( registry.HasResourceError() ) {
-		qpLog::Error( "Failed to load resource \"%s\" with error: %s", imagePath.c_str(), registry.GetLastResourceError().c_str() );
+		qpDebug::Error( "Failed to load resource \"%s\" with error: %s", imagePath.c_str(), registry.GetLastResourceError().c_str() );
 		ThrowOnError( "Failed to create image." );
 	}
 

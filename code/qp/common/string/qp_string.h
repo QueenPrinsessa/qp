@@ -627,7 +627,7 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	}
 	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
 		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
-			qpLog::Error( "Invalid UTF8 String" );
+			qpDebug::Error( "Invalid UTF8 String" );
 			return End();
 		}
 	}
@@ -657,7 +657,7 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	}
 	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
 		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
-			qpLog::Error( "Invalid UTF8 String" );
+			qpDebug::Error( "Invalid UTF8 String" );
 			return End();
 		}
 	}
@@ -700,7 +700,7 @@ typename qpStringBase< _type_, _allowAlloc_, _encoding_, _staticBufferCapacity_ 
 	}
 	if constexpr ( STRING_ENCODING == stringEncoding_t::UTF8 ) {
 		if ( !qpStrIsCodePoint< _type_, STRING_ENCODING >( searchStr[ 0 ] ) ) {
-			qpLog::Error( "Invalid UTF8 String" );
+			qpDebug::Error( "Invalid UTF8 String" );
 			return End();
 		}
 	}
