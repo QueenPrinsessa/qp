@@ -27,6 +27,7 @@
 #define QP_SAFE_DELETE( x ) delete x; x = NULL;
 
 #define QP_DISCARD( x ) static_cast< void >( x );
+#define QP_DISCARD_RESULT ( void )
 
 #define QP_FORWARD_ITERATOR( iteratorType, containerType, type ) \
 	struct iteratorType { \

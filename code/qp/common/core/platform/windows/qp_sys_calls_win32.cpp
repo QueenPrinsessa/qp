@@ -5,6 +5,18 @@
 #include "qp/common/core/qp_sys_calls.h"
 #include "qp/common/platform/windows/qp_windows.h"
 
+namespace {
+	FILE * consoleOut = NULL;
+}
+
+FILE * Sys_GetConsoleOut() {
+	return consoleOut;
+}
+
+void Sys_FlushConsole() {
+	( void )fflush( consoleOut );
+}
+
 bool Sys_DebuggerPresent() {
 #if defined( QP_RETAIL )
 	return false;
@@ -40,7 +52,6 @@ bool Sys_CreateDirectory( const char * path ) {
 }
 
 bool Sys_InitializeConsole() {
-	FILE * consoleOut;
 	AllocConsole();
 
 	errno_t stdoutError = _wfreopen_s( &consoleOut, L"CONOUT$", L"w", stdout );
@@ -57,9 +68,9 @@ bool Sys_InitializeConsole() {
 	if ( !( ( stdoutError == 0 ) && ( stderrError == 0 ) && ( stdinError == 0 ) ) ) {
 		return false;
 	}
-
+	
 	SetConsoleOutputCP( CP_UTF8 );
-	if ( setvbuf( consoleOut, NULL, _IONBF, 1024 ) == 0 ) {
+	if ( setvbuf( consoleOut, NULL, _IOLBF, 1024 ) == 0 ) {
 		CONSOLE_FONT_INFOEX consoleFontInfo;
 		consoleFontInfo.cbSize = sizeof( consoleFontInfo );
 		consoleFontInfo.nFont = 0;

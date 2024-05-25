@@ -13,7 +13,7 @@ public: \
 	void QP_INTRUSIVE_DECREMENT_REF() const { QP_INTRUSIVE_COUNTER_MEMBER--; } \
 	uint32 QP_INTRUSIVE_GET_COUNTER() const { return QP_INTRUSIVE_COUNTER_MEMBER; } \
 private: \
-	mutable qpAtomic< uint32 > QP_INTRUSIVE_COUNTER_MEMBER = 0
+	mutable atomic_t< uint32 > QP_INTRUSIVE_COUNTER_MEMBER = 0
 
 template< typename _type_ >
 constexpr bool qpHasIntrusiveRefCounter = (

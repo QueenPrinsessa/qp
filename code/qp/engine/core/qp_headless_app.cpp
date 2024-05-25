@@ -1,6 +1,7 @@
 #include "engine.pch.h"
 #include "qp_headless_app.h"
 #include "qp/engine/debug/qp_log.h"
+#include <iostream>
 
 void qpHeadlessApp::OnInit () {
     qpLog::Printf( "%s\n", __FUNCTION__ );
