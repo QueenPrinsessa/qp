@@ -9,7 +9,7 @@ namespace qpDebug {
 #if defined( QP_DEBUG )
 		atomicAssertLevel_t s_assertLevel = assertLevel_t::DEBUG;
 #else
-		atomicAssertLevel_t g_assertLevel = assertLevel_t::RELEASE;
+		atomicAssertLevel_t s_assertLevel = assertLevel_t::RELEASE;
 #endif
 	}
 
