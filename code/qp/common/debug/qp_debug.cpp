@@ -1,6 +1,5 @@
 #include "engine.pch.h"
 #include "qp_debug.h"
-#include "common/string/qp_string.h"
 #include "common/time/qp_clock.h"
 
 namespace qpDebug {
@@ -62,8 +61,8 @@ namespace qpDebug {
 			return length;
 		}
 	}
-	void PrintMessage( FILE * stream, const category_t category, const char * format, va_list args ) {
-		PrintMessageEx( stream, category, NULL, format, args);
+	void PrintMessage( const char * format, va_list args ) {
+		PrintMessageEx( stdout, category_t::PRINT, NULL, format, args);
 	}
 
 	void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {

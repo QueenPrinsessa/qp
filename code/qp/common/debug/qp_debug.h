@@ -98,18 +98,18 @@ namespace qpDebug {
 		WARNING,
 		ERROR
 	};
-	extern void PrintMessage( FILE * stream, const category_t  category, const char * format, va_list args );
+	extern void PrintMessage( const char * format, va_list args );
 	extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
 	static void Printf( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessage( stdout, category_t::PRINT, format, args);
+		PrintMessage( format, args );
 		va_end( args );
 	}
 	static void Trace( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessage( stdout, category_t::TRACE, format, args);
+		PrintMessageEx( stdout, category_t::TRACE, QP_CONSOLE_CYAN, format, args);
 		va_end( args );
 	}
 	static void Info( const char * format, ... ) {
