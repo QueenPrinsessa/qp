@@ -91,37 +91,44 @@ namespace qpDebug {
 #define QP_CONSOLE_DEFAULT_COLOR QP_CONSOLE_BACKGROUND_BLACK QP_CONSOLE_WHITE
 
 namespace qpDebug {
-	extern void PrintMessage( FILE * stream, const char * prefix, const char * format, va_list args );
-	extern void PrintMessageEx( FILE * stream, const char * prefix, const char * color, const char * format, va_list args );
+	enum category_t {
+		PRINT,
+		TRACE,
+		INFO,
+		WARNING,
+		ERROR
+	};
+	extern void PrintMessage( FILE * stream, const category_t  category, const char * format, va_list args );
+	extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
 	static void Printf( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessage( stdout, "", format, args);
+		PrintMessage( stdout, category_t::PRINT, format, args);
 		va_end( args );
 	}
 	static void Trace( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessage( stdout, "TRACE: ", format, args);
+		PrintMessage( stdout, category_t::TRACE, format, args);
 		va_end( args );
 	}
 	static void Info( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessageEx( stdout, "INFO: ", QP_CONSOLE_GREEN, format, args );
+		PrintMessageEx( stdout, category_t::INFO, QP_CONSOLE_GREEN, format, args );
 		va_end( args );
 	}
 	static void Warning( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessageEx( stderr, "WARNING: ", QP_CONSOLE_BRIGHT_YELLOW, format, args );
+		PrintMessageEx( stderr, category_t::WARNING, QP_CONSOLE_BRIGHT_YELLOW, format, args );
 		va_end( args );
 	}
 
 	static void Error( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
-		PrintMessageEx( stderr, "ERROR: ", QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, args );
+		PrintMessageEx( stderr, category_t::ERROR, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, args );
 		va_end( args );
 
 		Sys_DebugBreak();

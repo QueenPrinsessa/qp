@@ -32,18 +32,32 @@ namespace qpDebug {
 
 	namespace {
 		const qpTimePoint s_programStartTime = qpClock::Now();
+
+		constexpr const char * CategoryAsString( const category_t category ) {
+#define CASE_RETURN_STRINGIFIED( x ) case x: return #x
+			switch ( category ) {
+				CASE_RETURN_STRINGIFIED( TRACE );
+				CASE_RETURN_STRINGIFIED( INFO );
+				CASE_RETURN_STRINGIFIED( WARNING );
+				CASE_RETURN_STRINGIFIED( ERROR );
+				case category_t::PRINT:
+					return "";
+			}
+#undef CASE_RETURN_STRINGIFIED
+			return "";
+		}
 	}
-	void PrintMessage( FILE * stream, const char * prefix, const char * format, va_list args ) {
-		PrintMessageEx( stream, prefix, NULL, format, args);
+	void PrintMessage( FILE * stream, const category_t category, const char * format, va_list args ) {
+		PrintMessageEx( stream, category, NULL, format, args);
 	}
 
-	void PrintMessageEx( FILE * stream, const char * prefix, const char * color, const char * format, va_list args ) {
+	void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {
+		const char * categoryStr = CategoryAsString( category );
 		char buffer[ 16384 ] {};
-
 		const qpTimePoint timeSinceStart = qpClock::Now() - s_programStartTime;
 		const int timeSeconds = static_cast< int >( timeSinceStart.AsSeconds() );
 		QP_DISCARD_RESULT vsnprintf( buffer, sizeof( buffer ), format, args );
-		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s%s%s\n", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, prefix, buffer, QP_CONSOLE_DEFAULT_COLOR );
-		Sys_OutputDebugString( "[%d] %s%s\n", timeSeconds, prefix, buffer );
+		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s: %s%s\n", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, categoryStr, buffer, QP_CONSOLE_DEFAULT_COLOR );
+		Sys_OutputDebugString( "[%d] %s: %s\n", timeSeconds, categoryStr, buffer );
 	}
 }
