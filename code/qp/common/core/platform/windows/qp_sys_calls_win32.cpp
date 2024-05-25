@@ -15,7 +15,7 @@ FILE * Sys_GetConsoleOut() {
 }
 
 void Sys_FlushConsole() {
-	( void )fflush( consoleOut );
+	QP_DISCARD_RESULT fflush( consoleOut );
 }
 
 void Sys_OutputDebugString( const char * fmt, ... ) {
@@ -44,20 +44,7 @@ void Sys_DebugBreak() {
 }
 
 bool Sys_CreateDirectory( const char * path ) {
-	//int result = SHCreateDirectoryExA( NULL, path, NULL );
-	//if ( result != ERROR_SUCCESS ) {
-	//	const char * errStr = "";
-	//	switch ( result ) {
-	//		case ERROR_BAD_PATHNAME: { errStr = QP_STRINGIFY( ERROR_BAD_PATHNAME ); break; }
-	//		case ERROR_FILENAME_EXCED_RANGE: { errStr = QP_STRINGIFY( ERROR_FILENAME_EXCED_RANGE ); break; }
-	//		case ERROR_PATH_NOT_FOUND: { errStr = QP_STRINGIFY( ERROR_PATH_NOT_FOUND ); break; }
-	//		case ERROR_FILE_EXISTS: { errStr = QP_STRINGIFY( ERROR_FILE_EXISTS ); break; }
-	//		case ERROR_ALREADY_EXISTS: { errStr = QP_STRINGIFY( ERROR_ALREADY_EXISTS ); break; }
-	//		case ERROR_CANCELLED: { errStr = QP_STRINGIFY( ERROR_CANCELLED ); break; }
-	//	}
-	//	qpDebug::Error( "Failed to create directory with error: %s", errStr );
-	//	return false;
-	//}
+	( void )path;
 	return true;
 }
 
