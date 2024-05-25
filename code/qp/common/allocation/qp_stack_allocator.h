@@ -8,7 +8,7 @@ public:
 		m_memory = new byte[ m_capacity ];
 	}
 	~qpStackAllocator() {
-		assert( m_bytesAllocated == 0 );
+		QP_ASSERT( m_bytesAllocated == 0 );
 		delete[] m_memory;
 	}
 

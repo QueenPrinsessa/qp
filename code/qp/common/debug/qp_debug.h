@@ -1,10 +1,8 @@
 #pragma once
-#include "common/core/qp_macros.h"
-#include <cassert>
+#include "common/core/qp_types.h"
 #include "qp/common/core/qp_sys_calls.h"
-#include <cstdarg>
 #include <cstdio>
-#include <mutex>
+#include <cstdarg>
 
 #if !defined( QP_ASSERTS_ENABLED )
 #if !defined( QP_RETAIL )
