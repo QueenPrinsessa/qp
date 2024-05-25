@@ -23,6 +23,7 @@ void qpLog::Printf( const char * format, _args_ &&... args ) {
 template< typename ... _args_ >
 void qpLog::Log( const char * format, _args_ &&... args ) {
 	printf( format, args... );
+	printf( "\n" );
 }
 
 template< typename ... _args_ >
