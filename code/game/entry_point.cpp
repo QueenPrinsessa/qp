@@ -13,7 +13,9 @@
 
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow ) {
 #if !defined( QP_RETAIL )
-	Sys_InitializeConsole();
+	if ( Sys_InitializeConsole() ) {
+		qpDebug::Printf( "Successfully initialized console." );
+	}
 #endif
 
 #if defined( QP_HEADLESS )

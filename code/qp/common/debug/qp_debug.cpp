@@ -1,5 +1,6 @@
 #include "engine.pch.h"
 #include "qp_debug.h"
+#include "common/string/qp_string.h"
 #include "common/time/qp_clock.h"
 
 namespace qpDebug {
@@ -45,18 +46,33 @@ namespace qpDebug {
 #undef CASE_RETURN_STRINGIFIED
 			return "";
 		}
+		size_t GetPrintPrefix( const category_t category, char * buffer, const size_t bufferSize ) {
+			if ( category == category_t::PRINT ) {
+				return 0;
+			}
+			const char * categoryStr = CategoryAsString( category );
+			size_t length = strlen( categoryStr );
+			if ( bufferSize < ( length + 3 ) ) {
+				return 0;
+			}
+			strncpy( buffer, categoryStr, length );
+			buffer[ length++ ] = ':';
+			buffer[ length++ ] = ' ';
+			buffer[ length ] = '\0';
+			return length;
+		}
 	}
 	void PrintMessage( FILE * stream, const category_t category, const char * format, va_list args ) {
 		PrintMessageEx( stream, category, NULL, format, args);
 	}
 
 	void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {
-		const char * categoryStr = CategoryAsString( category );
 		char buffer[ 16384 ] {};
+		size_t prefixLength = GetPrintPrefix( category, buffer, sizeof( buffer ) );
 		const qpTimePoint timeSinceStart = qpClock::Now() - s_programStartTime;
 		const int timeSeconds = static_cast< int >( timeSinceStart.AsSeconds() );
-		QP_DISCARD_RESULT vsnprintf( buffer, sizeof( buffer ), format, args );
-		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s: %s%s\n", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, categoryStr, buffer, QP_CONSOLE_DEFAULT_COLOR );
-		Sys_OutputDebugString( "[%d] %s: %s\n", timeSeconds, categoryStr, buffer );
+		QP_DISCARD_RESULT vsnprintf( buffer + prefixLength, sizeof( buffer ) - prefixLength, format, args );
+		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s%s\n", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, buffer, QP_CONSOLE_DEFAULT_COLOR );
+		Sys_OutputDebugString( "[%d] %s\n", timeSeconds, buffer );
 	}
 }
