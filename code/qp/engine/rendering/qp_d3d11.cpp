@@ -336,54 +336,54 @@ void qpD3D11::Init ( void * windowHandle ) {
 	m_data = new d3d11Data_t;
 	m_data->windowHandle = static_cast< HWND >( windowHandle );
 
-	qpDebug::Log( "Creating swap chain." );
+	qpDebug::Trace( "Creating swap chain." );
 	if ( !CreateSwapChain() ) {
 		qpDebug::Error( "Failed to create swap chain." );
 		return;
 	}
-	qpDebug::Log( "Swap chain created." );
+	qpDebug::Trace( "Swap chain created." );
 
-	qpDebug::Log( "Creating back buffer." );
+	qpDebug::Trace( "Creating back buffer." );
 	if ( !CreateBackBuffer() ) {
 		qpDebug::Error( "Failed to create back buffer." );
 		return;
 	}
-	qpDebug::Log( "Back buffer created." );
+	qpDebug::Trace( "Back buffer created." );
 
-	qpDebug::Log( "Creating depth buffer!" );
+	qpDebug::Trace( "Creating depth buffer!" );
 	if ( !CreateDepthBuffer() ) {
 		qpDebug::Error( "Failed to create depth buffer." );
 		return;
 	}
-	qpDebug::Log( "Depth buffer created." );
+	qpDebug::Trace( "Depth buffer created." );
 
-	qpDebug::Log( "Creating rasterizer states." );
+	qpDebug::Trace( "Creating rasterizer states." );
 	if ( !CreateRasterizerStates() ) {
 		qpDebug::Error( "Failed to create rasterizer states." );
 		return;
 	}
-	qpDebug::Log( "Rasterizer states created." );
+	qpDebug::Trace( "Rasterizer states created." );
 
-	qpDebug::Log( "Creating blend states." );
+	qpDebug::Trace( "Creating blend states." );
 	if ( !CreateBlendStates() ) {
 		qpDebug::Error( "Failed to create blend states." );
 		return;
 	}
-	qpDebug::Log( "Blend states created." );
+	qpDebug::Trace( "Blend states created." );
 
-	qpDebug::Log( "Creating depth stencil states." );
+	qpDebug::Trace( "Creating depth stencil states." );
 	if ( !CreateDepthStencilStates() ) {
 		qpDebug::Error( "Failed to create depth stencil states." );
 		return;
 	}
-	qpDebug::Log( "Depth stencil states created." );
+	qpDebug::Trace( "Depth stencil states created." );
 
-	qpDebug::Log( "Creating sampler states." );
+	qpDebug::Trace( "Creating sampler states." );
 	if ( !CreateSamplerStates() ) {
 		qpDebug::Error( "Failed to create sampler states." );
 		return;
 	}
-	qpDebug::Log( "Sampler states created." );
+	qpDebug::Trace( "Sampler states created." );
 }
 
 void qpD3D11::DrawFrame () {

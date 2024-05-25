@@ -101,7 +101,7 @@ namespace qpDebug {
 		PrintMessage( stdout, "", format, args);
 		va_end( args );
 	}
-	static void Log( const char * format, ... ) {
+	static void Trace( const char * format, ... ) {
 		va_list args;
 		va_start( args, format );
 		PrintMessage( stdout, "TRACE: ", format, args);
