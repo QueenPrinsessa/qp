@@ -1,8 +1,8 @@
 #pragma once
 #include "common/core/qp_types.h"
 #include "qp/common/core/qp_sys_calls.h"
-#include <cstdio>
 #include <cstdarg>
+#include <cstdio>
 
 #if !defined( QP_ASSERTS_ENABLED )
 #if !defined( QP_RETAIL )
@@ -96,7 +96,8 @@ namespace qpDebug {
 		TRACE,
 		INFO,
 		WARNING,
-		ERROR
+		ERROR,
+		CRITICAL
 	};
 	extern void FlushLogFile();
 	extern void PrintMessage( const char * format, va_list args );
@@ -134,4 +135,6 @@ namespace qpDebug {
 
 		Sys_DebugBreak();
 	}
+	
+	extern void CriticalError( const char * format, ... );
 };

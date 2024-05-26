@@ -4,5 +4,6 @@
 class qpClock {
 public:
 	static qpTimePoint Now();
+	static timeTick_t TicksPerSecond();
 private:
 };

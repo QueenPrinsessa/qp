@@ -1,6 +1,5 @@
 ﻿#include "game.pch.h"
-#include <iostream>
-#include <thread>
+#include "common/threads/qp_thread_pool.h"
 #if defined( QP_HEADLESS )
 #include "qp/engine/core/qp_headless_app.h"
 #else
@@ -40,14 +39,23 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	qpWindowedApp app( windowProperties );
 #endif
 
+	qpThreadPool threadPool;
+	threadPool.Startup( threadPool.MaxWorkers() );
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
 		qpDebug::Error( "%s", e.what() );
 	}
 
+	threadPool.Shutdown();
 	qpDebug::Trace( "Shutting down." );
+
 	qpDebug::FlushLogFile();
+	
+#if !defined( QP_RETAIL )
+	// keep console open
+	system( "pause" );
+#endif
 	return 0;
 }
 

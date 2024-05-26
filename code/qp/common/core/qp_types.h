@@ -27,3 +27,4 @@ static_assert( sizeof( byte ) == 1, "sizeof byte needs to be 1 byte." );
 
 template< typename _type_ >
 using atomic_t = std::atomic< _type_ >;
+using atomicBool_t = std::atomic_bool;

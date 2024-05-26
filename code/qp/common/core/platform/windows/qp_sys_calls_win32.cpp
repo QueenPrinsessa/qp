@@ -7,6 +7,7 @@
 #include "qp/common/platform/windows/qp_windows.h"
 
 namespace {
+	bool consoleInitialized = false;
 	FILE * consoleOut = NULL;
 }
 
@@ -15,7 +16,18 @@ FILE * Sys_GetConsoleOut() {
 }
 
 void Sys_FlushConsole() {
-	QP_DISCARD_RESULT fflush( consoleOut );
+	if ( consoleInitialized && consoleOut != NULL ) {
+		QP_DISCARD_RESULT fflush( consoleOut );
+	}
+}
+
+void Sys_FreeConsole () {
+	if ( consoleInitialized ) {
+		QP_DISCARD_RESULT fclose( consoleOut );
+		consoleOut = NULL;
+		FreeConsole();
+		consoleInitialized = false;
+	}
 }
 
 void Sys_OutputDebugString( const char * fmt, ... ) {
@@ -94,18 +106,17 @@ bool Sys_InitializeConsole() {
 			return FALSE;
 		}, TRUE );
 	SetConsoleOutputCP( CP_UTF8 );
-	if ( setvbuf( consoleOut, NULL, _IOLBF, 1024 ) == 0 ) {
-		CONSOLE_FONT_INFOEX consoleFontInfo;
-		consoleFontInfo.cbSize = sizeof( consoleFontInfo );
-		consoleFontInfo.nFont = 0;
-		consoleFontInfo.dwFontSize.X = 10;
-		consoleFontInfo.dwFontSize.Y = 20;
-		consoleFontInfo.FontFamily = FF_DONTCARE;
-		consoleFontInfo.FontWeight = FW_NORMAL;
-		wcscpy_s( consoleFontInfo.FaceName, L"Consolas" );
-		SetCurrentConsoleFontEx( consoleHandle, FALSE, &consoleFontInfo );
-	}
-
+	QP_ASSERT( setvbuf( consoleOut, NULL, _IOLBF, 1024 ) == 0 );
+	CONSOLE_FONT_INFOEX consoleFontInfo;
+	consoleFontInfo.cbSize = sizeof( consoleFontInfo );
+	consoleFontInfo.nFont = 0;
+	consoleFontInfo.dwFontSize.X = 10;
+	consoleFontInfo.dwFontSize.Y = 20;
+	consoleFontInfo.FontFamily = FF_DONTCARE;
+	consoleFontInfo.FontWeight = FW_NORMAL;
+	wcscpy_s( consoleFontInfo.FaceName, L"Consolas" );
+	SetCurrentConsoleFontEx( consoleHandle, FALSE, &consoleFontInfo );
+	consoleInitialized = true;
 	return true;
 }
 

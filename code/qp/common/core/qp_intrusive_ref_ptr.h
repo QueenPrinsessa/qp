@@ -56,7 +56,7 @@ public:
 	const _type_ * operator->() const { return m_ptr; }
 	_type_ & operator*() { return *m_ptr; }
 	const _type_ & operator*() const { return *m_ptr; }
-
+	
 	_type_ * Raw() const { return m_ptr; }
 
 	void Reset();

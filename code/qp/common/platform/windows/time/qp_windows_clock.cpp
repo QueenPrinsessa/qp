@@ -8,12 +8,16 @@
 #include "qp/common/platform/windows/qp_windows.h"
 
 qpTimePoint qpClock::Now() {
-    static LARGE_INTEGER frequency {};
-    static BOOL useHighResolution = QueryPerformanceFrequency( &frequency );
-    QP_DISCARD( useHighResolution );
     LARGE_INTEGER now {};
     QueryPerformanceCounter( &now );
-    return qpTimePoint{ now.QuadPart, frequency.QuadPart };
+    return qpTimePoint{ now.QuadPart, TicksPerSecond() };
+}
+
+timeTick_t qpClock::TicksPerSecond() {
+    static LARGE_INTEGER frequency {};
+    static BOOL useHighResolution = QueryPerformanceFrequency( &frequency );
+    QP_DISCARD_RESULT useHighResolution;
+    return frequency.QuadPart;
 }
 
 #endif
