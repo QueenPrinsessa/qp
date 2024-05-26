@@ -1,5 +1,6 @@
 ﻿#include "game.pch.h"
 #include <iostream>
+#include <thread>
 #if defined( QP_HEADLESS )
 #include "qp/engine/core/qp_headless_app.h"
 #else
@@ -14,7 +15,7 @@
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow ) {
 #if !defined( QP_RETAIL )
 	if ( Sys_InitializeConsole() ) {
-		qpDebug::Printf( "Successfully initialized console." );
+		qpDebug::Trace( "Successfully initialized console." );
 	}
 #endif
 
@@ -45,6 +46,8 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 		qpDebug::Error( "%s", e.what() );
 	}
 
+	qpDebug::Trace( "Shutting down." );
+	qpDebug::FlushLogFile();
 	return 0;
 }
 

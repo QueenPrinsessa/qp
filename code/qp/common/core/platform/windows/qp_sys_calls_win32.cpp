@@ -79,6 +79,20 @@ bool Sys_InitializeConsole() {
 		return false;
 	}
 	
+	SetConsoleCtrlHandler( []( _In_ DWORD ctrlType ) -> BOOL {
+			switch ( ctrlType ) {
+				case CTRL_CLOSE_EVENT:
+				case CTRL_SHUTDOWN_EVENT:
+				case CTRL_LOGOFF_EVENT: {
+					qpDebug::Trace( "Shutting down from console." );
+					// if we don't flush the log file here we all our logs.
+					// when you close the console window, since it terminates the process.
+					qpDebug::FlushLogFile();
+					return TRUE;
+				}
+			}
+			return FALSE;
+		}, TRUE );
 	SetConsoleOutputCP( CP_UTF8 );
 	if ( setvbuf( consoleOut, NULL, _IOLBF, 1024 ) == 0 ) {
 		CONSOLE_FONT_INFOEX consoleFontInfo;

@@ -98,6 +98,7 @@ namespace qpDebug {
 		WARNING,
 		ERROR
 	};
+	extern void FlushLogFile();
 	extern void PrintMessage( const char * format, va_list args );
 	extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
 	static void Printf( const char * format, ... ) {

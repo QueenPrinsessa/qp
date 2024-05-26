@@ -32,6 +32,10 @@ namespace qpDebug {
 
 	namespace {
 		const qpTimePoint s_programStartTime = qpClock::Now();
+		struct logFileData_t {
+			FILE * logFile = NULL;
+			bool failedToOpen = false;
+		} s_logFileData;
 
 		constexpr const char * CategoryAsString( const category_t category ) {
 #define CASE_RETURN_STRINGIFIED( x ) case x: return #x
@@ -60,18 +64,52 @@ namespace qpDebug {
 			buffer[ length ] = '\0';
 			return length;
 		}
+
+		bool HasOpenedLogFile( const logFileData_t & logPrintData ) {
+			return logPrintData.logFile != NULL && !logPrintData.failedToOpen;
+		}
+		void TryOpenLogFile( logFileData_t & logPrintData ) {
+			const char * logFilePath = "console_log.txt";
+			s_logFileData.failedToOpen = false;
+
+			logPrintData.logFile = fopen( logFilePath, "w" );
+			if ( logPrintData.logFile != NULL ) {
+				const size_t logFileBufferSize = 1024ull * 1024ull;
+				if ( setvbuf( logPrintData.logFile, NULL, _IOFBF, logFileBufferSize ) != 0 ) {
+					QP_DISCARD_RESULT fclose( logPrintData.logFile );
+					logPrintData.logFile = NULL;
+					s_logFileData.failedToOpen = true;
+				}
+			} else {
+				s_logFileData.failedToOpen = true;
+			}
+		}
 	}
+
+	void FlushLogFile () {
+		if ( HasOpenedLogFile( s_logFileData ) ) {
+			QP_DISCARD_RESULT fflush( s_logFileData.logFile );
+		}
+	}
+
 	void PrintMessage( const char * format, va_list args ) {
 		PrintMessageEx( stdout, category_t::PRINT, NULL, format, args);
 	}
 
 	void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {
+		logFileData_t & logFileData = s_logFileData;
+		if ( !HasOpenedLogFile( logFileData ) ) {
+			TryOpenLogFile( logFileData );
+		}
 		char buffer[ 16384 ] {};
 		size_t prefixLength = GetPrintPrefix( category, buffer, sizeof( buffer ) );
 		const qpTimePoint timeSinceStart = qpClock::Now() - s_programStartTime;
 		const int timeSeconds = static_cast< int >( timeSinceStart.AsSeconds() );
 		QP_DISCARD_RESULT vsnprintf( buffer + prefixLength, sizeof( buffer ) - prefixLength, format, args );
 		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s%s\n", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, buffer, QP_CONSOLE_DEFAULT_COLOR );
+		if ( HasOpenedLogFile( logFileData ) ) {
+			QP_DISCARD_RESULT fprintf( logFileData.logFile, "[%d] %s\n", timeSeconds, buffer );
+		}
 		Sys_OutputDebugString( "[%d] %s\n", timeSeconds, buffer );
 	}
 }

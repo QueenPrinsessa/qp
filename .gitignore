@@ -1,11 +1,14 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,windows,c++
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudio,windows,c++
 
-#projcets folder
+#projects folder
 [Pp]rojects
 
 #user resources
 [Gg]ame/[Uu]ser/
+
+#logs
+console_log.txt
 
 ### C++ ###
 # Prerequisites
