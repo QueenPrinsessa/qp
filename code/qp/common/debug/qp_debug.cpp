@@ -33,6 +33,9 @@ namespace qpDebug {
 #endif
 
 	namespace {
+		using atomicDebugCategory_t = atomic_t< category_t >;
+		atomicDebugCategory_t s_debugCategory = category_t::ALL;
+
 		const qpTimePoint s_programStartTime = qpClock::Now();
 		struct logFileData_t {
 			FILE * logFile = NULL;
@@ -89,6 +92,10 @@ namespace qpDebug {
 		}
 	}
 
+	void SetDebugCategories ( const uint32 debugCategories ) {
+		s_debugCategory.store( static_cast< qpDebug::category_t >( debugCategories ) );
+	}
+
 	void FlushLogFile () {
 		if ( HasOpenedLogFile( s_logFileData ) ) {
 			QP_DISCARD_RESULT fflush( s_logFileData.logFile );
@@ -100,6 +107,10 @@ namespace qpDebug {
 	}
 
 	void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {
+		if ( ( s_debugCategory.load() & category ) != category ) {
+			return;
+		}
+		
 		logFileData_t & logFileData = s_logFileData;
 		if ( !HasOpenedLogFile( logFileData ) ) {
 			TryOpenLogFile( logFileData );
@@ -109,7 +120,7 @@ namespace qpDebug {
 		const qpTimePoint timeSinceStart = qpClock::Now() - s_programStartTime;
 		const int timeSeconds = timeSinceStart.AsSeconds().GetI32();
 		const int bufferPrintLength = vsnprintf( buffer + prefixLength, sizeof( buffer ) - prefixLength - 1, format, args );
-		if ( category != category_t::PRINT ) {
+		if ( ( category & category_t::PRINT ) != category_t::PRINT ) {
 			buffer[ qpMath::Min( bufferPrintLength + prefixLength, sizeof( buffer ) - 1 ) ] = '\n';
 		}
 		QP_DISCARD_RESULT fprintf( stream, "[%d] %s%s%s", timeSeconds, color != NULL ? color : QP_CONSOLE_DEFAULT_COLOR, buffer, QP_CONSOLE_DEFAULT_COLOR );
@@ -121,11 +132,12 @@ namespace qpDebug {
 	}
 
 	void CriticalError ( const char * format, ... ) {
+#if defined( QP_DEBUG_ERRORS )
 		va_list args;
 		va_start( args, format );
 		PrintMessageEx( stderr, category_t::CRITICAL, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_YELLOW, format, args );
 		va_end( args );
-
+#endif
 		Sys_FlushConsole();
 		qpThreadUtil::SleepThread( milliseconds_t( 100 ) );
 		struct criticalErrorException_t : public std::exception {
@@ -138,8 +150,7 @@ namespace qpDebug {
 			const char * format;
 			va_list args;
 		};
-
-
+		
 		va_start( args, format );
 		throw criticalErrorException_t( format, args );
 		//va_end( args );
