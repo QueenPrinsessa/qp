@@ -24,6 +24,7 @@ public:
 	template < typename ... _args_ >
 	_type_ & Emplace( _args_ &&... args );
 	void Pop();
+	void PopFirst();
 
 	_type_ & First();
 	_type_ & Last();
@@ -31,6 +32,8 @@ public:
 	const _type_ & Last() const;
 
 	_type_ * Data() const { return m_data; }
+
+	void RemoveIndex( const uint64 index );
 
 	void ShrinkToFit();
 	void Reserve( const uint64 capacity );
@@ -122,6 +125,11 @@ void qpList< _type_ >::Pop() {
 }
 
 template< typename _type_ >
+void qpList<_type_>::PopFirst () {
+	RemoveIndex( 0 );
+}
+
+template< typename _type_ >
 _type_ & qpList< _type_ >::First() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
@@ -145,6 +153,14 @@ const _type_ & qpList< _type_ >::Last() const {
 	return m_data[ m_length - 1 ];
 }
 
+template< typename _type_ >
+void qpList<_type_>::RemoveIndex ( const uint64 index ) {
+	if ( index >= m_length ) {
+		return;
+	}
+	qpCopyOverlapped( &m_data[ index ], m_length - index, &m_data[ index + 1 ], m_length - index - 1);
+	--m_length;
+}
 
 template< typename _type_ >
 void qpList< _type_ >::ShrinkToFit() {
@@ -154,7 +170,7 @@ template< typename _type_ >
 void qpList< _type_ >::Reserve( const uint64 capacity ) {
 	if ( m_capacity < capacity ) {
 		_type_ * newData = new _type_[ capacity ] {};
-		memcpy( newData, m_data, m_length * sizeof( _type_ ) );
+		qpCopy( newData, capacity, m_data, m_length );
 		delete[] m_data;
 		m_data = newData;
 		m_capacity = capacity;
