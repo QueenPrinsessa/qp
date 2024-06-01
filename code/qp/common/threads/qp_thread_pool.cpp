@@ -14,6 +14,10 @@ qpThreadPool::qpThreadPool( const uint32 numWorkerThreads ) {
 	Startup( numWorkerThreads );
 }
 
+qpThreadPool::~qpThreadPool () {
+	QP_ASSERT_MSG( !m_started.load() && !m_shuttingDown.load(), "Thread pool should always be shutdown before being destroyed!");
+}
+
 void qpThreadPool::Startup( const uint32 numWorkerThreads ) {
 	QP_ASSERT_MSG( !m_shuttingDown.load(), "Wait for thread pool to shutdown before starting it." );
 	const uint32 numWorkersNeeded = qpMath::Clamp( numWorkerThreads, s_minThreadPoolWorkers, MaxWorkers() );

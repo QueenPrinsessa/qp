@@ -8,6 +8,7 @@ class qpThreadPool {
 public:
 	qpThreadPool();
 	qpThreadPool( const uint32 numWorkerThreads );
+	~qpThreadPool();
 	
 	void Startup( const uint32 numWorkerThreads );
 	void Shutdown();
