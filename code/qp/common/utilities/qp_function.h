@@ -32,6 +32,7 @@ public:
 private:
 	class qpFunctorBase {
 	public:
+		qpFunctorBase() = default;
 		virtual ~qpFunctorBase() = default;
 		virtual _return_ Invoke( _args_... ) const = 0;
 
@@ -41,6 +42,7 @@ private:
 	class qpFunctor : public qpFunctorBase {
 	public:
 		qpFunctor( const _type_ & func ) : m_func( func ) { }
+		qpFunctor( _type_ && func ) : m_func( qpMove( func ) ) {}
 		virtual ~qpFunctor() override = default;
 		virtual _return_ Invoke( _args_ ... args ) const override { return m_func( args... ); }
 	private:
@@ -62,9 +64,8 @@ qpFunction< _return_( _args_... ) >::qpFunction( const qpFunction & other ) noex
 }
 
 template< typename _return_, typename ... _args_ >
-qpFunction< _return_( _args_... ) >::qpFunction( qpFunction && other ) noexcept {
-	m_functor = qpMove( other.m_functor );
-}
+qpFunction< _return_( _args_... ) >::qpFunction( qpFunction && other ) noexcept 
+	: m_functor( qpMove( other.m_functor ) ) {}
 
 template< typename _return_, typename ... _args_ >
 template< typename _type_ >

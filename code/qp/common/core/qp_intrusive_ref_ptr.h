@@ -1,19 +1,18 @@
 #pragma once
 #include "qp_types.h"
-#include "qp/common/utilities/qp_utility.h"
 
-#define QP_INTRUSIVE_INCREMENT_REF INTRUSIVE_IncrementRef
-#define QP_INTRUSIVE_DECREMENT_REF INTRUSIVE_DecrementRef
-#define QP_INTRUSIVE_GET_COUNTER INTRUSIVE_GetCounter
+#define QP_INTRUSIVE_INCREMENT_REF IncrementIntrusiveRef
+#define QP_INTRUSIVE_DECREMENT_REF DecrementIntrusiveRef
+#define QP_INTRUSIVE_GET_COUNTER GetIntrusiveRefCount
 #define QP_INTRUSIVE_COUNTER_MEMBER m_intrusiveRefCounter
 
 #define QP_INTRUSIVE_REF_COUNTER \
 public: \
-	void QP_INTRUSIVE_INCREMENT_REF() const { QP_INTRUSIVE_COUNTER_MEMBER++; } \
-	void QP_INTRUSIVE_DECREMENT_REF() const { QP_INTRUSIVE_COUNTER_MEMBER--; } \
-	uint32 QP_INTRUSIVE_GET_COUNTER() const { return QP_INTRUSIVE_COUNTER_MEMBER; } \
+	void QP_INTRUSIVE_INCREMENT_REF() const { ++QP_INTRUSIVE_COUNTER_MEMBER; } \
+	void QP_INTRUSIVE_DECREMENT_REF() const { --QP_INTRUSIVE_COUNTER_MEMBER; } \
+	uint32 QP_INTRUSIVE_GET_COUNTER() const { return QP_INTRUSIVE_COUNTER_MEMBER.load(); } \
 private: \
-	mutable atomic_t< uint32 > QP_INTRUSIVE_COUNTER_MEMBER = 0
+	mutable atomicUInt32_t QP_INTRUSIVE_COUNTER_MEMBER = 0u
 
 template< typename _type_ >
 constexpr bool qpHasIntrusiveRefCounter = (

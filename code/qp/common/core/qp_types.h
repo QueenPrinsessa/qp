@@ -1,6 +1,5 @@
 #pragma once
 #include <atomic>
-#include <cstdint>
 
 using int8 = signed char;
 using int16 = signed short int;
@@ -27,4 +26,12 @@ static_assert( sizeof( byte ) == 1, "sizeof byte needs to be 1 byte." );
 
 template< typename _type_ >
 using atomic_t = std::atomic< _type_ >;
-using atomicBool_t = std::atomic_bool;
+using atomicBool_t = atomic_t< bool >;
+using atomicInt8_t = atomic_t< int8 >;
+using atomicUInt8_t = atomic_t< uint8 >;
+using atomicInt16_t = atomic_t< int16 >;
+using atomicUInt16_t = atomic_t< uint16 >;
+using atomicInt32_t = atomic_t< int32 >;
+using atomicUInt32_t = atomic_t< uint32 >;
+using atomicInt64_t = atomic_t< int64 >;
+using atomicUInt64_t = atomic_t< uint64 >;

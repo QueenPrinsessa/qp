@@ -29,4 +29,4 @@ constexpr size_t SizeOfBiggestType() {
 }
 
 
-#define QP_BIND_FUNCTION( func ) [ & ]( auto&& ... aArgs ) -> decltype( auto ) { return this->func( qpForward< decltype( aArgs ) >( aArgs )... ); }
+#define QP_BIND_FUNCTION( func ) [ & ]( auto&& ... args ) -> decltype( auto ) { return this->func( qpForward< decltype( args ) >( args )... ); }
