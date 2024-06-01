@@ -20,7 +20,7 @@ void qpThread::RunJob( threadWorkFunctor_t && func ) {
 	QP_ASSERT_MSG( !m_thread.joinable() || !m_threadData->isWorking.load(), "There is already a job running on this thread. Wait for it to finish first." );
 	m_threadData->isWorking.store( true );
 	m_threadData->isDetached.store( false );
-	m_thread = std::thread( [ job = qpMove( func ), threadDataRefPtr = m_threadData, self = this ]() mutable {
+	m_thread = std::thread( [ job = qpMove( func ), threadDataRefPtr = m_threadData ]() mutable {
 			threadData_t & threadData = *threadDataRefPtr;
 			job( threadData );
 			threadData.isWorking.store( false );
