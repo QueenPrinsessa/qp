@@ -5,6 +5,7 @@
 
 namespace {
 	const uint32 s_minThreadPoolWorkers = 1;
+	const milliseconds_t s_threadPoolShutdownTimeoutMs = milliseconds_t( 1000 );
 }
 
 qpThreadPool::qpThreadPool() {
@@ -42,9 +43,8 @@ void qpThreadPool::Shutdown() {
 	}
 	m_jobConditionVar.notify_all();
 
-	const milliseconds_t timeoutMs = milliseconds_t( 10000 );
 	for ( qpThread * thread : m_threads ) {
-		if ( thread->WaitForThread( timeoutMs ) ) {
+		if ( thread->WaitForThread( s_threadPoolShutdownTimeoutMs ) ) {
 			qpDebug::Trace( "ThreadPool: Joining worker thread '%s'.", thread->GetName() );
 			thread->Join();
 		} else {
