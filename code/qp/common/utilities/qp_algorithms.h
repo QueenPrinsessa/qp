@@ -59,6 +59,39 @@ uint64 qpCopy( _type_ * to, const uint64 toCount, const _type_ * from, const uin
 	return qpCopyUnchecked( to, from, fromCount );
 }
 
+template < typename _type_ >
+uint64 qpCopyOverlappedUnchecked( _type_ * to, const _type_ * from, const uint64 num ) {
+	if ( num == 0 ) {
+		return num;
+	}
+
+	if constexpr ( IsTrivialToCopy< _type_ > ) {
+		memmove( to, from, num * sizeof( _type_ ) );
+	} else {
+		for ( int index = 0; index < num; index++ ) {
+			*to = *( from + index );
+			to++;
+		}
+	}
+
+	return num;
+}
+
+template < typename _type_ >
+uint64 qpCopyOverlapped( _type_ * to, const uint64 toCount, const _type_ * from, const uint64 fromCount ) {
+	QP_ASSERT( toCount >= fromCount );
+
+	if ( toCount < fromCount ) {
+		return 0;
+	}
+
+	if ( to == NULL || from == NULL ) {
+		return 0;
+	}
+
+	return qpCopyOverlappedUnchecked( to, from, fromCount );
+}
+
 static uint64 qpCopyBytesUnchecked( void * to, const void * from, const uint64 numBytes ) {
 	if ( numBytes == 0 ) {
 		return numBytes;
