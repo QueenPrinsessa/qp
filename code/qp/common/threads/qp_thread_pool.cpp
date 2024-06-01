@@ -75,8 +75,9 @@ void qpThreadPool::DoWork( const qpThread::threadData_t & threadData ) {
 			if ( threadData.shouldTerminate.load() ) {
 				break;
 			}
-			job = qpMove( m_jobsQueue.First() );
-			m_jobsQueue.PopFirst();
+			if ( !QP_VERIFY_MSG( m_jobsQueue.Pop( job ), "Thread woke up to empty queue." ) ) {
+				continue;
+			}
 		}
 		job();
 	}
