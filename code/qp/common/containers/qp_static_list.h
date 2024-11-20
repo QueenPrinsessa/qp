@@ -7,7 +7,7 @@ template < typename _type_, int _size_ >
 class qpStaticList
 {
 public:
-	QP_FORWARD_ITERATOR( Iterator, qpStaticList, T )
+	QP_FORWARD_ITERATOR( Iterator, qpStaticList, _type_ )
 
 	qpStaticList();
 	template < typename ... _args_ >
@@ -76,25 +76,25 @@ void qpStaticList< _type_, _size_ >::Pop() {
 }
 
 template< typename _type_, int _size_ >
-T & qpStaticList< _type_, _size_ >::First() {
+_type_ & qpStaticList< _type_, _size_ >::First() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
 template< typename _type_, int _size_ >
-T & qpStaticList< _type_, _size_ >::Last() {
+_type_ & qpStaticList< _type_, _size_ >::Last() {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
 
 template< typename _type_, int _size_ >
-const T & qpStaticList< _type_, _size_ >::First() const {
+const _type_ & qpStaticList< _type_, _size_ >::First() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing first element but the list is empty." );
 	return m_data[ 0 ];
 }
 
 template< typename _type_, int _size_ >
-const T & qpStaticList< _type_, _size_ >::Last() const {
+const _type_ & qpStaticList< _type_, _size_ >::Last() const {
 	QP_ASSERT_MSG( m_length != 0, "Accessing last element but the list is empty." );
 	return m_data[ m_length - 1 ];
 }
@@ -107,14 +107,14 @@ qpStaticList< _type_, _size_ > & qpStaticList< _type_, _size_ >::operator=( cons
 }
 
 template< typename _type_, int _size_ >
-T & qpStaticList< _type_, _size_ >::operator[]( int index ) {
+_type_ & qpStaticList< _type_, _size_ >::operator[]( int index ) {
 	QP_ASSERT_MSG( index >= 0, "Index out of bounds!" );
 	QP_ASSERT_MSG( index >= m_length, "Index out of bounds!" );
 	return m_data[ index ];
 }
 
 template< typename _type_, int _size_ >
-const T & qpStaticList< _type_, _size_ >::operator[]( int index ) const {
+const _type_ & qpStaticList< _type_, _size_ >::operator[]( int index ) const {
 	QP_ASSERT_MSG( index >= 0, "Index out of bounds!" );
 	QP_ASSERT_MSG( index >= m_length, "Index out of bounds!" );
 	return m_data[ index ];
