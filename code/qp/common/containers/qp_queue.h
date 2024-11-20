@@ -99,6 +99,11 @@ _type_ & qpQueue< _type_ >::Emplace ( _args_ &&... args ) {
 
 	const uint64 insertIndex = m_tail;
 	m_items[ insertIndex ] = qpMove( _type_( qpForward< _args_ >( args )... ) );
-	m_tail = ( m_tail + 1 ) % m_items.Length();
+	const uint64 length = Length();
+	if ( length == 0 ) {
+		m_tail = ( m_tail + 1 );
+	} else {
+		m_tail = ( m_tail + 1 ) % length;
+	}
 	return m_items[ insertIndex ];
 }
