@@ -11,31 +11,31 @@ public:
 
 	qpStaticList();
 	template < typename ... _args_ >
-	explicit qpStaticList( _args_ &&... args ) requires ( sizeof ... ( _args_ ) <= SIZE );
+	explicit qpStaticList( _args_ &&... args ) requires ( sizeof ... ( _args_ ) <= _size_ );
 	qpStaticList( const qpStaticList & other );
 
-	void Push( const T & value );
+	void Push( const _type_ & value );
 	template< typename ... _args_ >
 	void Emplace( _args_&&... args );
 	void Pop();
 
-	T & First();
-	T & Last();
-	const T & First() const;
-	const T & Last() const;
+	_type_ & First();
+	_type_ & Last();
+	const _type_ & First() const;
+	const _type_ & Last() const;
 
-	T * Data() const { return m_data; }
+	_type_ * Data() const { return m_data; }
 
 	int Length() const { return m_length; }
 
 	qpStaticList & operator=( const qpStaticList & other );
 
-	T & operator[]( int index );
-	const T & operator[] ( int index ) const;
+	_type_ & operator[]( int index );
+	const _type_ & operator[] ( int index ) const;
 
 	QP_ITERATORS( Iterator, Iterator( &m_data[ 0 ] ), Iterator( &m_data[ m_length ] ) )
 private:
-	T m_data[ SIZE ] {};
+	_type_ m_data[ _size_ ] {};
 	int m_length = 0;
 };
 
@@ -57,7 +57,7 @@ qpStaticList< _type_, _size_ >::qpStaticList( const qpStaticList & other ) {
 }
 
 template< typename _type_, int _size_ >
-void qpStaticList< _type_, _size_ >::Push( const T & value ) {
+void qpStaticList< _type_, _size_ >::Push( const _type_ & value ) {
 	Emplace( value );
 }
 

@@ -5,8 +5,8 @@
 #include <mutex>
 
 class qpThreadPool {
-	using threadJobFunctor_t = qpFunction< void() >;
 public:
+	using threadJobFunctor_t = qpFunction< void() >;
 	qpThreadPool();
 	qpThreadPool( const uint32 numWorkerThreads );
 	~qpThreadPool();

@@ -199,7 +199,7 @@ void qpVulkan::CreateInstance() {
 		ThrowOnError( "vkCreateInstance failed." );
 	}
 
-	qpDebug::Log( "Successfully initialized Vulkan." );
+	qpDebug::Printf( "Successfully initialized Vulkan." );
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT * callbackData, void * userData ) {
@@ -207,7 +207,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageS
 	switch ( messageSeverity ) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 		{
-			qpDebug::Log( "%s", callbackData->pMessage );
+			qpDebug::Printf( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
@@ -1140,7 +1140,7 @@ VkImageView qpVulkan::CreateImageView( VkImage image, VkFormat format ) {
 
 void qpVulkan::CreateTextureImage() {
 	qpResourceRegistry registry;
-	qpFilePath imagePath = "generated/user/pals.qpimage";// "user/kat.tga";
+	qpFilePath imagePath = "user/kat.tga";
 	const qpImage * katImage = static_cast< const qpImage * >( registry.LoadResource( imagePath, returnDefault_t::RETURN_NULL ) );
 	if ( registry.HasResourceError() ) {
 		qpDebug::Error( "Failed to load resource \"%s\" with error: %s", imagePath.c_str(), registry.GetLastResourceError().c_str() );
@@ -1340,7 +1340,7 @@ void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
 	qpTimePoint timeDelta = ( currentTime - lastTime );
 	lastTime = currentTime;
 	//const float time = timeDiff.AsSeconds();
-	const float deltaTime = timeDelta.AsSeconds();
+	const float deltaTime = timeDelta.AsSeconds().GetFloat();
 
 	int width;
 	int height;

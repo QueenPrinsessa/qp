@@ -6,6 +6,13 @@
 #include "qp/engine/core/qp_windowed_app.h"
 #endif
 
+class qpGameApp : public qpWindowedApp {
+public:
+	explicit qpGameApp ( const windowProperties_t & windowProperties )
+		: qpWindowedApp( windowProperties ) {
+	}
+};
+
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/common/platform/windows/qp_types_win32.h"
@@ -36,11 +43,14 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 
 	windowProperties.platformData = &windowsProperties;
 
-	qpWindowedApp app( windowProperties );
+	qpGameApp app( windowProperties );
 #endif
 
 	qpThreadPool threadPool;
 	threadPool.Startup( threadPool.MaxWorkers() );
+	
+	threadPool.QueueJob( []() { qpDebug::Printf( "I'm just thread I like to work :)\n" ); } );
+	threadPool.QueueJob( []() { qpDebug::Printf( "Nooooo, I don't enjoy working >:(\n" ); } );
 	try {
 		app.Run();
 	} catch ( const std::exception & e ) {
