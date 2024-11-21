@@ -36,9 +36,9 @@ public:
 		
 		// todo: specialized registry in QPEcs for "singleton" components
 		// world entity for holding global data
-		QPEcs::Entity worldEntity = m_ecs.CreateEntity();
-		m_ecs.AddComponent< qpInputComponent >( worldEntity ).keyboard = &m_window->GetKeyboard();
-		m_ecs.AddComponent< qpTimeComponent >( worldEntity ).deltaTime = 0.0f;
+		m_singletonEntity = m_ecs.CreateEntity();
+		m_ecs.AddComponent< qpInputComponent >( m_singletonEntity ).keyboard = &m_window->GetKeyboard();
+		m_ecs.AddComponent< qpTimeComponent >( m_singletonEntity ).deltaTime = 0.0f;
 
 		// 
 		QPEcs::Entity cameraEntity = m_ecs.CreateEntity();
@@ -93,9 +93,11 @@ public:
 		};
 
 		// Setup Singletons
-		auto & singletonView = m_ecs.GetView< qpTimeComponent >();
-		auto & [ deltaTime ] = singletonView.Get( singletonView.GetFirstEntity() );
-		deltaTime = m_deltaTime.AsSeconds().GetFloat();
+		{
+			auto & timeView = m_ecs.GetView< qpTimeComponent >();
+			auto & [ deltaTime ] = timeView.Get( m_singletonEntity );
+			deltaTime = m_deltaTime.AsSeconds().GetFloat();
+		}
 
 		// Game jobs
 		QP_RUN_GAME_UPDATE_JOB( qpCameraGameUpdateJob );
@@ -110,6 +112,7 @@ public:
 private:
 	qpThreadPool threadPool;
 	std::mutex m_ecsLock; // todo: remove once we can schedule multiple jobs and ensure the same component is not written to at the same time.
+	QPEcs::Entity m_singletonEntity = QPEcs::NullEntity;
 	QPEcs::EntityComponentSystem m_ecs;
 
 };
