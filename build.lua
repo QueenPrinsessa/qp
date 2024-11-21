@@ -114,6 +114,7 @@ codedir = slnDir .. "code/"
 bindir = slnDir .. "bin/"
 tempdir = slnDir .. "temp/"
 gamedir = slnDir .. "game/"
+libsdir = slnDir .. "libs/"
 
 include("build-engine.lua")
 include("build-game.lua")

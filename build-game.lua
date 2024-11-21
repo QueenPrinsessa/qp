@@ -28,7 +28,8 @@ files {
 includedirs {
     codedir,
     game_src_dir,
-    engine_src_dir
+    engine_src_dir,
+    include_dirs["qp_ecs"]
 }
 
 links {
