@@ -15,8 +15,9 @@ public:
 	bool Pop( _type_ & outItem );
 	bool Pop();
 
-	void Reserve( const uint64 newCapacity );
+	void Clear();
 
+	void Reserve( const uint64 newCapacity );
 	uint64 Length() const;
 
 	bool IsEmpty() const { return m_tail == m_head; }
@@ -68,6 +69,13 @@ bool qpQueue< _type_ >::Pop() {
 	}
 	m_head = ( m_head + 1 ) % m_items.Length();
 	return true;
+}
+
+template< typename _type_ >
+void qpQueue<_type_>::Clear () {
+	m_head = 0;
+	m_tail = 0;
+	m_items.Clear();
 }
 
 template< typename _type_ >

@@ -17,7 +17,9 @@ void qpApp::Run() {
 	OnInit();
 
 	while ( m_isRunning ) {
+		OnBeginFrame();
 		OnUpdate();
+		OnEndFrame();
 	}
 
 	OnCleanup();

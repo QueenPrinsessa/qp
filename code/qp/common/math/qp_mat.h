@@ -21,7 +21,7 @@ public:
 	qpMatBase & operator*=( const float rhs );
 
 	void Transpose();
-	_matrix_ Transposed();
+	_matrix_ Transposed() const;
 
 	qpVec< _type_, 3 > Forward() const { return static_cast< qpVec< _type_, 3 > >( CRTP().m_rows[ 2 ] ).Normalized(); }
 	qpVec< _type_, 3 > Right() const { return static_cast< qpVec< _type_, 3 > >( CRTP().m_rows[ 0 ] ).Normalized(); }
@@ -112,7 +112,7 @@ void qpMatBase< _type_, _matrix_, _size_ >::Transpose() {
 }
 
 template< typename _type_, typename _matrix_, int _size_ >
-_matrix_ qpMatBase< _type_, _matrix_, _size_ >::Transposed() {
+_matrix_ qpMatBase< _type_, _matrix_, _size_ >::Transposed() const {
 	return qpTranspose( *this );
 }
 

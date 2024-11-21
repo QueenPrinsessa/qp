@@ -1,4 +1,5 @@
 ﻿#include "engine.pch.h"
+#include "common/time/qp_clock.h"
 
 #if !defined( QP_HEADLESS )
 
@@ -48,9 +49,16 @@ void qpWindowedApp::OnInit() {
 	m_graphicsAPI->Init( m_window->GetHandle() );
 }
 
-void qpWindowedApp::OnUpdate() {
+void qpWindowedApp::OnBeginFrame () {
+	qpTimePoint currentTime = qpClock::Now();
+	m_deltaTime = ( currentTime - m_beginFrameTime );
+	m_beginFrameTime = currentTime;
+}
+
+void qpWindowedApp::OnEndFrame () {
 	m_graphicsAPI->DrawFrame();
 	m_window->OnUpdate();
+
 }
 
 void qpWindowedApp::OnCleanup() {
