@@ -1315,70 +1315,10 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 }
 
 void UpdateUniformBuffer( void * mappedUBO, const renderCamera_t & renderCamera ) {
-
-	//static qpVec3 translation( 0.0f, 0.0f, 50.0f );
-	//static qpVec3 rotation( 0.0f, 0.0f, 0.0f );
-
-
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::X ) ) {
-	//	rotation.y += 45.0f * deltaTime;
-	//}
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Z ) ) {
-	//	rotation.y -= 45.0f * deltaTime;
-	//}
-
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::C ) ) {
-	//	rotation.x += 45.0f * deltaTime;
-	//}
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::V ) ) {
-	//	rotation.x -= 45.0f * deltaTime;
-	//}
-
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::B ) ) {
-	//	rotation.z += 45.0f * deltaTime;
-	//}
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::N ) ) {
-	//	rotation.z -= 45.0f * deltaTime;
-	//}
-
-	// qpQuat orientation( rotation.x, rotation.y, rotation.z ); //qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
-
-	//const float fwdSpeed = 100.0f;
-	//const float rightSpeed = 100.0f;
-	//const float upSpeed = 100.0f;
-	//float forwardDir = 0.0f;
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::W ) ) {
-	//	forwardDir = 1.0f;
-	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::S ) ) {
-	//	forwardDir = -1.0f;
-	//}
-	//float rightDir = 0.0f;
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::D ) ) {
-	//	rightDir = 1.0f;
-	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::A ) ) {
-	//	rightDir = -1.0f;
-	//}
-
-	//float upDir = 0.0f;
-	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Q ) ) {
-	//	upDir = -1.0f;
-	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::E ) ) {
-	//	upDir = 1.0f;
-	//}
-	//translation += orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
-
-	//translation += orientation.Right() * rightSpeed * deltaTime * rightDir;
-
-	//translation += g_vec3Up * upSpeed * deltaTime * upDir;
-
-	//if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::ENTER ) ) {
-	//	translation = qpVec3( 0.0f, 0.0f, -50.0f );
-	//}
-
 	uniformBufferObject_t ubo {};
 	ubo.model = ( qpCreateRotationY( 180.0f ) * qpCreateTranslation( qpVec3( 0.0f, 0.0f, 200.0f ) ) ).Transposed();
-	ubo.view = renderCamera.view;// qpRotationAndTranslationInverse( orientation.ToMat4() * qpCreateTranslation( translation ) ).Transposed();
-	ubo.projection = renderCamera.projection;// qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f ).Transposed();
+	ubo.view = renderCamera.view;
+	ubo.projection = renderCamera.projection;
 
 	qpCopy( static_cast< uniformBufferObject_t * >( mappedUBO ), 1, &ubo, 1 );
 }
