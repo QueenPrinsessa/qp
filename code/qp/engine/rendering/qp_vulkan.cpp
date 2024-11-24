@@ -184,7 +184,7 @@ void qpVulkan::CreateInstance() {
 		ThrowOnError( "vkCreateInstance failed." );
 	}
 
-	qpDebug::Printf( "Successfully initialized Vulkan." );
+	qpDebug::Trace( "Successfully initialized Vulkan." );
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT * callbackData, void * userData ) {
@@ -192,7 +192,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessageCallback( VkDebugUtilsMessageS
 	switch ( messageSeverity ) {
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 		{
-			qpDebug::Printf( "%s", callbackData->pMessage );
+			qpDebug::Trace( "%s", callbackData->pMessage );
 			break;
 		}
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
