@@ -18,8 +18,10 @@ public:
 
 	virtual void OnUpdate() = 0;
 
-	virtual int GetWidth() = 0;
-	virtual int GetHeight() = 0;
+	virtual int GetWidth() const = 0;
+	virtual int GetHeight() const = 0;
+	virtual int GetClientWidth() const = 0;
+	virtual int GetClientHeight() const = 0;
 
 	virtual windowMode_t GetWindowMode() const = 0;
 

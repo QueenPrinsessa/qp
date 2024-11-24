@@ -14,11 +14,10 @@ class qpVulkan : public qpGraphicsAPI {
 public:
 	qpVulkan();
 	virtual ~qpVulkan() override;
-	virtual void Init( void * windowHandle ) override;
-	virtual void DrawFrame() override;
+	virtual void Init( const qpWindow * window ) override;
+	virtual void DrawFrame( const renderCamera_t & renderCamera ) override;
 	virtual void Cleanup() override;
 
-	void SetTestWindow( const qpWindow * testWindow );
 private:
 	struct queueFamilyIndices_t {
 		Optional< uint32 > graphicsFamily;
@@ -33,7 +32,7 @@ private:
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
-	void CreateSurface( void * windowHandle );
+	void CreateSurface();
 	bool IsDeviceSuitable( VkPhysicalDevice device );
 	bool HasAllQueueFamilyIndices( const queueFamilyIndices_t & indices ) const;
 	queueFamilyIndices_t FindQueueFamilies( VkPhysicalDevice device );
@@ -110,7 +109,7 @@ private:
 	VkImageView m_textureImageView = NULL;
 	VkSampler m_textureSampler = NULL;
 	int m_currentFrame = 0;
-	void * m_windowHandle = NULL;
+	const qpWindow * m_window = NULL;
 };
 
 #endif

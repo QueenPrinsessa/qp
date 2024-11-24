@@ -423,3 +423,9 @@ static const qpMat4 g_mat4Identity {
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f
 };
+static const qpMat4 g_mat4NaN {
+	NAN, NAN, NAN, NAN,
+	NAN, NAN, NAN, NAN,
+	NAN, NAN, NAN, NAN,
+	NAN, NAN, NAN, NAN
+};

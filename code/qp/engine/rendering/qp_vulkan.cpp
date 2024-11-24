@@ -1,4 +1,5 @@
 #include "engine.pch.h"
+#include "qp_render_camera.h"
 
 #if defined( QP_VULKAN )
 
@@ -46,30 +47,18 @@ qpArray< uint16, 6 > meshIndices {
 	0, 1, 2, 2, 3, 0
 };
 
-static void GetWindowFramebufferSize( void * windowHandle, int & width, int & height) {
-#if defined( QP_PLATFORM_WINDOWS )
-	RECT rect;
-	GetClientRect( static_cast< HWND >( windowHandle ), &rect );
-
-	width = rect.right - rect.left;
-	height = rect.bottom - rect.top;
-#else
-#error( "Unsupported platform." );
-#endif
-}
-
 qpVulkan::qpVulkan() { 
 }
 
 qpVulkan::~qpVulkan() {
 	Cleanup();
 }
-const qpWindow * windowForTesting = NULL;
-void qpVulkan::Init( void * windowHandle ) {
-	m_windowHandle = windowHandle;
+
+void qpVulkan::Init( const qpWindow * window ) {
+	m_window = window;
 	CreateInstance();
 	SetupDebugMessenger();
-	CreateSurface( windowHandle );
+	CreateSurface();
 	PickPhysicalDevice();
 	CreateLogicalDevice();
 	CreateSwapchain();
@@ -133,10 +122,6 @@ void qpVulkan::Cleanup() {
 		DestroyDebugUtilsMessengerEXT( m_instance, m_debugMessenger, NULL );
 	}
 	vkDestroyInstance( m_instance, NULL );
-}
-
-void qpVulkan::SetTestWindow ( const qpWindow * testWindow ) {
-	windowForTesting = testWindow;
 }
 
 void InitializeDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT & createInfo );
@@ -377,12 +362,12 @@ void qpVulkan::CreateLogicalDevice() {
 	}
 }
 
-void qpVulkan::CreateSurface( void * windowHandle ) {
+void qpVulkan::CreateSurface() {
 
 #if defined( QP_PLATFORM_WINDOWS )
 	VkWin32SurfaceCreateInfoKHR createInfo {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.hwnd = static_cast< HWND >( windowHandle );
+	createInfo.hwnd = static_cast< HWND >( m_window->GetHandle() );
 	createInfo.hinstance = GetModuleHandle( NULL );
 
 	if ( vkCreateWin32SurfaceKHR( m_instance, &createInfo, NULL, &m_surface ) != VK_SUCCESS ) {
@@ -471,11 +456,9 @@ VkExtent2D qpVulkan::ChooseSwapchainExtent( const VkSurfaceCapabilitiesKHR & cap
 		return capabilities.currentExtent;
 	}
 
-	int width;
-	int height;
-
-	GetWindowFramebufferSize( m_windowHandle, width, height );
-
+	const int width = m_window->GetClientWidth();
+	const int height = m_window->GetClientHeight();
+	
 	VkExtent2D actualExtent {
 		static_cast< uint32 >( width ),
 		static_cast< uint32 >( height )
@@ -1331,93 +1314,78 @@ uint32 qpVulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags proper
 #endif
 }
 
-void UpdateUniformBuffer( void * mappedUBO, void * windowHandle ) {
-	static qpTimePoint startTime = qpClock::Now();
-	static qpTimePoint lastTime = startTime;
+void UpdateUniformBuffer( void * mappedUBO, const renderCamera_t & renderCamera ) {
 
-	qpTimePoint currentTime = qpClock::Now();
-	qpTimePoint timeDiff = ( currentTime - startTime );
-	qpTimePoint timeDelta = ( currentTime - lastTime );
-	lastTime = currentTime;
-	//const float time = timeDiff.AsSeconds();
-	const float deltaTime = timeDelta.AsSeconds().GetFloat();
-
-	int width;
-	int height;
-	GetWindowFramebufferSize( windowHandle, width, height );
-
-	static qpVec3 translation( 0.0f, 0.0f, 50.0f );
-	static qpVec3 rotation( 0.0f, 0.0f, 0.0f );
+	//static qpVec3 translation( 0.0f, 0.0f, 50.0f );
+	//static qpVec3 rotation( 0.0f, 0.0f, 0.0f );
 
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::X ) ) {
-		rotation.y += 45.0f * deltaTime;
-	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Z ) ) {
-		rotation.y -= 45.0f * deltaTime;
-	}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::X ) ) {
+	//	rotation.y += 45.0f * deltaTime;
+	//}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Z ) ) {
+	//	rotation.y -= 45.0f * deltaTime;
+	//}
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::C ) ) {
-		rotation.x += 45.0f * deltaTime;
-	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::V ) ) {
-		rotation.x -= 45.0f * deltaTime;
-	}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::C ) ) {
+	//	rotation.x += 45.0f * deltaTime;
+	//}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::V ) ) {
+	//	rotation.x -= 45.0f * deltaTime;
+	//}
 
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::B ) ) {
-		rotation.z += 45.0f * deltaTime;
-	}
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::N ) ) {
-		rotation.z -= 45.0f * deltaTime;
-	}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::B ) ) {
+	//	rotation.z += 45.0f * deltaTime;
+	//}
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::N ) ) {
+	//	rotation.z -= 45.0f * deltaTime;
+	//}
 
-	qpQuat orientation( rotation.x, rotation.y, rotation.z ); //qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
+	// qpQuat orientation( rotation.x, rotation.y, rotation.z ); //qpCreateRotationY( rotation.y ) * qpCreateRotationX( rotation.x );
 
-	const float fwdSpeed = 100.0f;
-	const float rightSpeed = 100.0f;
-	const float upSpeed = 100.0f;
-	float forwardDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::W ) ) {
-		forwardDir = 1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::S ) ) {
-		forwardDir = -1.0f;
-	}
-	float rightDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::D ) ) {
-		rightDir = 1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::A ) ) {
-		rightDir = -1.0f;
-	}
+	//const float fwdSpeed = 100.0f;
+	//const float rightSpeed = 100.0f;
+	//const float upSpeed = 100.0f;
+	//float forwardDir = 0.0f;
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::W ) ) {
+	//	forwardDir = 1.0f;
+	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::S ) ) {
+	//	forwardDir = -1.0f;
+	//}
+	//float rightDir = 0.0f;
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::D ) ) {
+	//	rightDir = 1.0f;
+	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::A ) ) {
+	//	rightDir = -1.0f;
+	//}
 
-	float upDir = 0.0f;
-	if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Q ) ) {
-		upDir = -1.0f;
-	} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::E ) ) {
-		upDir = 1.0f;
-	}
-	translation += orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
+	//float upDir = 0.0f;
+	//if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::Q ) ) {
+	//	upDir = -1.0f;
+	//} else if ( windowForTesting->GetKeyboard().IsKeyDown( keyboardKeys_t::E ) ) {
+	//	upDir = 1.0f;
+	//}
+	//translation += orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
 
-	translation += orientation.Right() * rightSpeed * deltaTime * rightDir;
+	//translation += orientation.Right() * rightSpeed * deltaTime * rightDir;
 
-	translation += g_vec3Up * upSpeed * deltaTime * upDir;
+	//translation += g_vec3Up * upSpeed * deltaTime * upDir;
 
-	if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::ENTER ) ) {
-		translation = qpVec3( 0.0f, 0.0f, -50.0f );
-	}
+	//if ( windowForTesting->GetKeyboard().IsKeyPressed( keyboardKeys_t::ENTER ) ) {
+	//	translation = qpVec3( 0.0f, 0.0f, -50.0f );
+	//}
 
 	uniformBufferObject_t ubo {};
 	ubo.model = ( qpCreateRotationY( 180.0f ) * qpCreateTranslation( qpVec3( 0.0f, 0.0f, 200.0f ) ) ).Transposed();
-	ubo.view = qpRotationAndTranslationInverse( orientation.ToMat4() * qpCreateTranslation( translation ) ).Transposed();
-	ubo.projection = qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f ).Transposed();
+	ubo.view = renderCamera.view;// qpRotationAndTranslationInverse( orientation.ToMat4() * qpCreateTranslation( translation ) ).Transposed();
+	ubo.projection = renderCamera.projection;// qpPerspectiveProjectionMatrix( 90.0f, width, height, 1.0f, 100000.0f ).Transposed();
 
 	qpCopy( static_cast< uniformBufferObject_t * >( mappedUBO ), 1, &ubo, 1 );
 }
 
-void qpVulkan::DrawFrame() {
-	int width;
-	int height;
-
-	GetWindowFramebufferSize( m_windowHandle, width, height );
+void qpVulkan::DrawFrame( const renderCamera_t & renderCamera ) {
+	const int width = m_window->GetClientWidth();
+	const int height = m_window->GetClientHeight();
 
 	if ( width == 0 || height == 0 ) {
 		return;
@@ -1444,7 +1412,7 @@ void qpVulkan::DrawFrame() {
 
 	RecordCommandBuffer( m_commandBuffers[ m_currentFrame ], imageIndex );
 
-	UpdateUniformBuffer( m_uniformBuffersMapped[ m_currentFrame ], m_windowHandle );
+	UpdateUniformBuffer( m_uniformBuffersMapped[ m_currentFrame ], renderCamera );
 
 	VkSubmitInfo submitInfo {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

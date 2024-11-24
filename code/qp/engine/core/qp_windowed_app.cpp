@@ -41,12 +41,13 @@ void qpWindowedApp::OnInit() {
 	m_graphicsAPI = qpCreateUnique< qpD3D11 >();
 #elif defined( QP_VULKAN )
 	m_graphicsAPI = qpCreateUnique< qpVulkan >();
-
-	// todo: remove test code.
-	static_cast< qpVulkan * >( m_graphicsAPI.Raw() )->SetTestWindow(m_window.Raw());
 #endif
 
-	m_graphicsAPI->Init( m_window->GetHandle() );
+	m_graphicsAPI->Init( m_window.Raw() );
+
+	// initializing to NaN for error checking.
+	m_renderCamera.projection = g_mat4NaN;
+	m_renderCamera.view = g_mat4NaN;
 }
 
 void qpWindowedApp::OnBeginFrame () {
@@ -56,7 +57,9 @@ void qpWindowedApp::OnBeginFrame () {
 }
 
 void qpWindowedApp::OnEndFrame () {
-	m_graphicsAPI->DrawFrame();
+	QP_ASSERT_RELEASE_MSG( m_renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+	QP_ASSERT_RELEASE_MSG( m_renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+	m_graphicsAPI->DrawFrame( m_renderCamera );
 	m_window->OnUpdate();
 
 }

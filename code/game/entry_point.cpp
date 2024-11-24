@@ -10,9 +10,11 @@
 
 #include "QPEcs.hpp"
 #include "qp/common/ecs/components/qp_transform_component.h"
-#include <common/ecs/components/qp_camera_component.h>
-#include <engine/window/qp_keyboard.h>
-#include <engine/window/qp_window.h>
+#include "common/ecs/components/qp_camera_component.h"
+#include "ecs/components/qp_game_update_input_component.h"
+#include "ecs/components/qp_game_update_output_component.h"
+#include "engine/window/qp_keyboard.h"
+#include "engine/window/qp_window.h"
 
 #define QP_RUN_GAME_UPDATE_JOB( job ) { job _tempJob; _tempJob.Initialize( m_ecs ); threadPool.QueueJob( [ this, &_tempJob ](){ std::scoped_lock lock( m_ecsLock ); _tempJob.Run(); } ); }
 
@@ -24,9 +26,6 @@ public:
 	
 	struct qpInputComponent {
 		const qpKeyboard * keyboard;
-	};	
-	struct qpTimeComponent {
-		float deltaTime = 0.0f;
 	};
 
 	virtual void OnInit() override {
@@ -34,17 +33,19 @@ public:
 
 		threadPool.Startup( threadPool.MaxWorkers() );
 		
-		// todo: specialized registry in QPEcs for "singleton" components
+		// todo: specialized registry in QPEcs for singletons
 		// world entity for holding global data
 		m_singletonEntity = m_ecs.CreateEntity();
+		m_ecs.AddComponent< qpGameUpdateInputComponent >( m_singletonEntity );
+		m_ecs.AddComponent< qpGameUpdateOutputComponent >( m_singletonEntity );
 		m_ecs.AddComponent< qpInputComponent >( m_singletonEntity ).keyboard = &m_window->GetKeyboard();
-		m_ecs.AddComponent< qpTimeComponent >( m_singletonEntity ).deltaTime = 0.0f;
 
+		m_window->GetHeight();
 		// 
 		QPEcs::Entity cameraEntity = m_ecs.CreateEntity();
 		m_ecs.AddComponent< qpTransformComponent >( cameraEntity );
 		auto & camera = m_ecs.AddComponent< qpCameraComponent >( cameraEntity );
-		camera.m_hfovDeg = 120.0f;
+		camera.m_hfovDeg = 90.0f;
 	}
 	virtual void OnUpdate() override {
 		// todo: something needs to be done to avoid writing to the same data at the same time.
@@ -52,10 +53,9 @@ public:
 		public:
 			virtual void Run() override {
 				// hack: get keyboard from world entity which we know is first
-				auto & singletonView = m_ecs->GetView< qpInputComponent, qpTimeComponent >();
-				auto [ keyboardComponent, timeComponent ] = singletonView.Get( singletonView.GetFirstEntity() );
+				auto & singletonView = m_ecs->GetView< qpGameUpdateInputComponent, qpGameUpdateOutputComponent, qpInputComponent >();
+				auto [ inputComponent, outputComponent, keyboardComponent ] = singletonView.Get( singletonView.GetFirstEntity() );
 				const qpKeyboard * keyboard = keyboardComponent.keyboard;
-				const float deltaTime = timeComponent.deltaTime;
 
 				auto & cameraView = m_ecs->GetView< qpTransformComponent, qpCameraComponent >();
 				for ( const QPEcs::Entity & entity : cameraView ) {
@@ -83,25 +83,41 @@ public:
 					} else if ( keyboard->IsKeyDown( keyboardKeys_t::E ) ) {
 						upDir = 1.0f;
 					}
-					transform.m_translation += transform.m_orientation.Forward() * fwdSpeed * deltaTime * forwardDir;
-					transform.m_translation += transform.m_orientation.Right() * rightSpeed * deltaTime * rightDir;
-					transform.m_translation += g_vec3Up * upSpeed * deltaTime * upDir;
+					transform.m_translation += transform.m_orientation.Forward() * fwdSpeed * inputComponent.m_deltaTime * forwardDir;
+					transform.m_translation += transform.m_orientation.Right() * rightSpeed * inputComponent.m_deltaTime * rightDir;
+					transform.m_translation += g_vec3Up * upSpeed * inputComponent.m_deltaTime * upDir;
 
 					qpDebug::Printf( "Camera Entity %llu. Translation: %.3f %.3f %.3f.\n", entity, transform.m_translation.x, transform.m_translation.y, transform.m_translation.z );
+
+					outputComponent.m_viewProjection = qpPerspectiveProjectionMatrix( camera.m_hfovDeg, inputComponent.m_renderWidth, inputComponent.m_renderHeight, camera.m_nearPlane, camera.m_farPlane );
+					outputComponent.m_viewTranslation = transform.m_translation;
+					outputComponent.m_viewOrientation = transform.m_orientation;
 				}
 			}
 		};
 
-		// Setup Singletons
+		// Setup input
 		{
-			auto & timeView = m_ecs.GetView< qpTimeComponent >();
-			auto & [ deltaTime ] = timeView.Get( m_singletonEntity );
-			deltaTime = m_deltaTime.AsSeconds().GetFloat();
+			auto & inputView = m_ecs.GetView< qpGameUpdateInputComponent >();
+			auto & inputComponent = inputView.Get( m_singletonEntity );
+			// todo: width / height should come from graphics api / swapchain
+			inputComponent.m_renderWidth = m_window->GetClientWidth();
+			inputComponent.m_renderHeight = m_window->GetClientHeight();
+			inputComponent.m_deltaTime = m_deltaTime.AsSeconds().GetFloat();
 		}
 
 		// Game jobs
 		QP_RUN_GAME_UPDATE_JOB( qpCameraGameUpdateJob );
 		threadPool.WaitForIdle();
+
+		// Setup camera from output
+		{
+			auto & outputView = m_ecs.GetView< qpGameUpdateOutputComponent >();
+			const auto & outputComponent = outputView.Get( m_singletonEntity );
+			// todo: width / height should come from graphics api / swapchain
+			qpSetupRenderCamera( m_renderCamera, outputComponent.m_viewTranslation, outputComponent.m_viewOrientation, outputComponent.m_viewProjection );
+		}
+
 		qpDebug::Trace( "OnUpdate" );
 	}
 	virtual void OnCleanup() override {

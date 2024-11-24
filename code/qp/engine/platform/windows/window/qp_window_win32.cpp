@@ -36,6 +36,22 @@ void qpWindow_Win32::OnUpdate() {
 
 	ShowWindow( m_handle, SW_SHOW );
 	UpdateWindow( m_handle );
+	
+	{
+		RECT windowRect {};
+		if ( GetWindowRect( m_handle, &windowRect ) ) {
+			m_width = windowRect.right - windowRect.left;
+			m_height = windowRect.bottom - windowRect.top;
+		}
+	}
+
+	{
+		RECT clientRect {};
+		if ( GetClientRect( m_handle, &clientRect ) ) {
+			m_clientWidth = clientRect.right - clientRect.left;
+			m_clientHeight = clientRect.bottom - clientRect.top;
+		}
+	}
 
 	m_data->m_mouse.Update();
 	m_data->m_keyboard.Update();

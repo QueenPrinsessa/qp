@@ -19,8 +19,10 @@ public:
 
 	virtual void OnUpdate() override;
 
-	virtual int GetWidth() override { return m_width; }
-	virtual int GetHeight() override { return m_height; }
+	virtual int GetWidth() const override { return m_width; }
+	virtual int GetHeight() const override { return m_height; }
+	virtual int GetClientWidth() const override { return m_clientWidth; }
+	virtual int GetClientHeight() const override { return m_clientHeight; }
 	virtual void * GetHandle() const override { return m_handle; }
 	virtual windowMode_t GetWindowMode() const override { return m_windowMode; }
 
@@ -36,6 +38,8 @@ private:
 	HWND m_handle = NULL;
 	int m_width = 1280;
 	int m_height = 720;
+	int m_clientWidth = 1280;
+	int m_clientHeight = 720;
 	windowMode_t m_windowMode = windowMode_t::WINDOWED;
 	static LRESULT CALLBACK WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam );
 };
