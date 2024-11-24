@@ -5,12 +5,11 @@
 #include "qp/common/containers/qp_array_view.h"
 #include "qp/common/containers/qp_list.h"
 #include "qp/common/string/qp_string.h"
-#include <cstddef>
 #include <vulkan/vulkan_core.h>
 #include "qp_graphics_api.h"
 class qpWindow;
 
-class qpVulkan : public qpGraphicsAPI {
+class qpVulkan final : public qpGraphicsAPI {
 public:
 	qpVulkan();
 	virtual ~qpVulkan() override;
