@@ -6,10 +6,10 @@
 #include "qp/common/core/qp_unique_ptr.h"
 #include "qp/engine/window/qp_window_structs.h"
 #include "engine/rendering/qp_graphics_api.h"
-#include "engine/rendering/qp_render_camera.h"
 
 #include "qp/engine/window/qp_window.h"
 
+class qpRenderScene;
 class qpWindow;
 class qpWindowedApp : public qpApp {
 public:
@@ -20,10 +20,10 @@ public:
 protected:
 	qpUniquePtr< qpWindow > m_window;
 	qpUniquePtr< qpGraphicsAPI > m_graphicsAPI;
+	qpUniquePtr< qpRenderScene > m_renderScene;
 	windowProperties_t m_windowProperties;
 	qpTimePoint m_beginFrameTime = g_timePointInvalid;
 	qpTimePoint m_deltaTime = g_timePointInvalid;
-	renderCamera_t m_renderCamera;
 private:
 	virtual void OnBeginFrame() override;
 	virtual void OnEndFrame() override;

@@ -15,6 +15,8 @@
 #include "ecs/components/qp_game_update_output_component.h"
 #include "engine/window/qp_keyboard.h"
 #include "engine/window/qp_window.h"
+#include "engine/rendering/qp_render_camera.h"
+#include <engine/rendering/qp_render_scene.h>
 
 #define QP_RUN_GAME_UPDATE_JOB( job ) { job _tempJob; _tempJob.Initialize( m_ecs ); threadPool.QueueJob( [ this, &_tempJob ](){ std::scoped_lock lock( m_ecsLock ); _tempJob.Run(); } ); }
 
@@ -131,7 +133,9 @@ private:
 			auto & outputView = m_ecs.GetView< qpGameUpdateOutputComponent >();
 			const auto & outputComponent = outputView.Get( m_singletonEntity );
 			// todo: width / height should come from graphics api / swapchain
-			qpSetupRenderCamera( m_renderCamera, outputComponent.m_viewTranslation, outputComponent.m_viewOrientation, outputComponent.m_viewProjection );
+			renderCamera_t renderCamera;
+			qpSetupRenderCamera( renderCamera, outputComponent.m_viewTranslation, outputComponent.m_viewOrientation, outputComponent.m_viewProjection );
+			m_renderScene->SetRenderCamera( renderCamera );
 		}
 	}
 

@@ -1,5 +1,6 @@
 ﻿#include "engine.pch.h"
 #include "common/time/qp_clock.h"
+#include "engine/rendering/qp_render_scene.h"
 
 #if !defined( QP_HEADLESS )
 
@@ -41,9 +42,11 @@ void qpWindowedApp::OnInit() {
 
 	m_graphicsAPI->Init( m_window.Raw() );
 
+	m_renderScene = qpCreateUnique< qpRenderScene >();
+
 	// initializing to NaN for error checking.
-	m_renderCamera.projection = g_mat4NaN;
-	m_renderCamera.view = g_mat4NaN;
+	renderCamera_t camera { g_mat4NaN, g_mat4NaN };
+	m_renderScene->SetRenderCamera( camera );
 }
 
 void qpWindowedApp::OnBeginFrame () {
@@ -53,9 +56,10 @@ void qpWindowedApp::OnBeginFrame () {
 }
 
 void qpWindowedApp::OnEndFrame () {
-	QP_ASSERT_RELEASE_MSG( m_renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
-	QP_ASSERT_RELEASE_MSG( m_renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
-	m_graphicsAPI->DrawFrame( m_renderCamera );
+	const renderCamera_t & renderCamera = m_renderScene->GetRenderCamera();
+	QP_ASSERT_RELEASE_MSG( renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+	QP_ASSERT_RELEASE_MSG( renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+	m_graphicsAPI->DrawFrame( renderCamera );
 	m_window->OnUpdate();
 
 }
