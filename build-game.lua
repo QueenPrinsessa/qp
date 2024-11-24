@@ -48,10 +48,3 @@ filter { "platforms:*_vulkan_*" }
     links {
         libs["vulkan"]
     }
-
-filter { "platforms:*_d3d11_*" }
-    links {
-        "d3d11.lib",
-        "dxgi.lib",
-        "d3dcompiler.lib"
-    }

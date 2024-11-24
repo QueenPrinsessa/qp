@@ -3,9 +3,7 @@
 
 #if !defined( QP_HEADLESS )
 
-#if defined( QP_D3D11 )
-#include "engine/rendering/qp_d3d11.h"
-#elif defined( QP_VULKAN )
+#if defined( QP_VULKAN )
 #include "engine/rendering/qp_vulkan.h"
 #else
 #error "Rendering include missing for graphics api!"
@@ -37,9 +35,7 @@ void qpWindowedApp::OnInit() {
 		m_graphicsAPI->RequestFramebufferResize();
 	} );
 
-#if defined( QP_D3D11 )
-	m_graphicsAPI = qpCreateUnique< qpD3D11 >();
-#elif defined( QP_VULKAN )
+#if defined( QP_VULKAN )
 	m_graphicsAPI = qpCreateUnique< qpVulkan >();
 #endif
 

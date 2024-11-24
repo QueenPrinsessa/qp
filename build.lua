@@ -13,8 +13,6 @@ workspace "qp"
     --dev builds: platform_graphics_dev_architecture
     --builds: platform_graphics_architectures
     platforms {
-        "windows_d3d11_dev_x64",
-        "windows_d3d11_x64",
         "windows_vulkan_dev_x64",
         "windows_vulkan_x64",
         "windows_headless_dev_x64",
@@ -75,10 +73,6 @@ workspace "qp"
     filter { "platforms:*_dev_*" }
         defines {
             "QP_DEV"
-        }
-    filter { "platforms:*_d3d11_*" }
-        defines {
-            "QP_D3D11"
         }
     filter { "platforms:*_vulkan_*" }
         defines {
