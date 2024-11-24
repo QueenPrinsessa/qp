@@ -48,18 +48,40 @@ public:
 		camera.m_hfovDeg = 90.0f;
 	}
 	virtual void OnUpdate() override {
+		SetupGameUpdate();
+		RunGameUpdateJobs();
+		EndGameUpdate();
+	}
+	virtual void OnCleanup() override {
+		threadPool.Shutdown();
+		qpWindowedApp::OnCleanup();
+	}
+
+private:
+	void SetupGameUpdate() {
+		// Setup input
+		{
+			auto & inputView = m_ecs.GetView< qpGameUpdateInputComponent >();
+			auto & inputComponent = inputView.Get( m_singletonEntity );
+			// todo: width / height should come from graphics api / swapchain
+			inputComponent.m_renderWidth = m_window->GetClientWidth();
+			inputComponent.m_renderHeight = m_window->GetClientHeight();
+			inputComponent.m_deltaTime = m_deltaTime.AsSeconds().GetFloat();
+		}
+	}
+	void RunGameUpdateJobs() {
 		// todo: something needs to be done to avoid writing to the same data at the same time.
 		class qpCameraGameUpdateJob : public qpGameUpdateJob {
 		public:
 			virtual void Run() override {
 				// hack: get keyboard from world entity which we know is first
 				auto & singletonView = m_ecs->GetView< qpGameUpdateInputComponent, qpGameUpdateOutputComponent, qpInputComponent >();
-				auto [ inputComponent, outputComponent, keyboardComponent ] = singletonView.Get( singletonView.GetFirstEntity() );
+				auto [inputComponent, outputComponent, keyboardComponent] = singletonView.Get( singletonView.GetFirstEntity() );
 				const qpKeyboard * keyboard = keyboardComponent.keyboard;
 
 				auto & cameraView = m_ecs->GetView< qpTransformComponent, qpCameraComponent >();
 				for ( const QPEcs::Entity & entity : cameraView ) {
-					auto [ transform, camera ] = cameraView.Get( entity );
+					auto [transform, camera] = cameraView.Get( entity );
 
 					const float fwdSpeed = 100.0f;
 					const float rightSpeed = 100.0f;
@@ -87,7 +109,10 @@ public:
 					transform.m_translation += transform.m_orientation.Right() * rightSpeed * inputComponent.m_deltaTime * rightDir;
 					transform.m_translation += g_vec3Up * upSpeed * inputComponent.m_deltaTime * upDir;
 
-					qpDebug::Printf( "Camera Entity %llu. Translation: %.3f %.3f %.3f.\n", entity, transform.m_translation.x, transform.m_translation.y, transform.m_translation.z );
+					const bool debugPrints = false;
+					if ( debugPrints ) {
+						qpDebug::Printf( "Camera Entity %llu. Translation: %.3f %.3f %.3f.\n", entity, transform.m_translation.x, transform.m_translation.y, transform.m_translation.z );
+					}
 
 					outputComponent.m_viewProjection = qpPerspectiveProjectionMatrix( camera.m_hfovDeg, inputComponent.m_renderWidth, inputComponent.m_renderHeight, camera.m_nearPlane, camera.m_farPlane );
 					outputComponent.m_viewTranslation = transform.m_translation;
@@ -96,20 +121,11 @@ public:
 			}
 		};
 
-		// Setup input
-		{
-			auto & inputView = m_ecs.GetView< qpGameUpdateInputComponent >();
-			auto & inputComponent = inputView.Get( m_singletonEntity );
-			// todo: width / height should come from graphics api / swapchain
-			inputComponent.m_renderWidth = m_window->GetClientWidth();
-			inputComponent.m_renderHeight = m_window->GetClientHeight();
-			inputComponent.m_deltaTime = m_deltaTime.AsSeconds().GetFloat();
-		}
-
 		// Game jobs
 		QP_RUN_GAME_UPDATE_JOB( qpCameraGameUpdateJob );
 		threadPool.WaitForIdle();
-
+	}
+	void EndGameUpdate() {
 		// Setup camera from output
 		{
 			auto & outputView = m_ecs.GetView< qpGameUpdateOutputComponent >();
@@ -117,15 +133,8 @@ public:
 			// todo: width / height should come from graphics api / swapchain
 			qpSetupRenderCamera( m_renderCamera, outputComponent.m_viewTranslation, outputComponent.m_viewOrientation, outputComponent.m_viewProjection );
 		}
-
-		qpDebug::Trace( "OnUpdate" );
-	}
-	virtual void OnCleanup() override {
-		threadPool.Shutdown();
-		qpWindowedApp::OnCleanup();
 	}
 
-private:
 	qpThreadPool threadPool;
 	std::mutex m_ecsLock; // todo: remove once we can schedule multiple jobs and ensure the same component is not written to at the same time.
 	QPEcs::Entity m_singletonEntity = QPEcs::NullEntity;
