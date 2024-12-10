@@ -8,7 +8,15 @@
 
 #include "qp/common/platform/windows/qp_windows.h"
 
+qpMouse_Win32::qpMouse_Win32 ( HWND windowHandle ) 
+	: m_mouseCursor( windowHandle ){
+}
+
 bool qpMouse_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
+	if ( m_mouseCursor.ProcessWindowEvent( msg, wparam, lparam ) ) {
+		return true;
+	}
+
 	 switch ( msg ) {
 	 	case WM_LBUTTONUP: {
 			m_workingState.ClearBit( mouseButton_t::LBUTTON );
@@ -52,10 +60,20 @@ bool qpMouse_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam )
 			}
 			return true;
 		}
-	 	default: {
-			return false;
-	 	}
+		case WM_MOUSEWHEEL: {
+			float wheelDelta = static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA );
+			m_workingScrollValue.y += wheelDelta;
+			return true;
+		}
+
+		case WM_MOUSEHWHEEL: {
+			float wheelDelta = static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA );
+			m_workingScrollValue.x += wheelDelta;
+			return true;
+		}
 	 }
+
+	 return false;
 }
 #endif
 

@@ -432,3 +432,6 @@ using qpQuatd = qpQuaternion< double >;
 
 
 static const qpQuat g_quatIdentity { 0.0f, 0.0f, 0.0f, 1.0f };
+static const qpQuat g_quatUp { g_vec3Up, 1.0f };
+static const qpQuat g_quatForward { g_vec3Forward, 1.0f };
+static const qpQuat g_quatRight { g_vec3Right, 1.0f };

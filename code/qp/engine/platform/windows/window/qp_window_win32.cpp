@@ -10,13 +10,13 @@
 #include "qp/common/platform/windows/qp_windows.h"
 
 struct windowWin32Data_t {
+	windowWin32Data_t( HWND windowHandle ) : m_mouse( windowHandle ) {}
 	qpKeyboard_Win32 m_keyboard;
 	qpMouse_Win32 m_mouse;
 	WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };
 };
 
 qpWindow_Win32::qpWindow_Win32( const windowProperties_t & properties ) {
-	m_data = qpCreateUnique< windowWin32Data_t >();
 	Init( properties );
 }
 
@@ -25,6 +25,9 @@ qpWindow_Win32::~qpWindow_Win32() {
 }
 
 void qpWindow_Win32::OnUpdate() {
+	
+	ShowWindow( m_handle, SW_SHOW );
+	UpdateWindow( m_handle );
 
 	MSG msg { };
 	msg.hwnd = NULL;
@@ -34,9 +37,6 @@ void qpWindow_Win32::OnUpdate() {
 		DispatchMessage( &msg );
 	}
 
-	ShowWindow( m_handle, SW_SHOW );
-	UpdateWindow( m_handle );
-	
 	{
 		RECT windowRect {};
 		if ( GetWindowRect( m_handle, &windowRect ) ) {
@@ -54,6 +54,7 @@ void qpWindow_Win32::OnUpdate() {
 	}
 
 	m_data->m_mouse.Update();
+	m_data->m_mouse.m_mouseCursor.Update();
 	m_data->m_keyboard.Update();
 }
 
@@ -66,7 +67,6 @@ const qpKeyboard & qpWindow_Win32::GetKeyboard() const {
 }
 
 void qpWindow_Win32::Init( const windowProperties_t & properties ) {
-	QP_ASSERT( m_data != NULL );
 	const wchar_t * windowClassName = L"qpWindow";
 
 	WNDCLASS windowClass {};
@@ -98,6 +98,7 @@ void qpWindow_Win32::Init( const windowProperties_t & properties ) {
 
 	qpWideString wTitle = qpUTF8ToWide( properties.title );
 	m_handle = CreateWindow( windowClassName, wTitle.c_str(), windowStyle, windowLeft, windowTop, m_width, m_height, NULL, NULL, instanceHandle, this );
+	QP_ASSERT_RELEASE_MSG( m_data != NULL, "data should've been initialized in the create event" );
 
 	SetForegroundWindow( m_handle );
 
@@ -148,6 +149,7 @@ namespace {
 LRESULT CALLBACK qpWindow_Win32::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam ) {
 
 	if ( wndProcWindow ) {
+		QP_ASSERT_RELEASE_MSG( wndProcWindow->m_data != NULL, "data should've been initialized in the create event" );
 		if ( wndProcWindow->m_data->m_mouse.ProcessWindowEvent( msg, wparam, lparam ) ) {
 			return 0;
 		}
@@ -175,14 +177,12 @@ LRESULT CALLBACK qpWindow_Win32::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ 
 			if ( wndProcWindow->m_resizeCallback ) {
 				wndProcWindow->m_resizeCallback( width, height );
 			}
-		}
-		case WM_PAINT: {
-			ValidateRect( handle, NULL );
 			break;
 		}
 		case WM_CREATE: {
 			const CREATESTRUCT * createdStruct = reinterpret_cast< CREATESTRUCT * >( lparam );
 			wndProcWindow = static_cast< qpWindow_Win32 * >( createdStruct->lpCreateParams );
+			wndProcWindow->m_data = qpCreateUnique< windowWin32Data_t >( handle );
 			break;
 		}
 		default: {

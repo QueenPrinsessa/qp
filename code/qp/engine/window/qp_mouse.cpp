@@ -7,6 +7,9 @@
 void qpMouse::Update() {
 	m_lastState = m_state;
 	m_state = m_workingState;
+
+	m_scrollValue = m_workingScrollValue;
+	m_workingScrollValue.Zero();
 }
 
 #endif

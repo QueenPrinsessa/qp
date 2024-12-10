@@ -16,7 +16,8 @@
 #include "engine/window/qp_keyboard.h"
 #include "engine/window/qp_window.h"
 #include "engine/rendering/qp_render_camera.h"
-#include <engine/rendering/qp_render_scene.h>
+#include "engine/rendering/qp_render_scene.h"
+#include "engine/window/qp_mouse.h"
 
 #define QP_RUN_GAME_UPDATE_JOB( job ) { job _tempJob; _tempJob.Initialize( m_ecs ); threadPool.QueueJob( [ this, &_tempJob ](){ std::scoped_lock lock( m_ecsLock ); _tempJob.Run(); } ); }
 
@@ -28,6 +29,7 @@ public:
 	
 	struct qpInputComponent {
 		const qpKeyboard * keyboard;
+		const qpMouse * mouse;
 	};
 
 	virtual void OnInit() override {
@@ -40,7 +42,7 @@ public:
 		m_singletonEntity = m_ecs.CreateEntity();
 		m_ecs.AddComponent< qpGameUpdateInputComponent >( m_singletonEntity );
 		m_ecs.AddComponent< qpGameUpdateOutputComponent >( m_singletonEntity );
-		m_ecs.AddComponent< qpInputComponent >( m_singletonEntity ).keyboard = &m_window->GetKeyboard();
+		m_ecs.AddComponent< qpInputComponent >( m_singletonEntity ) = qpInputComponent { &m_window->GetKeyboard(), &m_window->GetMouse() };
 
 		m_window->GetHeight();
 		// 
@@ -80,6 +82,7 @@ private:
 				auto & singletonView = m_ecs->GetView< qpGameUpdateInputComponent, qpGameUpdateOutputComponent, qpInputComponent >();
 				auto [inputComponent, outputComponent, keyboardComponent] = singletonView.Get( singletonView.GetFirstEntity() );
 				const qpKeyboard * keyboard = keyboardComponent.keyboard;
+				const qpMouse * mouse = keyboardComponent.mouse;
 
 				auto & cameraView = m_ecs->GetView< qpTransformComponent, qpCameraComponent >();
 				for ( const QPEcs::Entity & entity : cameraView ) {
@@ -107,9 +110,16 @@ private:
 					} else if ( keyboard->IsKeyDown( keyboardKeys_t::E ) ) {
 						upDir = 1.0f;
 					}
+
+					qpVec2i mousePositionDelta = mouse->GetMouseCursor().GetPositionDelta();
+					transform.m_rotation.x += static_cast< float >( mousePositionDelta.y ) * 0.1f;
+					transform.m_rotation.y += static_cast< float >( -mousePositionDelta.x ) * 0.1f;
+					transform.m_orientation = qpQuat( transform.m_rotation.x, transform.m_rotation.y, transform.m_rotation.z );
+					
 					transform.m_translation += transform.m_orientation.Forward() * fwdSpeed * inputComponent.m_deltaTime * forwardDir;
 					transform.m_translation += transform.m_orientation.Right() * rightSpeed * inputComponent.m_deltaTime * rightDir;
 					transform.m_translation += g_vec3Up * upSpeed * inputComponent.m_deltaTime * upDir;
+
 
 					const bool debugPrints = false;
 					if ( debugPrints ) {

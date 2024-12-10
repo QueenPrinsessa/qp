@@ -1131,7 +1131,7 @@ void qpVulkan::CreateTextureImage() {
 	}
 
 	//qpFile binFile;
-	//if ( binFile.Open( "generated/user/pals.qpimage", fileAccessMode_t::QP_FILE_READ_WRITE ) ) {
+	//if ( binFile.Open( "generated/user/kat_mip1.qpimage", fileAccessMode_t::QP_FILE_READ_WRITE ) ) {
 	//	qpBinaryWriteSerializer writeSerializer;
 	//	registry.SerializeResource( writeSerializer, katImage );
 	//	binFile.Write( writeSerializer.GetBuffer(), writeSerializer.GetOffset() );
