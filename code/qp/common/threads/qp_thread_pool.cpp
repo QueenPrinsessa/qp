@@ -63,9 +63,7 @@ namespace qp {
 			std::scoped_lock lock( m_jobQueueMutex );
 			m_jobsQueue.Clear();
 		}
-
-		// wake up any waiting threads in case any thread wasn't able to terminate.
-		m_jobDoneConditionVar.notify_all();
+		m_numActiveJobs = 0;
 
 		m_threads.Clear();
 		m_numTotalWorkers = 0;
@@ -78,6 +76,7 @@ namespace qp {
 	void ThreadPool::QueueJob( threadJobFunctor_t && job ) {
 		QP_ASSERT_RELEASE_MSG( m_initialized.load(), "Job was queued before being started." );
 		QP_ASSERT_RELEASE_MSG( !m_shuttingDown.load(), "Job was queued while shutting down." );
+		++m_numActiveJobs;
 		{
 			std::scoped_lock lock( m_jobQueueMutex );
 			m_jobsQueue.Emplace( Move( job ) );
@@ -87,10 +86,8 @@ namespace qp {
 
 	void ThreadPool::WaitForIdle() {
 		QP_ASSERT_RELEASE_MSG( m_initialized.load(), "Waiting for thread pool that hasn't been started." );
-		std::unique_lock lock( m_jobQueueMutex );
-		m_jobDoneConditionVar.wait( lock, [ & ] {
-			return m_jobsQueue.IsEmpty() && m_numIdleWorkers == m_numTotalWorkers || m_shuttingDown.load();
-		} );
+		while ( !m_shuttingDown.load() && m_numActiveJobs.load() != 0u ) {
+		}
 	}
 
 	void ThreadPool::DoWork( const Thread::threadData_t & threadData ) {
@@ -105,7 +102,10 @@ namespace qp {
 				if ( threadData.shouldTerminate.load() ) {
 					break;
 				}
-				--m_numIdleWorkers;
+			}
+			--m_numIdleWorkers;
+			{
+				std::scoped_lock lock( m_jobQueueMutex );
 				if ( !QP_VERIFY_MSG( m_jobsQueue.Pop( job ), "Thread woke up to empty queue." ) ) {
 					++m_numIdleWorkers;
 					continue;
@@ -117,8 +117,8 @@ namespace qp {
 				QP_ASSERT_RELEASE_MSG( threadData.shouldTerminate.load(), "Threads should've been asked to terminate before the thread pool was shutdown." );
 				break;
 			}
+			--m_numActiveJobs;
 			++m_numIdleWorkers;
-			m_jobDoneConditionVar.notify_all();
 		}
 	}
 }

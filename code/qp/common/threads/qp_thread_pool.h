@@ -25,9 +25,9 @@ namespace qp {
 		Queue< threadJobFunctor_t > m_jobsQueue;
 		std::mutex m_jobQueueMutex;
 		std::condition_variable m_jobConditionVar;
-		std::condition_variable m_jobDoneConditionVar;
 		uint32_t m_numTotalWorkers = 0;
 		atomicUInt32_t m_numIdleWorkers = 0;
+		atomicUInt32_t m_numActiveJobs = 0;
 		atomicUInt32_t m_version = 0;
 		atomicBool_t m_initialized = false;
 		atomicBool_t m_shuttingDown = false;
