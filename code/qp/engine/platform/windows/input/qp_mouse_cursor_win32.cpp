@@ -12,13 +12,13 @@ void qpMouseCursor_Win32::Update() {
 
 	qpVec2i nextPosition = m_position;
 
-	// only control visibility when the window is focused
 	if ( isFocused ) {
 		POINT cursorPos;
 		GetCursorPos( &cursorPos );
 		ScreenToClient( m_windowHandle, &cursorPos );
 		nextPosition = { cursorPos.x, cursorPos.y };
 
+		// todo: get the raw delta using rawinput.
 		if ( m_lockToCenter ) {
 			RECT rect;
 			GetClientRect( m_windowHandle, &rect );
@@ -29,28 +29,26 @@ void qpMouseCursor_Win32::Update() {
 			ClientToScreen( m_windowHandle, &center );
 			SetCursorPos( center.x, center.y );
 			
-			m_positionDelta = nextPosition - m_previousPosition;
+			m_positionDelta = m_previousPosition - nextPosition;
 			m_position = m_previousPosition;
 
-			while ( IsVisible() ) {
-				Hide();
-			}
+			ForceHide();
 		}
+	} else {
+		ForceShow();
+	}
 
-		if ( IsVisible() ) {
-			while ( ::ShowCursor( TRUE ) < 0 ) {}
-		} else {
-			while ( ::ShowCursor( FALSE ) >= 0 ) {}
-		}
+	if ( IsVisible() ) {
+		while ( ::ShowCursor( TRUE ) < 0 ) {}
+	} else {
+		while ( ::ShowCursor( FALSE ) >= 0 ) {}
 	}
 	
 	if ( !m_lockToCenter || !isFocused ) {
 		m_previousPosition = m_position;
 		m_position = nextPosition;
-		m_positionDelta = m_position - m_previousPosition;
+		m_positionDelta = m_previousPosition - m_position;
 	}
-
-	m_positionDelta = -m_positionDelta;
 	
 	// just regained focus, reset delta so we don't get a large jump
 	const bool swallowPositionDelta = !m_isFocused && isFocused;
@@ -59,7 +57,6 @@ void qpMouseCursor_Win32::Update() {
 	}
 	
 	m_isFocused = isFocused;
-	// todo: get the raw delta using rawinput.
 }
 
 bool qpMouseCursor_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {

@@ -11,6 +11,8 @@ public:
 
 	bool Show() { return ++m_displayCursor; }
 	bool Hide() { return --m_displayCursor; }
+	bool ForceHide() { return m_displayCursor = -1; }
+	bool ForceShow() { return m_displayCursor = 0; }
 
 	bool IsVisible() const { return m_displayCursor >= 0; }
 protected:
