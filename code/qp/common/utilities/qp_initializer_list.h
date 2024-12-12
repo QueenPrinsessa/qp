@@ -2,5 +2,7 @@
 
 #include <initializer_list>
 
-template < typename _type_ >
-using qpInitializerList = std::initializer_list< _type_ >;
+namespace qp {
+	template < typename _type_ >
+	using InitializerList = std::initializer_list< _type_ >;
+}

@@ -1,7 +1,9 @@
 #pragma once
 
-class qpJob {
-public:
-	virtual ~qpJob() = default;
-	virtual void Run() = 0;
-};
+namespace qp {
+	class Job {
+	public:
+		virtual ~Job() = default;
+		virtual void Run() = 0;
+	};
+}

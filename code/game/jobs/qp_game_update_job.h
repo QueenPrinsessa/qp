@@ -1,7 +1,11 @@
 #pragma once
 #include "qp_ecs_job.h"
 
-class qpGameUpdateJob : public qpECSJob {
-public:
-	virtual void Run() override = 0;
-};
+namespace qp {
+	namespace game {
+		class UpdateJob : public ECSJob {
+		public:
+			virtual void Run() override = 0;
+		};
+	}
+}

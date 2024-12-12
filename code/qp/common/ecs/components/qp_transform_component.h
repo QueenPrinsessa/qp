@@ -1,9 +1,11 @@
 #pragma once
 #include "common/math/qp_quat.h"
 
-class qpTransformComponent {
-public:
-	qpVec3 m_translation	= g_vec3Zero;
-	qpVec3 m_rotation		= g_vec3Zero;
-	qpQuat m_orientation	= g_quatIdentity;
-};
+namespace qp {
+	class TransformComponent {
+	public:
+		Vec3 m_translation = g_vec3Zero;
+		Vec3 m_rotation = g_vec3Zero;
+		Quat m_orientation = g_quatIdentity;
+	};
+}

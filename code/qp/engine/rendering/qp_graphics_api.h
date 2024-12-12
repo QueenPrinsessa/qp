@@ -2,21 +2,22 @@
 
 #if !defined( QP_HEADLESS )
 
-struct renderCamera_t;
-class qpWindow;
+namespace qp {
+	struct renderCamera_t;
+	class Window;
 
-class qpGraphicsAPI {
-public:
-	qpGraphicsAPI() = default;
-	virtual ~qpGraphicsAPI() = default;
+	class GraphicsAPI {
+	public:
+		GraphicsAPI() = default;
+		virtual ~GraphicsAPI() = default;
 
-	virtual void Init( const qpWindow * window ) = 0;
-	virtual void DrawFrame( const renderCamera_t & renderCamera ) = 0;
-	virtual void Cleanup() = 0;
+		virtual void Init( const Window * window ) = 0;
+		virtual void DrawFrame( const renderCamera_t & renderCamera ) = 0;
+		virtual void Cleanup() = 0;
 
-	void RequestFramebufferResize();
-protected:
-	bool m_frameBufferResized = false;
-};
-
+		void RequestFramebufferResize();
+	protected:
+		bool m_frameBufferResized = false;
+	};
+}
 #endif

@@ -2,12 +2,14 @@
 #include "common/math/qp_mat.h"
 #include "common/math/qp_quat.h"
 
-struct renderCamera_t {
-	qpMat4 view = g_mat4Identity;
-	qpMat4 projection = g_mat4Identity;
-};
+namespace qp {
+	struct renderCamera_t {
+		Mat4 view = g_mat4Identity;
+		Mat4 projection = g_mat4Identity;
+	};
 
-static void qpSetupRenderCamera( renderCamera_t & outRenderCamera, const qpVec3 & translation, const qpQuat & orientation, const qpMat4 & projection ) {
-	outRenderCamera.view = qpRotationAndTranslationInverse( orientation.ToMat4() * qpCreateTranslation( translation ) ).Transposed();
-	outRenderCamera.projection = projection.Transposed();
+	static void SetupRenderCamera( renderCamera_t & outRenderCamera, const Vec3 & translation, const Quat & orientation, const Mat4 & projection ) {
+		outRenderCamera.view = RotationAndTranslationInverse( orientation.ToMat4() * CreateTranslation( translation ) ).Transposed();
+		outRenderCamera.projection = projection.Transposed();
+	}
 }

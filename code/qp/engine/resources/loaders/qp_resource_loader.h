@@ -1,24 +1,26 @@
 #pragma once
 #include "qp/common/filesystem/qp_file.h"
 
-class qpResource;
+namespace qp {
+	class Resource;
 
-class qpResourceLoader {
-public:
-	virtual ~qpResourceLoader() = default;
+	class ResourceLoader {
+	public:
+		virtual ~ResourceLoader() = default;
 
-	qpResource * LoadResource( const qpFilePath & filePath );
-	qpResource * LoadResourceFromFile( const qpFile & file );
+		Resource * LoadResource( const FilePath & filePath );
+		Resource * LoadResourceFromFile( const File & file );
 
-	bool HasError() const { return !m_lastError.IsEmpty(); }
-	const qpString & GetLastError() const { return m_lastError; }
+		bool HasError() const { return !m_lastError.IsEmpty(); }
+		const String & GetLastError() const { return m_lastError; }
 
-protected:
-	virtual qpResource * LoadResource_Internal( const qpFile & file ) = 0; // file is guaranteed to be opened here
-	void SetLastError( const qpString & err ) { m_lastError = err; }
-	void DeserializeResourceFromFile( const qpFile & file, qpResource * resource );
-private:
-	qpString m_lastError;
+	protected:
+		virtual Resource * LoadResource_Internal( const File & file ) = 0; // file is guaranteed to be opened here
+		void SetLastError( const String & err ) { m_lastError = err; }
+		void DeserializeResourceFromFile( const File & file, Resource * resource );
+	private:
+		String m_lastError;
 
-	void MakeResourceDefault( qpResource * resource );
-};
+		void MakeResourceDefault( Resource * resource );
+	};
+}

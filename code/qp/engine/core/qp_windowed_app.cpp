@@ -18,55 +18,56 @@
 #error "Window include not added for platform!"
 #endif
 
-qpWindowedApp::qpWindowedApp( const windowProperties_t & windowProperties ) {
-	m_windowProperties = windowProperties;
-}
+namespace qp {
+	WindowedApp::WindowedApp( const windowProperties_t & windowProperties ) {
+		m_windowProperties = windowProperties;
+	}
 
-void qpWindowedApp::OnInit() {
+	void WindowedApp::OnInit() {
 #if defined( QP_PLATFORM_WINDOWS )
-	m_window = qpCreateUnique< qpWindow_Win32 >( m_windowProperties );
+		m_window = CreateUnique< Window_Win32 >( m_windowProperties );
 #else
 #error "Window creation not setup for platform!"
 #endif
-	m_window->SetDestroyCallback( [ & ] () {
-		RequestShutdown();
-	} );
-	m_window->SetResizeCallback( [ & ] ( int width, int height ) {
-		qpDebug::Info( "Window resized to ( w:%d , h:%d ).", width, height );
-		m_graphicsAPI->RequestFramebufferResize();
-	} );
+		m_window->SetDestroyCallback( [ & ]() {
+			RequestShutdown();
+		} );
+		m_window->SetResizeCallback( [ & ]( int width, int height ) {
+			debug::Info( "Window resized to ( w:%d , h:%d ).", width, height );
+			m_graphicsAPI->RequestFramebufferResize();
+		} );
 
 #if defined( QP_VULKAN )
-	m_graphicsAPI = qpCreateUnique< qpVulkan >();
+		m_graphicsAPI = CreateUnique< Vulkan >();
 #endif
 
-	m_graphicsAPI->Init( m_window.Raw() );
+		m_graphicsAPI->Init( m_window.Raw() );
 
-	m_renderScene = qpCreateUnique< qpRenderScene >();
+		m_renderScene = CreateUnique< RenderScene >();
 
-	// initializing to NaN for error checking.
-	renderCamera_t camera { g_mat4NaN, g_mat4NaN };
-	m_renderScene->SetRenderCamera( camera );
+		// initializing to NaN for error checking.
+		renderCamera_t camera { g_mat4NaN, g_mat4NaN };
+		m_renderScene->SetRenderCamera( camera );
+	}
+
+	void WindowedApp::OnBeginFrame() {
+		TimePoint currentTime = Clock::Now();
+		m_deltaTime = ( currentTime - m_beginFrameTime );
+		m_beginFrameTime = currentTime;
+	}
+
+	void WindowedApp::OnEndFrame() {
+		const renderCamera_t & renderCamera = m_renderScene->GetRenderCamera();
+		QP_ASSERT_RELEASE_MSG( renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+		QP_ASSERT_RELEASE_MSG( renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
+		m_graphicsAPI->DrawFrame( renderCamera );
+		m_window->OnUpdate();
+
+	}
+
+	void WindowedApp::OnCleanup() {
+		m_graphicsAPI.Reset();
+		m_window.Reset();
+	}
 }
-
-void qpWindowedApp::OnBeginFrame () {
-	qpTimePoint currentTime = qpClock::Now();
-	m_deltaTime = ( currentTime - m_beginFrameTime );
-	m_beginFrameTime = currentTime;
-}
-
-void qpWindowedApp::OnEndFrame () {
-	const renderCamera_t & renderCamera = m_renderScene->GetRenderCamera();
-	QP_ASSERT_RELEASE_MSG( renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
-	QP_ASSERT_RELEASE_MSG( renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
-	m_graphicsAPI->DrawFrame( renderCamera );
-	m_window->OnUpdate();
-
-}
-
-void qpWindowedApp::OnCleanup() {
-	m_graphicsAPI.Reset();
-	m_window.Reset();
-}
-
 #endif 

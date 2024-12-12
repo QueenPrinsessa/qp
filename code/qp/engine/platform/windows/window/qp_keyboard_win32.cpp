@@ -6,7 +6,7 @@
 
 #include "qp_keyboard_win32.h"
 
-namespace {
+namespace qp {
 	constexpr keyboardKeys_t qpFromVirtualKey( const WPARAM key ) {
 		switch ( key ) {
 			case VK_BACK: return keyboardKeys_t::BACKSPACE;
@@ -127,30 +127,31 @@ namespace {
 
 #include "qp/common/platform/windows/qp_windows.h"
 
-bool qpKeyboard_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
-	switch( msg ) {
-		case WM_KEYUP: {
-			keyboardKeys_t key = qpFromVirtualKey( wparam );
-			if ( key != keyboardKeys_t::INVALID ) {
-				m_workingState.ClearBit( key );
-				return true;
+namespace qp {
+	bool Keyboard_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
+		switch ( msg ) {
+			case WM_KEYUP: {
+				keyboardKeys_t key = qpFromVirtualKey( wparam );
+				if ( key != keyboardKeys_t::INVALID ) {
+					m_workingState.ClearBit( key );
+					return true;
+				}
+				return false;
 			}
-			return false;
-		}
-		case WM_KEYDOWN: {
-			keyboardKeys_t key = qpFromVirtualKey( wparam );
-			if ( key != keyboardKeys_t::INVALID ) {
-				m_workingState.SetBit( key );
-				return true;
+			case WM_KEYDOWN: {
+				keyboardKeys_t key = qpFromVirtualKey( wparam );
+				if ( key != keyboardKeys_t::INVALID ) {
+					m_workingState.SetBit( key );
+					return true;
+				}
+				return false;
 			}
-			return false;
-		}
-		default: {
-			return false;
+			default: {
+				return false;
+			}
 		}
 	}
 }
-
 #endif
 
 #endif

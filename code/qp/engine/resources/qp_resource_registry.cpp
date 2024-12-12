@@ -4,86 +4,86 @@
 #include "loaders/qp_tga_loader.h"
 #include "qp/common/string/qp_string_util.h"
 
-namespace {
-	qpResourceLoader & GetResourceLoaderForPath( const qpFilePath & filePath ) {
-		static qpImageLoader imageLoader;
+namespace qp {
+	ResourceLoader & GetResourceLoaderForPath( const FilePath & filePath ) {
+		static ImageLoader imageLoader;
 		return imageLoader;
 	}
-}
-
-qpResourceRegistry::~qpResourceRegistry() {
-	for ( resourceEntry_t & entry : m_resourceEntries ) {
-		ClearEntry( entry );
+	
+	ResourceRegistry::~ResourceRegistry() {
+		for ( resourceEntry_t & entry : m_resourceEntries ) {
+			ClearEntry( entry );
+		}
 	}
-}
 
-const qpResource * qpResourceRegistry::LoadResource( const qpFilePath & filePath, const returnDefault_t defaultResource ) {
-	m_lastError.Clear();
+	const Resource * ResourceRegistry::LoadResource( const FilePath & filePath, const returnDefault_t defaultResource ) {
+		m_lastError.Clear();
 
-	if ( filePath.IsEmpty() ) {
-		m_lastError = "Filepath can't be empty when loading resource";
-		qpDebug::Error( "qpResourceRegistry: %s!", m_lastError.c_str() );
-		return NULL;
-	}
-	qpResourceLoader & resourceLoader = GetResourceLoaderForPath( filePath );
-
-	qpResource * resource = FindMutable( filePath.c_str() );
-	if ( resource != NULL ) {
-		return resource;
-	}
-	resource = resourceLoader.LoadResource( filePath );
-	resourceEntry_t entry;
-	entry.resource = resource;
-	entry.name = qpStringUtil::Duplicate( filePath.c_str() );
-	CacheResource( entry );
-	if ( resourceLoader.HasError() ) {
-		qpDebug::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
-		m_lastError = resourceLoader.GetLastError();
-		if ( defaultResource == returnDefault_t::RETURN_NULL ) {
+		if ( filePath.IsEmpty() ) {
+			m_lastError = "Filepath can't be empty when loading resource";
+			debug::Error( "qpResourceRegistry: %s!", m_lastError.c_str() );
 			return NULL;
 		}
-	}
+		ResourceLoader & resourceLoader = GetResourceLoaderForPath( filePath );
 
-	return resource;
-}
-
-bool qpResourceRegistry::SerializeResource( qpBinarySerializer & serializer, const qpResource * resource ) {
-	int entryIndex = FindEntryIndexForResource( resource );
-	QP_ASSERT( entryIndex != -1 );
-	resourceEntry_t & entry = m_resourceEntries[ entryIndex ];
-	return entry.resource->Serialize( serializer );
-}
-
-const qpResource * qpResourceRegistry::Find( const char * resourceName ) const {
-	return FindMutable( resourceName );
-}
-
-qpResource * qpResourceRegistry::FindMutable( const char * resourceName ) const {
-	for ( resourceEntry_t & entry : m_resourceEntries ) {
-		if ( qpStrIcmp( entry.name, resourceName ) ) {
-			return entry.resource;
+		Resource * resource = FindMutable( filePath.c_str() );
+		if ( resource != NULL ) {
+			return resource;
 		}
-	}
-	return NULL;
-}
-
-int qpResourceRegistry::FindEntryIndexForResource( const qpResource * resource ) const {
-	for ( uint64 entryIndex = 0; entryIndex < m_resourceEntries.Length(); ++entryIndex ) {
-		const resourceEntry_t & entry = m_resourceEntries[ static_cast< int >( entryIndex ) ];
-		if ( entry.resource == resource ) {
-			return qpVerifyStaticCast< int >( entryIndex );
+		resource = resourceLoader.LoadResource( filePath );
+		resourceEntry_t entry;
+		entry.resource = resource;
+		entry.name = string_util::Duplicate( filePath.c_str() );
+		CacheResource( entry );
+		if ( resourceLoader.HasError() ) {
+			debug::Error( R"(qpResourceRegistry: Resource "%s" has error: "%s")", filePath.c_str(), resourceLoader.GetLastError().c_str() );
+			m_lastError = resourceLoader.GetLastError();
+			if ( defaultResource == returnDefault_t::RETURN_NULL ) {
+				return NULL;
+			}
 		}
+
+		return resource;
 	}
-	return -1;
-}
 
-void qpResourceRegistry::CacheResource( const resourceEntry_t & entry ) {
-	QP_ASSERT( Find( entry.name ) == NULL );
-	m_resourceEntries.Push( entry );
-}
+	bool ResourceRegistry::SerializeResource( BinarySerializer & serializer, const Resource * resource ) {
+		int entryIndex = FindEntryIndexForResource( resource );
+		QP_ASSERT( entryIndex != -1 );
+		resourceEntry_t & entry = m_resourceEntries[ entryIndex ];
+		return entry.resource->Serialize( serializer );
+	}
 
-void qpResourceRegistry::ClearEntry( resourceEntry_t & entry ) {
-	delete entry.resource;
-	qpStringUtil::Free( entry.name );
-	entry = resourceEntry_t();
+	const Resource * ResourceRegistry::Find( const char * resourceName ) const {
+		return FindMutable( resourceName );
+	}
+
+	Resource * ResourceRegistry::FindMutable( const char * resourceName ) const {
+		for ( resourceEntry_t & entry : m_resourceEntries ) {
+			if ( StrIcmp( entry.name, resourceName ) ) {
+				return entry.resource;
+			}
+		}
+		return NULL;
+	}
+
+	int ResourceRegistry::FindEntryIndexForResource( const Resource * resource ) const {
+		for ( uint64 entryIndex = 0; entryIndex < m_resourceEntries.Length(); ++entryIndex ) {
+			const resourceEntry_t & entry = m_resourceEntries[ static_cast< int >( entryIndex ) ];
+			if ( entry.resource == resource ) {
+				return VerifyStaticCast< int >( entryIndex );
+			}
+		}
+		return -1;
+	}
+
+	void ResourceRegistry::CacheResource( const resourceEntry_t & entry ) {
+		QP_ASSERT( Find( entry.name ) == NULL );
+		m_resourceEntries.Push( entry );
+	}
+
+	void ResourceRegistry::ClearEntry( resourceEntry_t & entry ) {
+		delete entry.resource;
+		string_util::Free( entry.name );
+		entry = resourceEntry_t();
+	}
 }

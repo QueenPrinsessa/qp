@@ -1,9 +1,11 @@
 #pragma once
 #include "qp_resource_loader.h"
 
-class qpImageLoader : public qpResourceLoader {
-protected:
-	virtual qpResource * LoadResource_Internal( const qpFile & file ) override;
-private:
-	qpResourceLoader * GetImageLoaderFromExtension( const qpFilePath::stringType_t & ext );
-};
+namespace qp {
+	class ImageLoader : public ResourceLoader {
+	protected:
+		virtual Resource * LoadResource_Internal( const File & file ) override;
+	private:
+		ResourceLoader * GetImageLoaderFromExtension( const FilePath::stringType_t & ext );
+	};
+}

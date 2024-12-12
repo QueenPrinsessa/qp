@@ -4,10 +4,11 @@
 
 #include "qp/common/math/qp_mat.h"
 
-struct uniformBufferObject_t {
-	qpMat4 model;
-	qpMat4 view;
-	qpMat4 projection;
-};
-
+namespace qp {
+	struct uniformBufferObject_t {
+		Mat4 model;
+		Mat4 view;
+		Mat4 projection;
+	};
+}
 #endif

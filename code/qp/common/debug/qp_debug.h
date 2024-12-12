@@ -15,17 +15,19 @@
 #define QP_COMPILE_TIME_ASSERT_MSG( expression, msg ) static_assert( expression, msg );
 
 #if defined( QP_ASSERTS_ENABLED )
-enum class assertLevel_t : uint8 {
-	DEBUG,
-	RELEASE
-};
-namespace qpDebug {
-	extern bool Assert( const assertLevel_t assertLevel, const char * assertMsg, const char * file, const int line, const char * function );
-	extern void SetAssertLevel( const assertLevel_t assertLevel );
-}
+namespace qp {
+	namespace debug {
+		enum class assertLevel_t : uint8 {
+			DEBUG,
+			RELEASE
+		};
 
-#define QP_ASSERT_IMPL( expression, assertLevel, msg ) ( void )( ( expression ) || qpDebug::Assert( assertLevel_t::assertLevel, msg, __FILE__, __LINE__, __FUNCTION__ ) )
-#define QP_VERIFY_IMPL( expression, assertLevel, msg ) ( ( expression ) || qpDebug::Assert( assertLevel_t::assertLevel, msg, __FILE__, __LINE__, __FUNCTION__ ) && false )
+		extern bool Assert( const assertLevel_t assertLevel, const char * assertMsg, const char * file, const int line, const char *function );
+		extern void SetAssertLevel( const assertLevel_t assertLevel );
+
+
+#define QP_ASSERT_IMPL( expression, assertLevel, msg ) ( void )( ( expression ) || qp::debug::Assert( qp::debug::assertLevel_t::assertLevel, msg, __FILE__, __LINE__, __FUNCTION__ ) )
+#define QP_VERIFY_IMPL( expression, assertLevel, msg ) ( ( expression ) || qp::debug::Assert( qp::debug::assertLevel_t::assertLevel, msg, __FILE__, __LINE__, __FUNCTION__ ) && false )
 #else
 #define QP_ASSERT_IMPL( expression, assertLevel, msg ) ( void )( 0 )
 #define QP_VERIFY_IMPL( expression, assertLevel, msg ) ( expression )
@@ -91,17 +93,16 @@ namespace qpDebug {
 
 #define QP_CONSOLE_DEFAULT_COLOR QP_CONSOLE_BACKGROUND_BLACK QP_CONSOLE_WHITE
 
-namespace qpDebug {
-	enum category_t : uint32 {
-		NONE = 0u,
-		PRINT = QP_BIT( 0u ),
-		TRACE = QP_BIT( 1u ),
-		INFO = QP_BIT( 2u ),
-		WARNING = QP_BIT( 3u ),
-		ERROR = QP_BIT( 4u ),
-		CRITICAL = QP_BIT( 5u ),
-		ALL = ~0u
-	};
+		enum category_t : uint32 {
+			NONE = 0u,
+			PRINT = QP_BIT( 0u ),
+			TRACE = QP_BIT( 1u ),
+			INFO = QP_BIT( 2u ),
+			WARNING = QP_BIT( 3u ),
+			ERROR = QP_BIT( 4u ),
+			CRITICAL = QP_BIT( 5u ),
+			ALL = ~0u
+		};
 
 #if !defined( QP_RETAIL )
 #define QP_DEBUG_PRINTS
@@ -115,54 +116,55 @@ namespace qpDebug {
 #define QP_DEBUG_ERRORS
 #endif
 
-	extern void SetDebugCategories( const uint32 debugCategories );
+		extern void SetDebugCategories( const uint32 debugCategories );
 
-	extern void FlushLogFile();
-	extern void PrintMessage( const char * format, va_list args );
-	extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
-	static void Printf( const char * format, ... ) {
+		extern void FlushLogFile();
+		extern void PrintMessage( const char * format, va_list args );
+		extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
+		static void Printf( const char * format, ... ) {
 #if defined( QP_DEBUG_PRINTS )
-		va_list args;
-		va_start( args, format );
-		PrintMessage( format, args );
-		va_end( args );
+			va_list args;
+			va_start( args, format );
+			PrintMessage( format, args );
+			va_end( args );
 #endif
-	}
-	static void Trace( const char * format, ... ) {
+		}
+		static void Trace( const char * format, ... ) {
 #if defined( QP_DEBUG_TRACES )
-		va_list args;
-		va_start( args, format );
-		PrintMessageEx( stdout, category_t::TRACE, QP_CONSOLE_CYAN, format, args);
-		va_end( args );
+			va_list args;
+			va_start( args, format );
+			PrintMessageEx( stdout, category_t::TRACE, QP_CONSOLE_CYAN, format, args );
+			va_end( args );
 #endif
-	}
-	static void Info( const char * format, ... ) {
+		}
+		static void Info( const char * format, ... ) {
 #if defined( QP_DEBUG_INFOS )
-		va_list args;
-		va_start( args, format );
-		PrintMessageEx( stdout, category_t::INFO, QP_CONSOLE_GREEN, format, args );
-		va_end( args );
+			va_list args;
+			va_start( args, format );
+			PrintMessageEx( stdout, category_t::INFO, QP_CONSOLE_GREEN, format, args );
+			va_end( args );
 #endif
-	}
-	static void Warning( const char * format, ... ) {
+		}
+		static void Warning( const char * format, ... ) {
 #if defined( QP_DEBUG_WARNINGS )
-		va_list args;
-		va_start( args, format );
-		PrintMessageEx( stderr, category_t::WARNING, QP_CONSOLE_BRIGHT_YELLOW, format, args );
-		va_end( args );
+			va_list args;
+			va_start( args, format );
+			PrintMessageEx( stderr, category_t::WARNING, QP_CONSOLE_BRIGHT_YELLOW, format, args );
+			va_end( args );
 #endif
-	}
+		}
 
-	static void Error( const char * format, ... ) {
+		static void Error( const char * format, ... ) {
 #if defined( QP_DEBUG_ERRORS )
-		va_list args;
-		va_start( args, format );
-		PrintMessageEx( stderr, category_t::ERROR, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, args );
-		va_end( args );
+			va_list args;
+			va_start( args, format );
+			PrintMessageEx( stderr, category_t::ERROR, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, args );
+			va_end( args );
 #endif
 
-		Sys_DebugBreak();
-	}
-	
-	extern void CriticalError( const char * format, ... );
-};
+			Sys_DebugBreak();
+		}
+
+		extern void CriticalError( const char * format, ... );
+	};
+}

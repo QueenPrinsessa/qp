@@ -1,9 +1,9 @@
 #pragma once
 
-class qpVulkanUtil {
-public:
-	qpVulkanUtil() = delete;
-	~qpVulkanUtil() = delete;
-
-
-};
+namespace qp {
+	class VulkanUtil {
+	public:
+		VulkanUtil() = delete;
+		~VulkanUtil() = delete;
+	};
+}
