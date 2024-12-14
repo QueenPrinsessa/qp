@@ -2,6 +2,7 @@
 #include "qp_thread.h"
 #include "common/containers/qp_list.h"
 #include "common/containers/qp_queue.h"
+#include <condition_variable>
 #include <mutex>
 
 namespace qp {

@@ -2,7 +2,7 @@
 #include <cstdio>
 
 namespace qp {
-	extern FILE * Sys_GetConsoleOut();
+	extern FILE *	Sys_GetConsoleOut();
 	extern void		Sys_FlushConsole();
 	extern void		Sys_FreeConsole();
 	extern void		Sys_OutputDebugString( const char * fmt, ... );

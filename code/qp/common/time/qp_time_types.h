@@ -1,6 +1,7 @@
 #pragma once
 #include "common/utilities/qp_algorithms.h"
 #include <compare>
+#include <cmath>
 
 namespace qp {
 	using timeTick_t = int64;
@@ -20,8 +21,8 @@ namespace qp {
 			: m_value( other.m_ticks / _ticksPerUnit_ ), m_ticks( other.m_ticks ) {
 		}
 		template < timeTick_t _otherTicksPerUnit_ >
-		TimeType & operator=( const TimeType< _otherTicksPerUnit_ > & other )
-			: m_value( other.m_ticks / _ticksPerUnit_ ), m_ticks( other.m_ticks ) {
+		TimeType & operator=( const TimeType< _otherTicksPerUnit_ > & other ) {
+			*this = other;
 			return *this;
 		}
 		void SetFromTicks( const timeTick_t ticks ) {

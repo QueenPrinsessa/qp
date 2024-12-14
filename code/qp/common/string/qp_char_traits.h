@@ -69,6 +69,24 @@ namespace qp {
 #endif
 	};
 
+	template <>
+	struct CharTraitsBase< wint_t > {
+		static bool IsDigit( const wint_t c ) { return iswdigit( c ); }
+		static bool IsUpper( const wint_t c ) { return iswupper( c ); }
+		static bool IsLower( const wint_t c ) { return iswlower( c ); }
+		static bool IsAlphabetic( const wint_t c ) { return iswalpha( c ); }
+		static bool IsAlphanumeric( const wint_t c ) { return iswalnum( c ); }
+		static wint_t ToLower( const wint_t c ) { return towlower( c ); }
+		enum : wint_t { NIL_CHAR = L'\0' };
+#if defined( QP_PLATFORM_WINDOWS )
+		static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF16;
+#elif defined( QP_PLATFORM_LINUX )
+		static inline const stringEncoding_t DEFAULT_STRING_ENCODING = stringEncoding_t::UTF32;
+#else
+#error "Default string encoding for platform hasn't been setup"
+#endif
+	};
+
 	template < typename _type_ >
 	struct CharTraits : public CharTraitsBase< _type_ > {};
 }

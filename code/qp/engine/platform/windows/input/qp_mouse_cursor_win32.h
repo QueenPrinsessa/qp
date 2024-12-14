@@ -1,6 +1,8 @@
 #pragma once
-#include "qp/engine/input/qp_cursor.h"
 
+#if !defined( QP_HEADLESS )
+
+#include "qp/engine/input/qp_cursor.h"
 #include "qp/common/platform/windows/qp_types_win32.h"
 #include <mutex>
 
@@ -25,3 +27,4 @@ namespace qp {
 		bool m_clippedCursor = false;
 	};
 }
+#endif

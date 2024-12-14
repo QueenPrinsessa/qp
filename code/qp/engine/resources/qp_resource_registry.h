@@ -24,6 +24,7 @@ namespace qp {
 		bool HasResourceError() const { return !m_lastError.IsEmpty(); }
 		const String & GetLastResourceError() const { return m_lastError; }
 	private:
+		enum { INVALID_INDEX = 0xFFFFFFFF };
 		struct resourceEntry_t {
 			Resource * resource = NULL;
 			char * name = NULL;
@@ -32,7 +33,7 @@ namespace qp {
 		String m_lastError;
 
 		Resource * FindMutable( const char * resourceName ) const;
-		int FindEntryIndexForResource( const Resource * resource ) const;
+		uint64 FindEntryIndexForResource( const Resource * resource ) const;
 		void CacheResource( const resourceEntry_t & entry );
 		void ClearEntry( resourceEntry_t & entry );
 	};

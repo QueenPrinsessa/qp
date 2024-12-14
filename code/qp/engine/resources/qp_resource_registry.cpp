@@ -47,7 +47,7 @@ namespace qp {
 	}
 
 	bool ResourceRegistry::SerializeResource( BinarySerializer & serializer, const Resource * resource ) {
-		int entryIndex = FindEntryIndexForResource( resource );
+		uint64 entryIndex = FindEntryIndexForResource( resource );
 		QP_ASSERT( entryIndex != -1 );
 		resourceEntry_t & entry = m_resourceEntries[ entryIndex ];
 		return entry.resource->Serialize( serializer );
@@ -66,14 +66,14 @@ namespace qp {
 		return NULL;
 	}
 
-	int ResourceRegistry::FindEntryIndexForResource( const Resource * resource ) const {
+	uint64 ResourceRegistry::FindEntryIndexForResource( const Resource * resource ) const {
 		for ( uint64 entryIndex = 0; entryIndex < m_resourceEntries.Length(); ++entryIndex ) {
-			const resourceEntry_t & entry = m_resourceEntries[ static_cast< int >( entryIndex ) ];
+			const resourceEntry_t & entry = m_resourceEntries[ entryIndex ];
 			if ( entry.resource == resource ) {
-				return VerifyStaticCast< int >( entryIndex );
+				return entryIndex;
 			}
 		}
-		return -1;
+		return 0xFFFFFFFF;
 	}
 
 	void ResourceRegistry::CacheResource( const resourceEntry_t & entry ) {

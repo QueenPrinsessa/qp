@@ -1,7 +1,7 @@
 ﻿#include "game.pch.h"
-#include "common/threads/qp_thread_pool.h"
-#include "jobs/qp_game_update_job.h"
-#include "common/jobs/qp_job_system.h"
+#include "qp/common/threads/qp_thread_pool.h"
+#include "game/jobs/qp_game_update_job.h"
+#include "qp/common/jobs/qp_job_system.h"
 #if defined( QP_HEADLESS )
 #include "qp/engine/core/qp_headless_app.h"
 #else
@@ -10,9 +10,9 @@
 
 #include "QPEcs.hpp"
 #include "qp/common/ecs/components/qp_transform_component.h"
-#include "common/ecs/components/qp_camera_component.h"
-#include "ecs/components/qp_game_update_input_component.h"
-#include "ecs/components/qp_game_update_output_component.h"
+#include "qp/common/ecs/components/qp_camera_component.h"
+#include "game/ecs/components/qp_game_update_input_component.h"
+#include "game/ecs/components/qp_game_update_output_component.h"
 #include "engine/window/qp_keyboard.h"
 #include "engine/window/qp_window.h"
 #include "engine/rendering/qp_render_camera.h"
@@ -21,6 +21,7 @@
 
 #define QP_RUN_GAME_UPDATE_JOB( job ) { job _tempJob; _tempJob.Initialize( m_ecs ); threadPool.QueueJob( [ this, &_tempJob ](){ std::scoped_lock lock( m_ecsLock ); _tempJob.Run(); } ); }
 
+#if !defined( QP_HEADLESS )
 namespace qp {
 	namespace game {
 		class GameApp : public qp::WindowedApp {
@@ -159,6 +160,7 @@ namespace qp {
 		};
 	}
 }
+#endif
 #if defined( QP_PLATFORM_WINDOWS )
 
 #include "qp/common/platform/windows/qp_types_win32.h"
@@ -212,7 +214,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 #elif defined( QP_PLATFORM_LINUX )
 int main() {
 #if !defined( QP_RETAIL )
-	Sys_InitializeConsole();
+	qp::Sys_InitializeConsole();
 #endif
 
 #if defined( QP_HEADLESS )

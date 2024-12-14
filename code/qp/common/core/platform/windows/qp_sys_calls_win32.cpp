@@ -1,8 +1,8 @@
 #include "engine.pch.h"
-#include "common/math/qp_math.h"
-#include <cstdio>
 
 #if defined( QP_PLATFORM_WINDOWS )
+#include <cstdio>
+#include "common/math/qp_math.h"
 #include "qp/common/core/qp_sys_calls.h"
 #include "qp/common/platform/windows/qp_windows.h"
 

@@ -116,7 +116,7 @@ namespace qp {
 		const unsignedType * ua = reinterpret_cast< const unsignedType * > ( a );
 		const unsignedType * ub = reinterpret_cast< const unsignedType * > ( b );
 
-		auto makeLowerCase = CharTraits< _type_ >::ToLower;
+		auto makeLowerCase = CharTraits< unsignedType >::ToLower;
 		while ( *ua && ( makeLowerCase( *ua ) == makeLowerCase( *ub ) ) ) {
 			++ua;
 			++ub;

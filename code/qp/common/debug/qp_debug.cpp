@@ -1,6 +1,7 @@
 #include "engine.pch.h"
 #include "qp_debug.h"
 #include "common/math/qp_math.h"
+#include "common/string/qp_string.h"
 #include "common/time/qp_clock.h"
 #include "common/threads/qp_thread_util.h"
 
@@ -141,20 +142,6 @@ namespace qp {
 #endif
 			Sys_FlushConsole();
 			ThreadUtil::SleepThread( milliseconds_t( 100 ) );
-			struct criticalErrorException_t : public std::exception {
-				criticalErrorException_t( const char * _format, va_list _args ) : format( _format ), args( _args ) {}
-				[[nodiscard]] virtual const char * what() const override {
-					static char buffer[ 16384 ] {};
-					QP_DISCARD_RESULT vsnprintf( buffer, sizeof( buffer ), format, args );
-					return buffer;
-				}
-				const char * format;
-				va_list args;
-			};
-
-			va_start( args, format );
-			throw criticalErrorException_t( format, args );
-			//va_end( args );
 		}
 	}
 }

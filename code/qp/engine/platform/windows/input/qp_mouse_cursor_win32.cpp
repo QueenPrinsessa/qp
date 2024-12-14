@@ -1,6 +1,8 @@
 #include "engine.pch.h"
-#include "qp_mouse_cursor_win32.h"
 
+#if !defined( QP_HEADLESS )
+
+#include "qp_mouse_cursor_win32.h"
 #include "common/platform/windows/qp_windows.h"
 namespace qp {
 	MouseCursor_Win32::MouseCursor_Win32( HWND windowHandle )
@@ -92,3 +94,4 @@ namespace qp {
 		return false;
 	}
 }
+#endif
