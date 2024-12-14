@@ -275,7 +275,7 @@ namespace qp {
 		const _type_ A = farClip / ( farClip - nearClip );
 		Mat< _type_, 4 > projectionMatrix;
 		projectionMatrix( 1, 1 ) = static_cast< _type_ >( 1.0 ) / math::Tan< _type_ >( hFovRad * static_cast< _type_ >( 0.5 ) );
-		projectionMatrix( 2, 2 ) = static_cast< _type_ >( 1.0 ) / math::Tan< _type_ >( vFovRad * static_cast< _type_ >( 0.5 ) * aspectRatio );
+		projectionMatrix( 2, 2 ) = static_cast< _type_ >( -1.0 ) / math::Tan< _type_ >( vFovRad * static_cast< _type_ >( 0.5 ) * aspectRatio );
 		projectionMatrix( 3, 3 ) = A;
 		projectionMatrix( 3, 4 ) = static_cast< _type_ >( 1.0 ) / A;
 		projectionMatrix( 4, 3 ) = A * -nearClip;
@@ -286,7 +286,7 @@ namespace qp {
 	Mat< _type_, 4 > OrthographicProjectionMatrix( const _type_ & left, const _type_ & right, const _type_ & bottom, const _type_ & top, const _type_ & near, const _type_ & far ) {
 		Mat< _type_, 4 > projection;
 		projection( 1, 1 ) = static_cast< _type_ >( 2.0 ) / ( right - left );
-		projection( 2, 2 ) = static_cast< _type_ >( 2.0 ) / ( top - bottom );
+		projection( 2, 2 ) = static_cast< _type_ >( -2.0 ) / ( top - bottom );
 		projection( 3, 3 ) = static_cast< _type_ >( 1.0 ) / ( far - near );
 		projection( 4, 1 ) = static_cast< _type_ >( -( ( right + left ) / ( right - left ) ) );
 		projection( 4, 2 ) = static_cast< _type_ >( -( ( top + bottom ) / ( top - bottom ) ) );

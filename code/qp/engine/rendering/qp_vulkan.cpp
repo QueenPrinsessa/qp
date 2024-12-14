@@ -38,10 +38,10 @@ namespace qp {
 	};
 	
 	Array< vertex_t, 4 > meshVertices {
-		vertex_t{.pos{-50.0f, -50.0f}, .color{1.0f, 0.0f, 0.0f}, .texCoord{1.0f, 1.0f}}, // top right
-		vertex_t{.pos{50.0f, -50.0f}, .color{0.0f, 1.0f, 0.0f}, .texCoord{0.0f, 1.0f}}, // top left
-		vertex_t{.pos{50.0f, 50.0f}, .color{0.0f, 0.0f, 1.0f}, .texCoord{0.0f, 0.0f}}, // bottom left
-		vertex_t{.pos{-50.0f, 50.0f}, .color{1.0f, 1.0f, 1.0f}, .texCoord{1.0f, 0.0f}} // bottom right
+		vertex_t{.pos{-50.0f, 50.0f}, .color{1.0f, 0.0f, 0.0f}, .texCoord{1.0f, 1.0f}}, // top right
+		vertex_t{.pos{50.0f, 50.0f}, .color{0.0f, 1.0f, 0.0f}, .texCoord{0.0f, 1.0f}}, // top left
+		vertex_t{.pos{50.0f, -50.0f}, .color{0.0f, 0.0f, 1.0f}, .texCoord{0.0f, 0.0f}}, // bottom left
+		vertex_t{.pos{-50.0f, -50.0f}, .color{1.0f, 1.0f, 1.0f}, .texCoord{1.0f, 0.0f}} // bottom right
 	};
 	
 	Array< uint16, 6 > meshIndices {

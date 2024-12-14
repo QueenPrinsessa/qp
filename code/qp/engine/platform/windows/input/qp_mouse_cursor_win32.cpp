@@ -29,7 +29,7 @@ namespace qp {
 				ClientToScreen( m_windowHandle, &center );
 				SetCursorPos( center.x, center.y );
 
-				m_positionDelta = m_previousPosition - nextPosition;
+				m_positionDelta = nextPosition - m_previousPosition;
 				m_position = m_previousPosition;
 
 				ForceHide();
@@ -47,7 +47,7 @@ namespace qp {
 		if ( !m_lockToCenter || !isFocused ) {
 			m_previousPosition = m_position;
 			m_position = nextPosition;
-			m_positionDelta = m_previousPosition - m_position;
+			m_positionDelta = m_position - m_previousPosition;
 		}
 
 		// just regained focus, reset delta so we don't get a large jump

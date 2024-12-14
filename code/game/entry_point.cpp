@@ -115,7 +115,7 @@ namespace qp {
 
 							qp::Vec2i mousePositionDelta = mouse->GetMouseCursor().GetPositionDelta();
 							transform.m_rotation.x += static_cast< float >( mousePositionDelta.y ) * 0.1f;
-							transform.m_rotation.y += static_cast< float >( -mousePositionDelta.x ) * 0.1f;
+							transform.m_rotation.y += static_cast< float >( mousePositionDelta.x ) * 0.1f;
 							transform.m_orientation = qp::Quat( transform.m_rotation.x, transform.m_rotation.y, transform.m_rotation.z );
 
 							transform.m_translation += transform.m_orientation.Forward() * fwdSpeed * inputComponent.m_deltaTime * forwardDir;

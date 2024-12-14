@@ -9,7 +9,7 @@ namespace qp {
 	};
 
 	static void SetupRenderCamera( renderCamera_t & outRenderCamera, const Vec3 & translation, const Quat & orientation, const Mat4 & projection ) {
-		outRenderCamera.view = RotationAndTranslationInverse( orientation.ToMat4() * CreateTranslation( translation ) ).Transposed();
-		outRenderCamera.projection = projection.Transposed();
+		outRenderCamera.view = RotationAndTranslationInverse( orientation.ToMat4() * CreateTranslation( translation ) );
+		outRenderCamera.projection = projection;
 	}
 }
