@@ -1,5 +1,6 @@
 #pragma once
 
+#if defined( QP_PLATFORM_WINDOWS )
 #if !defined( QP_HEADLESS )
 
 #include "qp/engine/input/qp_cursor.h"
@@ -27,4 +28,5 @@ namespace qp {
 		bool m_clippedCursor = false;
 	};
 }
+#endif
 #endif

@@ -1,5 +1,6 @@
 #pragma once
 
+#if defined( QP_VULKAN )
 namespace qp {
 	class VulkanUtil {
 	public:
@@ -7,3 +8,4 @@ namespace qp {
 		~VulkanUtil() = delete;
 	};
 }
+#endif

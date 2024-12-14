@@ -104,11 +104,11 @@ namespace qp {
 			}
 		}
 
-		void PrintMessage( const char * format, va_list args ) {
-			PrintMessageEx( stdout, category_t::PRINT, NULL, format, args );
+		void PrintMessage( const char * format, vaListParm_t & parm ) {
+			PrintMessageEx( stdout, category_t::PRINT, NULL, format, parm );
 		}
 
-		void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, va_list args ) {
+		void PrintMessageEx( FILE * stream, const category_t category, const char * color, const char * format, vaListParm_t & parm ) {
 			if ( ( s_debugCategory.load() & category ) != category ) {
 				return;
 			}
@@ -121,7 +121,7 @@ namespace qp {
 			size_t prefixLength = GetPrintPrefix( category, buffer, sizeof( buffer ) );
 			const TimePoint timeSinceStart = Clock::Now() - s_programStartTime;
 			const int timeSeconds = timeSinceStart.AsSeconds().GetI32();
-			const int bufferPrintLength = vsnprintf( buffer + prefixLength, sizeof( buffer ) - prefixLength - 1, format, args );
+			const int bufferPrintLength = vsnprintf( buffer + prefixLength, sizeof( buffer ) - prefixLength - 1, format, parm.args );
 			if ( ( category & category_t::PRINT ) != category_t::PRINT ) {
 				buffer[ math::Min( bufferPrintLength + prefixLength, sizeof( buffer ) - 1 ) ] = '\n';
 			}
@@ -135,10 +135,10 @@ namespace qp {
 
 		void CriticalError( const char * format, ... ) {
 #if defined( QP_DEBUG_ERRORS )
-			va_list args;
-			va_start( args, format );
-			PrintMessageEx( stderr, category_t::CRITICAL, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_YELLOW, format, args );
-			va_end( args );
+			vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessageEx( stderr, category_t::CRITICAL, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_YELLOW, format, parm );
+			va_end( parm.args );
 #endif
 			Sys_FlushConsole();
 			ThreadUtil::SleepThread( milliseconds_t( 100 ) );

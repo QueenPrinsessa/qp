@@ -1,5 +1,6 @@
 #include "engine.pch.h"
 
+#if defined( QP_PLATFORM_WINDOWS )
 #if !defined( QP_HEADLESS )
 
 #include "qp_mouse_cursor_win32.h"
@@ -94,4 +95,5 @@ namespace qp {
 		return false;
 	}
 }
+#endif
 #endif

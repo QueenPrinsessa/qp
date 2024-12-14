@@ -1,8 +1,8 @@
 #include "engine.pch.h"
-#include "qp_render_camera.h"
 
 #if defined( QP_VULKAN )
 
+#include "qp_render_camera.h"
 #include "qp/engine/resources/qp_resource_registry.h"
 #include "qp_vulkan.h"
 #include "qp_buffer_structs.h"
@@ -148,8 +148,10 @@ namespace qp {
 	
 #if defined( QP_PLATFORM_WINDOWS )
 		enabledExtensions.Push( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
+#elif defined( QP_PLATFORM_LINUX )
+        #error( "extensions is not setup for linux platform" );
 #else
-	#error( "Unsupported platform." );
+	    #error( "Unsupported platform." );
 #endif
 	
 		Array< const char *, 1 > validationLayers {
@@ -1427,7 +1429,7 @@ namespace qp {
 #if defined( QP_PLATFORM_WINDOWS )
 		MessageBox( NULL, UTF8ToWide( msg ).c_str(), L"qp", MB_ICONERROR );
 #else
-		qpDebug::Error( "%s", msg.c_str() );
+		qp::debug::Error( "%s", msg.c_str() );
 #endif
 		throw std::runtime_error( msg.c_str() );
 	}

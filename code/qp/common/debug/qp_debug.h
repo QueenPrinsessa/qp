@@ -116,50 +116,54 @@ namespace qp {
 #define QP_DEBUG_ERRORS
 #endif
 
+        struct vaListParm_t {
+            va_list args;
+        };
+
 		extern void SetDebugCategories( const uint32 debugCategories );
 
 		extern void FlushLogFile();
-		extern void PrintMessage( const char * format, va_list args );
-		extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, va_list args );
+		extern void PrintMessage( const char * format, vaListParm_t & parm );
+		extern void PrintMessageEx( FILE * stream, const category_t  category, const char * color, const char * format, vaListParm_t & parm );
 		static void Printf( const char * format, ... ) {
 #if defined( QP_DEBUG_PRINTS )
-			va_list args;
-			va_start( args, format );
-			PrintMessage( format, args );
-			va_end( args );
+			vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessage( format, parm );
+			va_end( parm.args );
 #endif
 		}
 		static void Trace( const char * format, ... ) {
 #if defined( QP_DEBUG_TRACES )
-			va_list args;
-			va_start( args, format );
-			PrintMessageEx( stdout, category_t::TRACE, QP_CONSOLE_CYAN, format, args );
-			va_end( args );
+            vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessageEx( stdout, category_t::TRACE, QP_CONSOLE_CYAN, format, parm );
+			va_end( parm.args );
 #endif
 		}
 		static void Info( const char * format, ... ) {
 #if defined( QP_DEBUG_INFOS )
-			va_list args;
-			va_start( args, format );
-			PrintMessageEx( stdout, category_t::INFO, QP_CONSOLE_GREEN, format, args );
-			va_end( args );
+			vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessageEx( stdout, category_t::INFO, QP_CONSOLE_GREEN, format, parm );
+			va_end( parm.args );
 #endif
 		}
 		static void Warning( const char * format, ... ) {
 #if defined( QP_DEBUG_WARNINGS )
-			va_list args;
-			va_start( args, format );
-			PrintMessageEx( stderr, category_t::WARNING, QP_CONSOLE_BRIGHT_YELLOW, format, args );
-			va_end( args );
+			vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessageEx( stderr, category_t::WARNING, QP_CONSOLE_BRIGHT_YELLOW, format, parm );
+			va_end( parm.args );
 #endif
 		}
 
 		static void Error( const char * format, ... ) {
 #if defined( QP_DEBUG_ERRORS )
-			va_list args;
-			va_start( args, format );
-			PrintMessageEx( stderr, category_t::ERROR, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, args );
-			va_end( args );
+			vaListParm_t parm;
+			va_start( parm.args, format );
+			PrintMessageEx( stderr, category_t::ERROR, QP_CONSOLE_BACKGROUND_RED QP_CONSOLE_BRIGHT_WHITE, format, parm );
+			va_end( parm.args );
 #endif
 
 			Sys_DebugBreak();

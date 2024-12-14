@@ -118,6 +118,6 @@ namespace qp {
 
 	template < typename _type_, typename ... _args_ >
 	Optional< _type_ > CreateOptional( _args_... args ) {
-		return Optional< _type_ >( qpMove( _type_( args ) ) );
+		return Optional< _type_ >( Forward< _type_ >( args )... );
 	}
 }
