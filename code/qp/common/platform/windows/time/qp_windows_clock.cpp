@@ -14,10 +14,12 @@ namespace qp {
         return TimePoint { now.QuadPart, TicksPerSecond() };
     }
 
+    static LARGE_INTEGER frequency { -1, -1 };
     timeTick_t Clock::TicksPerSecond() {
-        static LARGE_INTEGER frequency {};
-        static BOOL useHighResolution = QueryPerformanceFrequency( &frequency );
-        QP_DISCARD_RESULT useHighResolution;
+        if ( frequency.QuadPart == -1 ) {
+            QP_VERIFY( QueryPerformanceFrequency( &frequency ) );
+        }
+        QP_ASSERT( frequency.QuadPart > 0 );
         return frequency.QuadPart;
     }
 }

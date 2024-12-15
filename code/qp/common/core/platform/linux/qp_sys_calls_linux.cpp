@@ -23,16 +23,13 @@ namespace qp {
 	}
 
 	void Sys_OutputDebugString ( const char * fmt, ... ) {
-		QP_ASSERT_RELEASE_MSG( false, "Sys_OutputDebugString is not implemented" );
 	}
 
 	bool Sys_DebuggerPresent() {
-		QP_ASSERT_RELEASE_MSG( false, "Sys_DebuggerPresent is not implemented" );
 #if defined( QP_RETAIL )
 		return false;
 #else
-		// todo: linux: actually detect debugger, currently this will likely crash if you're not running one heh
-		return true;
+		return false;
 #endif
 	}
 
@@ -50,8 +47,6 @@ namespace qp {
 	}
 
 	bool Sys_InitializeConsole() {
-		// todo: linux: setup console
-		QP_ASSERT_RELEASE_MSG( false, "Sys_InitializeConsole is not implemented" );
 		return true;
 	}
 }

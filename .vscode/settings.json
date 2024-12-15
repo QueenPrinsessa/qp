@@ -3,5 +3,12 @@
     "files.associations": {
         "system_error": "cpp",
         "cstdio": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/queenprinsessa/code/bin/debug-linux-x86_64game",
+            "binaryPath": "/home/queenprinsessa/code/bin/debug-linux-x86_64game/game",
+            "binaryArgs": []
+        }
+    ]
 }
