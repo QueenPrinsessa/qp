@@ -1,4 +1,5 @@
 #pragma once
+#include "common/threads/qp_thread_util.h"
 
 namespace qp {
 	class App {
@@ -12,9 +13,9 @@ namespace qp {
 		bool IsRunning() const { return m_isRunning; }
 
 		virtual void OnInit() = 0;
-		virtual void OnBeginFrame() = 0;
+		virtual void OnBeginUpdate() = 0;
 		virtual void OnUpdate() = 0;
-		virtual void OnEndFrame() = 0;
+		virtual void OnEndUpdate() = 0;
 		virtual void OnCleanup() = 0;
 
 	private:

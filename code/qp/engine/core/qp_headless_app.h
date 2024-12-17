@@ -7,9 +7,9 @@ namespace qp {
 	public:
 		HeadlessApp() = default;
 		virtual void OnInit() override;
-		virtual void OnBeginFrame() override;
+		virtual void OnBeginUpdate() override;
 		virtual void OnUpdate() override;
-		virtual void OnEndFrame() override;
+		virtual void OnEndUpdate() override;
 		virtual void OnCleanup() override;
 	private:
 	};

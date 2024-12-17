@@ -11,12 +11,11 @@ namespace qp {
 	class Mouse_Win32 : public Mouse {
 		friend class Window_Win32;
 	public:
-		Mouse_Win32( HWND windowHandle );
 		virtual ~Mouse_Win32() override = default;
 
 		virtual const Cursor & GetMouseCursor() const override { return m_mouseCursor; }
 	private:
-		bool ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
+		bool ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
 		MouseCursor_Win32 m_mouseCursor;
 	};
 }

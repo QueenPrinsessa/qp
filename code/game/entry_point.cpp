@@ -95,28 +95,28 @@ namespace qp {
 							const float rightSpeed = 100.0f;
 							const float upSpeed = 100.0f;
 							float forwardDir = 0.0f;
-							if ( keyboard->IsKeyDown( qp::keyboardKeys_t::W ) ) {
+							if ( keyboard->IsKeyDown( qp::keyCode_t::W ) ) {
 								forwardDir = 1.0f;
-							} else if ( keyboard->IsKeyDown( qp::keyboardKeys_t::S ) ) {
+							} else if ( keyboard->IsKeyDown( qp::keyCode_t::S ) ) {
 								forwardDir = -1.0f;
 							}
 							float rightDir = 0.0f;
-							if ( keyboard->IsKeyDown( qp::keyboardKeys_t::D ) ) {
+							if ( keyboard->IsKeyDown( qp::keyCode_t::D ) ) {
 								rightDir = 1.0f;
-							} else if ( keyboard->IsKeyDown( qp::keyboardKeys_t::A ) ) {
+							} else if ( keyboard->IsKeyDown( qp::keyCode_t::A ) ) {
 								rightDir = -1.0f;
 							}
 
 							float upDir = 0.0f;
-							if ( keyboard->IsKeyDown( qp::keyboardKeys_t::Q ) ) {
+							if ( keyboard->IsKeyDown( qp::keyCode_t::Q ) ) {
 								upDir = -1.0f;
-							} else if ( keyboard->IsKeyDown( qp::keyboardKeys_t::E ) ) {
+							} else if ( keyboard->IsKeyDown( qp::keyCode_t::E ) ) {
 								upDir = 1.0f;
 							}
 
-							qp::Vec2i mousePositionDelta = mouse->GetMouseCursor().GetPositionDelta();
-							transform.m_rotation.x += static_cast< float >( mousePositionDelta.y ) * 0.1f;
-							transform.m_rotation.y += static_cast< float >( mousePositionDelta.x ) * 0.1f;
+							qp::Vec2 mousePositionDelta = mouse->GetMouseCursor().GetPositionDelta();
+							transform.m_rotation.x += mousePositionDelta.y * 0.1f;
+							transform.m_rotation.y += mousePositionDelta.x * 0.1f;
 							transform.m_orientation = qp::Quat( transform.m_rotation.x, transform.m_rotation.y, transform.m_rotation.z );
 
 							transform.m_translation += transform.m_orientation.Forward() * fwdSpeed * inputComponent.m_deltaTime * forwardDir;

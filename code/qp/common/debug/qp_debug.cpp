@@ -141,7 +141,7 @@ namespace qp {
 			va_end( parm.args );
 #endif
 			Sys_FlushConsole();
-			ThreadUtil::SleepThread( milliseconds_t( 100 ) );
+			thread_util::SleepThread( milliseconds_t( 100 ) );
 		}
 	}
 }

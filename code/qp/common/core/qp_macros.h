@@ -9,14 +9,14 @@
 #define QP_SET_BIT( val, pos ) ( ( val ) |= ( 1u << static_cast< uint32 >( pos ) ) )
 #define QP_CLEAR_BIT( val, pos ) ( ( val ) &= ~( 1u << static_cast< uint32 >( pos ) ) )
 #define QP_TOGGLE_BIT( val, pos ) ( ( val ) ^= ( 1u << static_cast< uint32 >( pos ) ) )
-#define QP_SET_BIT_TO( val, pos, b ) ( ( ( val ) &= ~( 1u << static_cast< uint32 >( pos ) ) ) | ( static_cast< uint32 >( b ) << static_cast< uint32 >( pos ) ) )
+#define QP_SET_BIT_TO( val, pos, b ) ( val = ( ( ( val ) & ~( 1u << static_cast< uint32 >( pos ) ) ) | ( static_cast< uint32 >( b ) << static_cast< uint32 >( pos ) ) ) )
 
 #define QP_BIT_64( n ) ( 1ull << ( n ) )
 #define QP_GET_BIT_64( val, pos ) ( ( ( val ) >> static_cast< uint64 >( pos ) ) & 1ull )
 #define QP_SET_BIT_64( val, pos ) ( ( val ) |= ( 1ull << static_cast< uint64 >( pos ) ) )
 #define QP_CLEAR_BIT_64( val, pos ) ( ( val ) &= ~( 1ull << static_cast< uint64 >( pos ) ) )
 #define QP_TOGGLE_BIT_64( val, pos ) ( ( val ) ^= ( 1ull << static_cast< uint64 >( pos ) ) )
-#define QP_SET_BIT_TO_64( val, pos, b ) ( ( ( val ) &= ~( 1ull << static_cast< uint64 >( pos ) ) ) | ( static_cast< uint64 >( b ) << static_cast< uint64 >( pos ) ) )
+#define QP_SET_BIT_TO_64( val, pos, b ) ( val = ( ( ( val ) & ~( 1ull << static_cast< uint64 >( pos ) ) ) | ( static_cast< uint64 >( b ) << static_cast< uint64 >( pos ) ) ) )
 
 #define QP_NO_DISCARD [[ nodiscard ]]
 #define QP_INLINE inline

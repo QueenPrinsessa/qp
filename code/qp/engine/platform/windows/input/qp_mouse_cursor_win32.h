@@ -11,12 +11,10 @@ namespace qp {
 	class MouseCursor_Win32 : public Cursor {
 		friend class Mouse_Win32;
 	public:
-		MouseCursor_Win32( HWND windowHandle );
 		virtual void Update() override;
 		
 	private:
-		bool ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
-		std::mutex m_pollMutex;
+		bool ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
 		HWND m_windowHandle = NULL;
 		bool m_isFocused = false;
 		// settings

@@ -6,20 +6,20 @@
 #include "qp_mouse_cursor_win32.h"
 #include "common/platform/windows/qp_windows.h"
 namespace qp {
-	MouseCursor_Win32::MouseCursor_Win32( HWND windowHandle )
-		: m_windowHandle( windowHandle ) {
-	}
-
 	void MouseCursor_Win32::Update() {
-		const bool isFocused = ( GetFocus() == m_windowHandle );
+		m_nextPosition = m_position;
 
-		Vec2i nextPosition = m_position;
+		Vec2 nextPosition = m_nextPosition;
 
+		// hack: use focus as window...
+		HWND focus = GetFocus();
+		bool isFocused = focus != NULL;
 		if ( isFocused ) {
+			m_windowHandle = focus;
 			POINT cursorPos;
 			GetCursorPos( &cursorPos );
 			ScreenToClient( m_windowHandle, &cursorPos );
-			nextPosition = { cursorPos.x, cursorPos.y };
+			nextPosition = { static_cast< float >( cursorPos.x ), static_cast< float >( cursorPos.y ) };
 
 			// todo: get the raw delta using rawinput.
 			if ( m_lockToCenter ) {
@@ -27,7 +27,7 @@ namespace qp {
 				GetClientRect( m_windowHandle, &rect );
 				POINT center { ( rect.right - rect.left ) / 2, ( rect.bottom - rect.top ) / 2 };
 
-				m_previousPosition = { center.x, center.y };
+				m_previousPosition = { static_cast< float >( center.x ), static_cast< float >( center.y ) };
 
 				ClientToScreen( m_windowHandle, &center );
 				SetCursorPos( center.x, center.y );
@@ -62,36 +62,10 @@ namespace qp {
 		m_isFocused = isFocused;
 	}
 
-	bool MouseCursor_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
+	bool MouseCursor_Win32::ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ) {
+		//switch ( msg ) {
 
-		switch ( msg ) {
-			case WM_ACTIVATE: {
-				const bool activated = LOWORD( wparam ) != WA_INACTIVE;
-				if ( activated ) {
-					if ( m_captureCursor ) {
-						SetCapture( m_windowHandle );
-						m_capturedCursor = true;
-					}
-					if ( m_clipCursor ) {
-						RECT rect;
-						GetClientRect( m_windowHandle, &rect );
-						ClientToScreen( m_windowHandle, reinterpret_cast< POINT * >( &rect ) );
-						ClientToScreen( m_windowHandle, reinterpret_cast< POINT * >( &rect ) + 1 );
-						ClipCursor( &rect );
-						m_clippedCursor = true;
-					}
-				} else {
-					if ( m_capturedCursor ) {
-						ReleaseCapture();
-						m_capturedCursor = false;
-					}
-					if ( m_clippedCursor ) {
-						ClipCursor( NULL );
-					}
-				}
-				return true;
-			}
-		}
+		//}
 		return false;
 	}
 }

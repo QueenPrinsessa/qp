@@ -16,7 +16,7 @@ namespace qp {
 		void Startup( const uint32 numWorkerThreads );
 		void Shutdown();
 
-		uint32 MaxWorkers() const { return m_threads.Length() != 0ull ? static_cast< uint32 >( m_threads.Length() ) : ThreadUtil::NumHardwareThreads() - 1; }
+		uint32 MaxWorkers() const { return m_threads.Length() != 0ull ? static_cast< uint32 >( m_threads.Length() ) : thread_util::NumHardwareThreads() - 1; }
 
 		void QueueJob( threadJobFunctor_t && job );
 

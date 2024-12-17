@@ -25,14 +25,23 @@ namespace qp {
 
 		void Update();
 
+		void SetCaptured( const bool captured ) { m_captured = captured; }
+		bool IsCaptured() const { return m_captured; }
+
 		const BitSet< MOUSE_BUTTON_COUNT > & GetState() const { return m_state; }
 		const BitSet< MOUSE_BUTTON_COUNT > & GetLastState() const { return m_lastState; }
 	protected:
+		bool HandleEvent( const mouseButton_t button, const bool down );
+		bool HandleScrollEvent( const float scrollX, const float scrollY );
+
 		BitSet< MOUSE_BUTTON_COUNT >	m_state;
 		BitSet< MOUSE_BUTTON_COUNT >	m_lastState;
 		BitSet< MOUSE_BUTTON_COUNT >	m_workingState;
 		Vec2							m_scrollValue;
 		Vec2							m_workingScrollValue;
+		bool							m_captured = false;
+
+		Cursor & GetMouseCursorNonConst() { return const_cast< Cursor & >( GetMouseCursor() ); }
 	};
 }
 #endif

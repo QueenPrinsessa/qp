@@ -2,6 +2,7 @@
 #include "common/core/qp_macros.h"
 #include "common/core/qp_types.h"
 #include "qp/common/core/qp_sys_calls.h"
+#include "qp/common/threads/qp_thread_util.h"
 #include <cstdarg>
 #include <cstdio>
 
@@ -39,6 +40,8 @@ namespace qp {
 #define QP_ASSERT_MSG( expression, msg ) QP_ASSERT_IMPL( ( expression ), DEBUG, msg )
 #define QP_ASSERT_RELEASE_MSG( expression, msg ) QP_ASSERT_IMPL( ( expression ), RELEASE, msg )
 #define QP_ASSERT_ALWAYS( msg ) QP_ASSERT_IMPL( false, DEBUG, msg )
+#define QP_ASSERT_MAIN_THREAD_MSG( msg ) QP_ASSERT_RELEASE_MSG( thread_util::IsCurrentThreadMainThread(), msg )
+#define QP_ASSERT_MAIN_THREAD() QP_ASSERT_RELEASE( thread_util::IsCurrentThreadMainThread() )
 
 // verify macros - expands to just the expression when asserts are disabled
 #define QP_VERIFY( expression ) QP_VERIFY_IMPL( ( expression ), DEBUG, "(" #expression ")" )

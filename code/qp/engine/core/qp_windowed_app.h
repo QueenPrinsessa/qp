@@ -26,8 +26,8 @@ namespace qp {
 		TimePoint m_beginFrameTime = g_timePointInvalid;
 		TimePoint m_deltaTime = g_timePointInvalid;
 	private:
-		virtual void OnBeginFrame() override;
-		virtual void OnEndFrame() override;
+		virtual void OnBeginUpdate() override;
+		virtual void OnEndUpdate() override;
 	};
 }
 

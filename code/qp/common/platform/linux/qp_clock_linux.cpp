@@ -1,6 +1,6 @@
 #include "engine.pch.h"
 
-//#if defined( QP_PLATFORM_LINUX )
+#if defined( QP_PLATFORM_LINUX )
 
 #include "qp/common/core/qp_macros.h"
 #include "qp/common/time/qp_time_point.h"
@@ -27,4 +27,4 @@ namespace qp {
         return frequency;
     }
 }
-//#endif
+#endif

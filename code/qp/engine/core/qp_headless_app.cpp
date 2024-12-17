@@ -8,7 +8,7 @@ namespace qp {
         debug::Printf( "%s\n", __FUNCTION__ );
     }
 
-    void HeadlessApp::OnBeginFrame() {
+    void HeadlessApp::OnBeginUpdate() {
         debug::Printf( "%s\n", __FUNCTION__ );
     }
 
@@ -22,7 +22,7 @@ namespace qp {
         }
     }
 
-    void HeadlessApp::OnEndFrame() {
+    void HeadlessApp::OnEndUpdate() {
         debug::Printf( "%s\n", __FUNCTION__ );
     }
 

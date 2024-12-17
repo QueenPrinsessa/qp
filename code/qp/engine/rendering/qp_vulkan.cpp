@@ -24,6 +24,10 @@
 //include vulkan last since it includes platform headers.
 #include "vulkan/vulkan.h"
 
+#if defined( QP_PLATFORM_SDL )
+#include "qp/engine/platform/sdl/qp_sdl.h"
+#include <SDL3/SDL_vulkan.h>
+#endif
 namespace qp {
 #if defined( QP_DEV )
 	const bool enableValidationLayers = true;
@@ -146,10 +150,31 @@ namespace qp {
 			VK_EXT_DEBUG_REPORT_EXTENSION_NAME
 		};
 	
-#if defined( QP_PLATFORM_WINDOWS )
+#if defined( QP_PLATFORM_WINDOWS ) && !defined( QP_WINDOWS_SDL )
 		enabledExtensions.Push( VK_KHR_WIN32_SURFACE_EXTENSION_NAME );
-#elif defined( QP_PLATFORM_LINUX )
-        #error( "extensions is not setup for linux platform" );
+#elif defined( QP_PLATFORM_SDL )
+		{
+			uint64 existingExtensionsNum = enabledExtensions.Length();
+			uint32 numSDLExtensions = 0;
+			const char * const * sdlExtensions = SDL_Vulkan_GetInstanceExtensions( &numSDLExtensions );
+			for ( uint64 index = 0; index < numSDLExtensions; ++index ) {
+				bool append = true;
+
+				// filter duplicates
+				const char * sdlExtension = sdlExtensions[ index ];
+				for ( int enabledIndex = 0; enabledIndex < existingExtensionsNum; ++enabledIndex ) {
+					const char * enabledExtension = enabledExtensions[ enabledIndex ];
+					if ( StrCmp( sdlExtension, enabledExtension ) == 0 ) {
+						append = false;
+						break;
+					}
+				}
+
+				if ( append ) {
+					enabledExtensions.Push( sdlExtension );
+				}
+			}
+		}
 #else
 	    #error( "Unsupported platform." );
 #endif
@@ -367,7 +392,7 @@ namespace qp {
 	
 	void Vulkan::CreateSurface() {
 	
-#if defined( QP_PLATFORM_WINDOWS )
+#if defined( QP_PLATFORM_WINDOWS ) && !defined( QP_WINDOWS_SDL )
 		VkWin32SurfaceCreateInfoKHR createInfo {};
 		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 		createInfo.hwnd = static_cast< HWND >( m_window->GetHandle() );
@@ -375,6 +400,10 @@ namespace qp {
 	
 		if ( vkCreateWin32SurfaceKHR( m_instance, &createInfo, NULL, &m_surface ) != VK_SUCCESS ) {
 			ThrowOnError( "Failed to create win32 window surface!" );
+		}
+#elif defined( QP_PLATFORM_SDL )
+		if ( !SDL_Vulkan_CreateSurface( static_cast< SDL_Window * >( m_window->GetHandle() ), m_instance, NULL, &m_surface ) ) {
+			ThrowOnError( "Failed to create sdl window surface!" );
 		}
 #endif
 	

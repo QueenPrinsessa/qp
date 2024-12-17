@@ -9,7 +9,7 @@
 namespace qp {
 	class Thread {
 	public:
-		using atomicThreadId_t = atomic_t< std::thread::id >;
+		using atomicThreadId_t = atomic_t< threadId_t >;
 		struct threadData_t {
 			String threadName;
 			atomicBool_t shouldTerminate = false;

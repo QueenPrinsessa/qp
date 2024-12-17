@@ -11,13 +11,13 @@
 
 namespace qp {
 	struct windowWin32Data_t {
-		windowWin32Data_t( HWND windowHandle ) : m_mouse( windowHandle ) {}
 		Keyboard_Win32 m_keyboard;
 		Mouse_Win32 m_mouse;
 		WINDOWPLACEMENT m_lastWindowPlacement = { sizeof( WINDOWPLACEMENT ) };
 	};
 
 	Window_Win32::Window_Win32( const windowProperties_t & properties ) {
+		m_data = CreateUnique< windowWin32Data_t >();
 		Init( properties );
 	}
 
@@ -26,17 +26,11 @@ namespace qp {
 	}
 
 	void Window_Win32::OnUpdate() {
+		m_data->m_mouse.Update();
+		m_data->m_keyboard.Update();
 
 		ShowWindow( m_handle, SW_SHOW );
 		UpdateWindow( m_handle );
-
-		MSG msg { };
-		msg.hwnd = NULL;
-
-		while ( PeekMessage( &msg, 0, 0, 0, PM_REMOVE ) ) {
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
 
 		{
 			RECT windowRect {};
@@ -53,10 +47,17 @@ namespace qp {
 				m_clientHeight = clientRect.bottom - clientRect.top;
 			}
 		}
+	}
 
-		m_data->m_mouse.Update();
-		m_data->m_mouse.m_mouseCursor.Update();
-		m_data->m_keyboard.Update();
+	void Window_Win32::PollEvents() {
+		QP_ASSERT_MAIN_THREAD();
+		MSG msg { };
+		msg.hwnd = NULL;
+
+		while ( PeekMessage( &msg, 0, 0, 0, PM_REMOVE ) ) {
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
 	}
 
 	const Mouse & Window_Win32::GetMouse() const {
@@ -68,7 +69,9 @@ namespace qp {
 	}
 
 	void Window_Win32::Init( const windowProperties_t & properties ) {
-		const wchar_t * windowClassName = L"qpWindow";
+		QP_ASSERT_RELEASE_MSG( m_data != NULL, "data should've been initialized in the constructor" );
+
+		const wchar_t * windowClassName = L"Window_Win32";
 
 		WNDCLASS windowClass {};
 		windowClass.style = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
@@ -99,7 +102,6 @@ namespace qp {
 
 		WideString wTitle = UTF8ToWide( properties.title );
 		m_handle = CreateWindow( windowClassName, wTitle.c_str(), windowStyle, windowLeft, windowTop, m_width, m_height, NULL, NULL, instanceHandle, this );
-		QP_ASSERT_RELEASE_MSG( m_data != NULL, "data should've been initialized in the create event" );
 
 		SetForegroundWindow( m_handle );
 
@@ -150,8 +152,7 @@ namespace qp {
 	LRESULT CALLBACK Window_Win32::WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam ) {
 
 		if ( wndProcWindow ) {
-			QP_ASSERT_RELEASE_MSG( wndProcWindow->m_data != NULL, "data should've been initialized in the create event" );
-			if ( wndProcWindow->m_data->m_mouse.ProcessWindowEvent( msg, wparam, lparam ) ) {
+			if ( wndProcWindow->m_data->m_mouse.ProcessWindowEvent( handle, msg, wparam, lparam ) ) {
 				return 0;
 			}
 
@@ -161,6 +162,25 @@ namespace qp {
 		}
 
 		switch ( msg ) {
+			case WM_ACTIVATE: {
+				const bool activated = LOWORD( wparam ) != WA_INACTIVE;
+				if ( activated ) {
+					SetCapture( handle );
+					wndProcWindow->m_data->m_mouse.SetCaptured( true );
+
+					RECT rect;
+					GetClientRect( handle, &rect );
+					ClientToScreen( handle, reinterpret_cast< POINT * >( &rect ) );
+					ClientToScreen( handle, reinterpret_cast< POINT * >( &rect ) + 1 );
+					ClipCursor( &rect );
+				} else {
+					if ( wndProcWindow->m_data->m_mouse.IsCaptured() ) {
+						ReleaseCapture();
+					}
+					ClipCursor( NULL );
+				}
+				return true;
+			}
 			case WM_DESTROY: {
 				DestroyWindow( handle );
 
@@ -183,7 +203,6 @@ namespace qp {
 			case WM_CREATE: {
 				const CREATESTRUCT * createdStruct = reinterpret_cast< CREATESTRUCT * >( lparam );
 				wndProcWindow = static_cast< Window_Win32 * >( createdStruct->lpCreateParams );
-				wndProcWindow->m_data = CreateUnique< windowWin32Data_t >( handle );
 				break;
 			}
 			default: {

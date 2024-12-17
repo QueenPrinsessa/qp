@@ -12,8 +12,10 @@
 
 #include "qp_windowed_app.h"
 
-#if defined( QP_PLATFORM_WINDOWS )
+#if defined( QP_PLATFORM_WINDOWS ) && !defined( QP_WINDOWS_SDL )
 #include "qp/engine/platform/windows/window/qp_window_win32.h"
+#elif defined( QP_PLATFORM_SDL )
+#include "engine/platform/sdl/window/qp_window_sdl.h"
 #else
 #error "Window include not added for platform!"
 #endif
@@ -24,8 +26,12 @@ namespace qp {
 	}
 
 	void WindowedApp::OnInit() {
-#if defined( QP_PLATFORM_WINDOWS )
+#if defined( QP_PLATFORM_WINDOWS ) && !defined( QP_WINDOWS_SDL )
 		m_window = CreateUnique< Window_Win32 >( m_windowProperties );
+#elif defined( QP_PLATFORM_SDL )
+		InitializeSDL();
+
+		m_window = CreateUnique< Window_SDL >( m_windowProperties );
 #else
 #error "Window creation not setup for platform!"
 #endif
@@ -50,19 +56,19 @@ namespace qp {
 		m_renderScene->SetRenderCamera( camera );
 	}
 
-	void WindowedApp::OnBeginFrame() {
+	void WindowedApp::OnBeginUpdate() {
 		TimePoint currentTime = Clock::Now();
 		m_deltaTime = ( currentTime - m_beginFrameTime );
 		m_beginFrameTime = currentTime;
+		m_window->PollEvents();
+		m_window->OnUpdate();
 	}
 
-	void WindowedApp::OnEndFrame() {
+	void WindowedApp::OnEndUpdate() {
 		const renderCamera_t & renderCamera = m_renderScene->GetRenderCamera();
 		QP_ASSERT_RELEASE_MSG( renderCamera.projection != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
 		QP_ASSERT_RELEASE_MSG( renderCamera.view != g_mat4NaN, "Render camera must be setup before we draw a frame!" );
 		m_graphicsAPI->DrawFrame( renderCamera );
-		m_window->OnUpdate();
-
 	}
 
 	void WindowedApp::OnCleanup() {

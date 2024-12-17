@@ -14,7 +14,7 @@ namespace qp {
         return TimePoint { now.QuadPart, TicksPerSecond() };
     }
 
-    static LARGE_INTEGER frequency { -1, -1 };
+    static LARGE_INTEGER frequency = { .QuadPart = -1 };
     timeTick_t Clock::TicksPerSecond() {
         if ( frequency.QuadPart == -1 ) {
             QP_VERIFY( QueryPerformanceFrequency( &frequency ) );

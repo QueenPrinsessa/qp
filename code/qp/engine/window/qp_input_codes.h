@@ -5,6 +5,10 @@
 #error "Windows headers must be included after qp_input_codes"
 #endif
 #endif
+
+// todo: we need to handle and support key codes / inputs outside of these enums
+// just because we don't need to refer to them in engine doesn't mean the inputs
+// should be lost or unsupported. we need to handle them for proper remapping support and support.
 namespace qp {
 	enum class mouseButton_t {
 		LBUTTON,
@@ -12,17 +16,15 @@ namespace qp {
 		MBUTTON,
 		MOUSE4,
 		MOUSE5,
-		COUNT
+		COUNT,
+		INVALID = COUNT
 	};
 
-	enum class keyboardKeys_t {
+	enum class keyCode_t {
 		BACKSPACE,
 		TAB,
 		CLEAR,
 		ENTER,
-		SHIFT,
-		CTRL,
-		ALT,
 		PAUSE,
 		CAPS_LOCK,
 		ESCAPE,
@@ -76,8 +78,8 @@ namespace qp {
 		X,
 		Y,
 		Z,
-		L_COMMAND, //Windows key, super key, cmd key
-		R_COMMAND, //Windows key, super key, cmd key
+		L_CMD, // Windows key, super key, cmd key
+		R_CMD, // Windows key, super key, cmd key
 		SLEEP,
 		NUMPAD_0,
 		NUMPAD_1,
@@ -127,7 +129,9 @@ namespace qp {
 		R_CTRL,
 		L_ALT,
 		R_ALT,
-		COUNT,
+		RESERVED = 108,
+		// 108 - 512 is reserved for mapping keys that aren't otherwise present in the enum
+		COUNT = 512,
 		INVALID = COUNT
 	};
 }

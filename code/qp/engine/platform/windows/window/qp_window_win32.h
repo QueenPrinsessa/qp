@@ -19,6 +19,7 @@ namespace qp {
 		virtual ~Window_Win32() override;
 
 		virtual void OnUpdate() override;
+		virtual void PollEvents() override;
 
 		virtual int GetWidth() const override { return m_width; }
 		virtual int GetHeight() const override { return m_height; }

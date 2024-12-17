@@ -9,68 +9,56 @@
 #include "qp/common/platform/windows/qp_windows.h"
 
 namespace qp {
-	Mouse_Win32::Mouse_Win32 ( HWND windowHandle ) 
-		: m_mouseCursor( windowHandle ){
-	}
-	
-	bool Mouse_Win32::ProcessWindowEvent( UINT msg, WPARAM wparam, LPARAM lparam ) {
-		if ( m_mouseCursor.ProcessWindowEvent( msg, wparam, lparam ) ) {
+	bool Mouse_Win32::ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ) {
+		if ( m_mouseCursor.ProcessWindowEvent( handle, msg, wparam, lparam ) ) {
 			return true;
 		}
 	
 		 switch ( msg ) {
 		 	case WM_LBUTTONUP: {
-				m_workingState.ClearBit( mouseButton_t::LBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::LBUTTON, false );
 			}
 		 	case WM_LBUTTONDOWN: {
-				m_workingState.SetBit( mouseButton_t::LBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::LBUTTON, true );
 			}
 			case WM_RBUTTONUP: {
-				m_workingState.ClearBit( mouseButton_t::RBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::RBUTTON, false );
 			}
 		 	case WM_RBUTTONDOWN: {
-				m_workingState.SetBit( mouseButton_t::RBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::RBUTTON, true );
+
 			}
 			case WM_MBUTTONUP: {
-				m_workingState.ClearBit( mouseButton_t::MBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::MBUTTON, false );
 			}
 			case WM_MBUTTONDOWN: {
-				m_workingState.SetBit( mouseButton_t::MBUTTON );
-				return true;
+				return HandleEvent( mouseButton_t::MBUTTON, true );
 			}
 		 	case WM_XBUTTONUP: {
 				WORD xbutton = GET_XBUTTON_WPARAM( wparam );
+				mouseButton_t button = mouseButton_t::INVALID;
 				if ( xbutton == XBUTTON1 ) {
-					m_workingState.ClearBit( mouseButton_t::MOUSE4 );
+					button = mouseButton_t::MOUSE4;
 				} else if ( xbutton == XBUTTON2 ) {
-					m_workingState.ClearBit( mouseButton_t::MOUSE5 );
+					button = mouseButton_t::MOUSE5;
 				}
-				return true;
+				return HandleEvent( button, false );
 			}
 			case WM_XBUTTONDOWN: {
 				WORD xbutton = GET_XBUTTON_WPARAM( wparam );
+				mouseButton_t button = mouseButton_t::INVALID;
 				if ( xbutton == XBUTTON1 ) {
-					m_workingState.SetBit( mouseButton_t::MOUSE4 );
+					button = mouseButton_t::MOUSE4;
 				} else if ( xbutton == XBUTTON2 ) {
-					m_workingState.SetBit( mouseButton_t::MOUSE5 );
+					button = mouseButton_t::MOUSE5;
 				}
-				return true;
+				return HandleEvent( button, false );
 			}
 			case WM_MOUSEWHEEL: {
-				float wheelDelta = static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA );
-				m_workingScrollValue.y += wheelDelta;
-				return true;
+				return HandleScrollEvent( 0, static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA ) );
 			}
-	
 			case WM_MOUSEHWHEEL: {
-				float wheelDelta = static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA );
-				m_workingScrollValue.x += wheelDelta;
-				return true;
+				return HandleScrollEvent( static_cast< float >( GET_WHEEL_DELTA_WPARAM( wparam ) ) / static_cast< float >( WHEEL_DELTA ), 0 );
 			}
 		 }
 	

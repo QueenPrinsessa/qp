@@ -7,7 +7,7 @@ namespace qp {
 
 	App::~App() {
 	}
-
+	
 	void App::RequestShutdown() {
 		m_isRunning = false;
 	}
@@ -15,12 +15,14 @@ namespace qp {
 	void App::Run() {
 		m_isRunning = true;
 
+		QP_ASSERT_RELEASE( thread_util::InitializeMainThread() );
+
 		OnInit();
 
 		while ( m_isRunning ) {
-			OnBeginFrame();
+			OnBeginUpdate();
 			OnUpdate();
-			OnEndFrame();
+			OnEndUpdate();
 		}
 
 		OnCleanup();

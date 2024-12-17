@@ -18,6 +18,7 @@ namespace qp {
 		virtual ~Window() = default;
 
 		virtual void OnUpdate() = 0;
+		virtual void PollEvents() = 0; // guaranteed to execute on main thread
 
 		virtual int GetWidth() const = 0;
 		virtual int GetHeight() const = 0;
