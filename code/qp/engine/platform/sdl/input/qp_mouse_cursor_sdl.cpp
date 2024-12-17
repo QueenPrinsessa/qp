@@ -10,16 +10,24 @@ namespace qp {
 		
 		m_nextPosition = m_position;
 		m_nextDelta.Zero();
+
+		ForceHide();
+
+		if ( IsVisible() ) {
+			SDL_ShowCursor();
+		} else {
+			SDL_HideCursor();
+		}
 	}
 
 	bool MouseCursor_SDL::HandleSDLEvent ( const SDL_Event & event ) {
 		QP_ASSERT_MAIN_THREAD();
 		switch ( event.type ) {
-			case SDL_EVENT_WINDOW_MOUSE_ENTER: {
-			
-			}
-			case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
-			}
+			//case SDL_EVENT_WINDOW_MOUSE_ENTER: {
+			//
+			//}
+			//case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
+			//}
 			case SDL_EVENT_MOUSE_MOTION: {
 				m_nextPosition.x = event.motion.x;
 				m_nextPosition.y = event.motion.y;

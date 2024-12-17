@@ -4,9 +4,11 @@
 
 namespace qp {
 	Window_SDL::Window_SDL( const windowProperties_t & properties ) {
-		m_window = SDL_CreateWindow( properties.title.c_str(), properties.width, properties.height, SDL_WINDOW_VULKAN );
+		m_window = SDL_CreateWindow( properties.title.c_str(), properties.width, properties.height, SDL_WINDOW_VULKAN | SDL_WINDOW_MOUSE_CAPTURE | SDL_WINDOW_MOUSE_GRABBED | SDL_WINDOW_MOUSE_RELATIVE_MODE );
 		SDL_GetWindowSize( m_window, &m_width, &m_height );
 		SDL_GetWindowSizeInPixels( m_window, &m_clientHeight, &m_clientWidth );
+
+		//SDL_SetWindowMouseGrab( m_window, true );
 
 		m_windowID = SDL_GetWindowID( m_window );
 	}
