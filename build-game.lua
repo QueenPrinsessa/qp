@@ -41,10 +41,27 @@ externalincludedirs {}
 externalwarnings "Off"
 warnings "Extra"
 
+
+filter { "platforms:*_vulkan_*", "configurations:debug" }
+    libdirs {
+        lib_dirs["sdl_debug"]
+    }
+
+filter { "platforms:*_vulkan_*", "configurations:release" }
+    libdirs {
+        lib_dirs["sdl"]
+    }
+
+filter { "platforms:*_vulkan_*", "configurations:retail" }
+    libdirs {
+        lib_dirs["sdl"]
+    }
+
 filter { "platforms:*_vulkan_*" }
     libdirs {
         lib_dirs["vulkan"]
     }
     links {
-        libs["vulkan"]
+        libs["vulkan"],
+        libs["sdl"]
     }

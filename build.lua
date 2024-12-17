@@ -70,16 +70,19 @@ workspace "qp"
         defines {
             "VK_USE_PLATFORM_WIN32_KHR"
         }
+    filter { "platforms:linux_*", "platforms:*_vulkan_*" }
     filter { "platforms:*_dev_*" }
         defines {
             "QP_DEV"
         }
     filter { "platforms:*_vulkan_*" }
         defines {
-            "QP_VULKAN"
+            "QP_VULKAN",
+            "QP_PLATFORM_SDL"
         }
         externalincludedirs {
-            include_dirs["vulkan"]
+            include_dirs["vulkan"],
+            include_dirs["sdl"]
         }
     filter { "platforms:*_headless_*" }
         defines {

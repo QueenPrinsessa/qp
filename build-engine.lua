@@ -34,4 +34,3 @@ includedirs {
 
 externalwarnings "Off"
 warnings "Extra"
-
