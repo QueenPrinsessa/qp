@@ -11,7 +11,7 @@ include_dirs["sdl"] = "%{libsdir}/SDL/" .. sdl_version .. "/include"
 lib_dirs = {}
 lib_dirs["vulkan"] = "%{vulkan_sdk}/lib"
 lib_dirs["sdl_debug"] = "%{libsdir}/SDL/" .. sdl_version .. "/lib/debug"
-lib_dirs["sdl"] = "%{libsdir}/SDL/" .. sdl_version .. "/lib"
+lib_dirs["sdl"] = "%{libsdir}/SDL/" .. sdl_version .. "/lib/release"
 
 libs = {}
 libs["vulkan"] = "vulkan-1.lib"

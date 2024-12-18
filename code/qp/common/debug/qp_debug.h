@@ -15,9 +15,9 @@
 #define QP_COMPILE_TIME_ASSERT( expression ) static_assert( expression, #expression );
 #define QP_COMPILE_TIME_ASSERT_MSG( expression, msg ) static_assert( expression, msg );
 
-#if defined( QP_ASSERTS_ENABLED )
 namespace qp {
 	namespace debug {
+#if defined( QP_ASSERTS_ENABLED )
 		enum class assertLevel_t : uint8 {
 			DEBUG,
 			RELEASE

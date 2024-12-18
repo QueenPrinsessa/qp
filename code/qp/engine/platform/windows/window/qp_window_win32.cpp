@@ -122,6 +122,8 @@ namespace qp {
 
 		m_windowMode = properties.mode;
 		ApplyWindowMode( m_windowMode );
+
+		m_data->m_mouse.InitializeRawInput( m_handle );
 	}
 
 	void Window_Win32::ApplyWindowMode( const windowMode_t windowMode ) {

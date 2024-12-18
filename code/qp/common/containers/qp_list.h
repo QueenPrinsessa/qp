@@ -85,7 +85,7 @@ namespace qp {
 	template< typename _type_ >
 	List<_type_>::List( const List & other ) {
 		Reserve( other.m_length );
-		qpCopy( m_data, m_capacity, other.m_data, other.m_length );
+		Copy( m_data, m_capacity, other.m_data, other.m_length );
 	}
 
 	template< typename _type_ >
@@ -216,7 +216,7 @@ namespace qp {
 	template< typename _type_ >
 	List< _type_ > & List< _type_ >::operator=( const List & other ) {
 		Reserve( other.m_length );
-		qpCopy( m_data, m_capacity, other.m_data, other.m_length );
+		Copy( m_data, m_capacity, other.m_data, other.m_length );
 		return *this;
 	}
 

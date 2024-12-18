@@ -5,6 +5,7 @@
 
 #include "qp/engine/input/qp_cursor.h"
 #include "qp/common/platform/windows/qp_types_win32.h"
+#include "common/containers/qp_list.h"
 #include <mutex>
 
 namespace qp {
@@ -15,6 +16,7 @@ namespace qp {
 		
 	private:
 		bool ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
+		List< byte > m_rawInputBuffer;
 		bool m_focused = false;
 		bool m_lastFocused = false;
 	};

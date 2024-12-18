@@ -15,7 +15,10 @@ namespace qp {
 		}
 
 		m_position = m_nextPosition;
-		m_delta = m_nextDelta;
+
+		if ( m_focused ) {
+			m_delta = m_nextDelta;
+		}
 		
 		m_nextPosition = m_position;
 		m_nextDelta.Zero();
