@@ -35,6 +35,8 @@ namespace qp {
 	private:
 		void Init( const windowProperties_t & properties );
 		void ApplyWindowMode( const windowMode_t windowMode );
+		bool TryClipCursorToClientRect();
+		void ReleaseClippedCursor();
 
 		UniquePtr< windowWin32Data_t > m_data;
 		HWND m_handle = NULL;
@@ -42,6 +44,9 @@ namespace qp {
 		int m_height = 720;
 		int m_clientWidth = 1280;
 		int m_clientHeight = 720;
+		bool m_focused = false;
+		bool m_clipped = false;
+		bool m_wantsClipped = false;
 		windowMode_t m_windowMode = windowMode_t::WINDOWED;
 		static LRESULT CALLBACK WndProc( _In_ HWND handle, _In_ UINT msg, _In_ WPARAM wparam, _In_ LPARAM lparam );
 	};

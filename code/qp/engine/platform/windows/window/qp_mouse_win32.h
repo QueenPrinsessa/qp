@@ -14,6 +14,7 @@ namespace qp {
 		virtual ~Mouse_Win32() override = default;
 
 		virtual const Cursor & GetMouseCursor() const override { return m_mouseCursor; }
+		virtual Cursor & GetMouseCursor() override { return m_mouseCursor; }
 	private:
 		bool ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
 		MouseCursor_Win32 m_mouseCursor;

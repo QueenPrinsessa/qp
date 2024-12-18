@@ -40,12 +40,25 @@ namespace qp {
 			}
 		}
 
-		{
-			RECT clientRect {};
-			if ( GetClientRect( m_handle, &clientRect ) ) {
-				m_clientWidth = clientRect.right - clientRect.left;
-				m_clientHeight = clientRect.bottom - clientRect.top;
-			}
+		RECT clientRect {};
+		if ( GetClientRect( m_handle, &clientRect ) ) {
+			m_clientWidth = clientRect.right - clientRect.left;
+			m_clientHeight = clientRect.bottom - clientRect.top;
+		}
+
+		// handle clipping of cursor
+		RECT clipRect;
+		GetClipCursor( &clipRect );
+		RECT clientRectScreen = clientRect;
+		ClientToScreen( m_handle, reinterpret_cast< POINT * >( &clientRectScreen ) );
+		ClientToScreen( m_handle, reinterpret_cast< POINT * >( &clientRectScreen ) + 1 );
+		const bool clippedToClientRect = clientRectScreen.bottom == clipRect.bottom
+			&& clientRectScreen.left == clipRect.left
+			&& clientRectScreen.top == clipRect.top
+			&& clientRectScreen.right == clipRect.right;
+
+		if ( !m_clipped && m_wantsClipped && !clippedToClientRect || m_clipped && !clippedToClientRect ) {
+			TryClipCursorToClientRect();
 		}
 	}
 
@@ -102,7 +115,7 @@ namespace qp {
 
 		WideString wTitle = UTF8ToWide( properties.title );
 		m_handle = CreateWindow( windowClassName, wTitle.c_str(), windowStyle, windowLeft, windowTop, m_width, m_height, NULL, NULL, instanceHandle, this );
-
+		
 		SetForegroundWindow( m_handle );
 
 		GetWindowPlacement( m_handle, &m_data->m_lastWindowPlacement );
@@ -146,6 +159,36 @@ namespace qp {
 		}
 	}
 
+	bool Window_Win32::TryClipCursorToClientRect() {
+		QP_ASSERT_RELEASE( m_handle != NULL );
+		
+		if ( GetForegroundWindow() != m_handle ) {
+			return false;
+		}
+
+		m_wantsClipped = true;
+
+		RECT clipRect;
+		GetClientRect( m_handle, &clipRect );
+		ClientToScreen( m_handle, reinterpret_cast< POINT * > ( &clipRect ) );
+		ClientToScreen( m_handle, reinterpret_cast< POINT * > ( &clipRect ) + 1 );
+		
+		if ( ClipCursor( &clipRect ) ) {
+			m_clipped = true;
+			return true;
+		}
+		return false;
+	}
+
+	void Window_Win32::ReleaseClippedCursor() {
+		m_wantsClipped = false;
+
+		if ( m_clipped ) {
+			ClipCursor( NULL );
+			m_clipped = false;
+		}
+	}
+
 	namespace {
 		Window_Win32 * wndProcWindow = NULL;
 	}
@@ -163,23 +206,13 @@ namespace qp {
 
 		switch ( msg ) {
 			case WM_ACTIVATE: {
-				const bool activated = LOWORD( wparam ) != WA_INACTIVE;
-				if ( activated ) {
-					SetCapture( handle );
-					wndProcWindow->m_data->m_mouse.SetCaptured( true );
-
-					RECT rect;
-					GetClientRect( handle, &rect );
-					ClientToScreen( handle, reinterpret_cast< POINT * >( &rect ) );
-					ClientToScreen( handle, reinterpret_cast< POINT * >( &rect ) + 1 );
-					ClipCursor( &rect );
+				if ( LOWORD( wparam ) == WA_INACTIVE ) {
+					wndProcWindow->m_data->m_mouse.m_mouseCursor.ForceShow();
+					wndProcWindow->ReleaseClippedCursor();
 				} else {
-					if ( wndProcWindow->m_data->m_mouse.IsCaptured() ) {
-						ReleaseCapture();
-					}
-					ClipCursor( NULL );
+					wndProcWindow->m_wantsClipped = true;
 				}
-				return true;
+				return 0;
 			}
 			case WM_DESTROY: {
 				DestroyWindow( handle );
@@ -188,9 +221,8 @@ namespace qp {
 				if ( wndProcWindow->m_destroyCallback ) {
 					wndProcWindow->m_destroyCallback();
 				}
-
-				PostQuitMessage( 0 );
-				break;
+				
+				return 0;
 			}
 			case WM_SIZE: {
 				UINT width = LOWORD( lparam );
@@ -198,19 +230,18 @@ namespace qp {
 				if ( wndProcWindow->m_resizeCallback ) {
 					wndProcWindow->m_resizeCallback( width, height );
 				}
-				break;
+				return 0;
 			}
 			case WM_CREATE: {
 				const CREATESTRUCT * createdStruct = reinterpret_cast< CREATESTRUCT * >( lparam );
 				wndProcWindow = static_cast< Window_Win32 * >( createdStruct->lpCreateParams );
-				break;
-			}
-			default: {
-				return DefWindowProc( handle, msg, wparam, lparam );
+				wndProcWindow->m_handle = handle;
+				wndProcWindow->m_wantsClipped = true;
+				return 0;
 			}
 		}
 
-		return 0;
+		return DefWindowProc( handle, msg, wparam, lparam );
 	}
 }
 #endif

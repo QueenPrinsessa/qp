@@ -10,6 +10,7 @@ namespace qp {
 		friend class Window_SDL;
 	public:
 		virtual const Cursor & GetMouseCursor() const { return m_mouseCursor; }
+		virtual Cursor & GetMouseCursor() { return m_mouseCursor; }
 	private:
 		bool HandleSDLEvent( const SDL_Event & event ); // returns true if handled.
 

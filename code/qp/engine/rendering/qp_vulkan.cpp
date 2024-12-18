@@ -28,6 +28,11 @@
 #include "qp/engine/platform/sdl/qp_sdl.h"
 #include <SDL3/SDL_vulkan.h>
 #endif
+
+#if defined( QP_PLATFORM_WINDOWS )
+#include "common/platform/windows/qp_windows.h"
+#endif
+
 namespace qp {
 #if defined( QP_DEV )
 	const bool enableValidationLayers = true;

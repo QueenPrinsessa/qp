@@ -22,11 +22,9 @@ namespace qp {
 		float GetHorizontalScrollValue() const { return m_scrollValue.x; }
 
 		virtual const Cursor & GetMouseCursor() const = 0;
+		virtual Cursor & GetMouseCursor() = 0;
 
 		void Update();
-
-		void SetCaptured( const bool captured ) { m_captured = captured; }
-		bool IsCaptured() const { return m_captured; }
 
 		const BitSet< MOUSE_BUTTON_COUNT > & GetState() const { return m_state; }
 		const BitSet< MOUSE_BUTTON_COUNT > & GetLastState() const { return m_lastState; }
@@ -39,9 +37,9 @@ namespace qp {
 		BitSet< MOUSE_BUTTON_COUNT >	m_workingState;
 		Vec2							m_scrollValue;
 		Vec2							m_workingScrollValue;
-		bool							m_captured = false;
-
-		Cursor & GetMouseCursorNonConst() { return const_cast< Cursor & >( GetMouseCursor() ); }
+		bool							m_focused = false;
+		bool							m_lastFocused = false;
+		
 	};
 }
 #endif

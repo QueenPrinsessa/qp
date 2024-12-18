@@ -182,9 +182,13 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 	windowProperties.allowResize = true;
 	windowProperties.mode = qp::windowMode_t::WINDOWED;
 #if defined( QP_VULKAN )
-	windowProperties.title = "qpVulkan Window Win32";
-#elif defined( QP_D3D11 )
-	windowProperties.title = "qpD3D11 Window Win32";
+#if defined( QP_PLATFORM_WINDOWS ) && !defined( QP_WINDOWS_SDL )
+	windowProperties.title = "Vulkan Window Win32";
+#elif defined( QP_PLATFORM_SDL )
+	windowProperties.title = "Vulkan Window SDL";
+#else
+#error "unsupported platform"
+#endif
 #endif
 	qp::windowPropertiesWindows_t windowsProperties;
 	windowsProperties.instanceHandle = hInstance;

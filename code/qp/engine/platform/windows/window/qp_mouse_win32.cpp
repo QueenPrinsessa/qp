@@ -15,6 +15,10 @@ namespace qp {
 		}
 	
 		 switch ( msg ) {
+		 	case WM_ACTIVATE: {
+				m_focused = LOWORD( wparam ) != WA_INACTIVE;
+				return false; // pass along
+			}
 		 	case WM_LBUTTONUP: {
 				return HandleEvent( mouseButton_t::LBUTTON, false );
 			}

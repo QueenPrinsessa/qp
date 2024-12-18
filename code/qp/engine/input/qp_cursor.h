@@ -8,7 +8,7 @@ namespace qp {
 		virtual void Update() = 0;
 
 		const Vec2 & GetPosition() const { return m_position; }
-		const Vec2 & GetPositionDelta() const { return m_positionDelta; }
+		const Vec2 & GetPositionDelta() const { return m_delta; }
 
 		bool Show() { return ++m_displayCursor; }
 		bool Hide() { return --m_displayCursor; }
@@ -18,9 +18,10 @@ namespace qp {
 		bool IsVisible() const { return m_displayCursor >= 0; }
 	protected:
 		Vec2 m_position;
-		Vec2 m_previousPosition;
+		//Vec2 m_previousPosition;
 		Vec2 m_nextPosition;
-		Vec2 m_positionDelta;
+		Vec2 m_delta;
+		Vec2 m_nextDelta { 0, 0 };
 		atomicInt32_t m_displayCursor;
 	};
 }

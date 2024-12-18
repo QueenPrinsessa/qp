@@ -6,13 +6,24 @@
 
 namespace qp {
 	void Mouse::Update() {
+
+		const bool regainedFocus = m_focused && !m_lastFocused;
+		const bool lostFocus = !m_focused && m_lastFocused;
+		m_lastFocused = m_focused;
+
+		// clear input if we just lost or regained focus
+		// this should be treated as releasing all buttons
+		if ( lostFocus || regainedFocus ) {
+			m_workingState.ClearAll();
+			m_workingScrollValue.Zero();
+		}
+
 		m_lastState = m_state;
 		m_state = m_workingState;
-
 		m_scrollValue = m_workingScrollValue;
 		m_workingScrollValue.Zero();
 
-		GetMouseCursorNonConst().Update();
+		GetMouseCursor().Update();
 	}
 
 	bool Mouse::HandleEvent( const mouseButton_t button, const bool down ) {

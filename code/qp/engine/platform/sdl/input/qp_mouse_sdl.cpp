@@ -23,6 +23,14 @@ namespace qp {
 		}
 
 		switch ( event.type ) {
+			case SDL_EVENT_WINDOW_FOCUS_GAINED: {
+				m_focused = true;
+				return false; // pass along
+			}
+			case SDL_EVENT_WINDOW_FOCUS_LOST: {
+				m_focused = false;
+				return false; // pass along
+			}
 			case SDL_EVENT_MOUSE_BUTTON_UP: {
 				mouseButton_t button = MapButtonToMouseButton( event.button.button );
 				return HandleEvent( button, false );

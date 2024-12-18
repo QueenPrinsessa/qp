@@ -13,7 +13,8 @@ namespace qp {
 	private:
 		bool HandleSDLEvent( const SDL_Event & event ); // returns true if handled.
 		
-		Vec2 m_nextDelta { 0, 0 };
+		bool m_focused = false;
+		bool m_lastFocused = false;
 	};
 }
 

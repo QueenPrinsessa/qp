@@ -15,15 +15,8 @@ namespace qp {
 		
 	private:
 		bool ProcessWindowEvent( HWND handle, UINT msg, WPARAM wparam, LPARAM lparam ); // returns true if handled.
-		HWND m_windowHandle = NULL;
-		bool m_isFocused = false;
-		// settings
-		bool m_captureCursor = true;
-		bool m_clipCursor = false;
-		bool m_lockToCenter = true;
-		// state
-		bool m_capturedCursor = false;
-		bool m_clippedCursor = false;
+		bool m_focused = false;
+		bool m_lastFocused = false;
 	};
 }
 #endif

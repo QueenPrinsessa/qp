@@ -17,6 +17,8 @@ workspace "qp"
         "windows_vulkan_x64",
         "windows_headless_dev_x64",
 	    "windows_headless_x64",
+        "sdl_windows_vulkan_dev_x64",
+        "sdl_windows_vulkan_x64",
         "linux_vulkan_dev_x64",
         "linux_vulkan_x64",
         "linux_headless_dev_x64",
@@ -30,7 +32,7 @@ workspace "qp"
             "/Zc:__cplusplus" --__cplusplus version macro 
         } 
         defines {
-            "QP_PLATFORM_WINDOWS"
+            "QP_PLATFORM_WINDOWS",
         }
         toolset "msc"
     filter { "system:linux" }
@@ -62,6 +64,10 @@ workspace "qp"
         symbols "off"
     filter { "platforms:windows_*" }
         system "windows"
+    filter { "platforms:sdl_windows*" }
+        defines {
+            "QP_WINDOWS_SDL"
+        }
     filter { "platforms:linux_*" }
         system "linux"
     filter { "platforms:*_x64" }
