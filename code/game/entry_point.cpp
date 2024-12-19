@@ -114,7 +114,7 @@ namespace qp {
 								upDir = 1.0f;
 							}
 
-							qp::Vec2 mousePositionDelta = mouse->GetMouseCursor().GetPositionDelta();
+							qp::Vec2 mousePositionDelta = mouse->GetMouseCursor().GetDelta();
 							transform.m_rotation.x += mousePositionDelta.y * 0.1f;
 							transform.m_rotation.y += mousePositionDelta.x * 0.1f;
 							transform.m_orientation = qp::Quat( transform.m_rotation.x, transform.m_rotation.y, transform.m_rotation.z );

@@ -10,16 +10,17 @@
 
 namespace qp {
 	void MouseCursor_Win32::Update() {
-		
 		const bool regainedFocus = m_focused && !m_lastFocused;
 		const bool lostFocus = !m_focused && m_lastFocused;
 		m_lastFocused = m_focused;
-
-		// only needed for non-relative mouse movement
-		// m_nextDelta = m_nextPosition - m_position;
+		
+		if ( !m_relativeMode ) {
+			m_nextDelta = m_nextPosition - m_position;
+		}
 
 		if ( lostFocus || regainedFocus ) {
 			m_nextDelta.Zero();
+			m_delta.Zero();
 		}
 
 		m_position = m_nextPosition;
@@ -29,6 +30,12 @@ namespace qp {
 
 		m_nextPosition = m_position;
 		m_nextDelta.Zero();
+
+		if ( m_focused && m_relativeMode ) {
+			ForceHide();
+		} else if ( !m_focused ) {
+			ForceShow();
+		}
 
 		if ( IsVisible() ) {
 			while ( ::ShowCursor( TRUE ) < 0 ) {}
@@ -52,25 +59,21 @@ namespace qp {
 			case WM_INPUT: {
 				m_rawInputBuffer.Clear();
 
-				UINT errRetVal = ( UINT )-1;
+				constexpr UINT errVal = static_cast< UINT >( -1 );
 				UINT size = 0;
-				if ( GetRawInputData( reinterpret_cast< HRAWINPUT >( lparam ), RID_INPUT, NULL, &size, sizeof( RAWINPUTHEADER ) ) == errRetVal ) {
+				if ( GetRawInputData( reinterpret_cast< HRAWINPUT >( lparam ), RID_INPUT, NULL, &size, sizeof( RAWINPUTHEADER ) ) == errVal ) {
 					return false;
 				}
 				m_rawInputBuffer.Resize( size );
 				if ( GetRawInputData( reinterpret_cast< HRAWINPUT >( lparam ), RID_INPUT, m_rawInputBuffer.Data(), &size, sizeof( RAWINPUTHEADER ) ) != size ) {
 					return false;
 				}
-
-				qp::debug::Printf( "SIZE: %u\n", m_rawInputBuffer.Length() );
-
-				RAWINPUT * rawInput = reinterpret_cast< RAWINPUT * >( m_rawInputBuffer.Data() );
-				RAWMOUSE rawMouse = rawInput->data.mouse;
-				if ( rawInput->header.dwType == RIM_TYPEMOUSE /*&& ( rawMouse.lLastX != 0 ) && ( rawMouse.lLastY != 0 )*/ ) {
+				
+				const RAWINPUT * rawInput = reinterpret_cast< RAWINPUT * >( m_rawInputBuffer.Data() );
+				if ( rawInput->header.dwType == RIM_TYPEMOUSE ) {
+					const RAWMOUSE & rawMouse = rawInput->data.mouse;
 					m_nextDelta.x += static_cast< float >( rawMouse.lLastX );
 					m_nextDelta.y += static_cast< float >( rawMouse.lLastY );
-
-					qp::debug::Printf( "RAWMOUSE: x:%d y:%d\n", rawMouse.lLastX, rawMouse.lLastY );
 				}
 
 				return true;

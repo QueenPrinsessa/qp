@@ -5,13 +5,16 @@
 
 namespace qp {
 	void MouseCursor_SDL::Update() {
-
 		const bool regainedFocus = m_focused && !m_lastFocused;
 		const bool lostFocus = !m_focused && m_lastFocused;
 		m_lastFocused = m_focused;
 
 		if ( lostFocus || regainedFocus ) {
 			m_nextDelta.Zero();
+		}
+
+		if ( !m_relativeMode ) {
+			m_nextDelta = m_nextPosition - m_position;
 		}
 
 		m_position = m_nextPosition;
@@ -22,6 +25,12 @@ namespace qp {
 		
 		m_nextPosition = m_position;
 		m_nextDelta.Zero();
+		
+		if ( m_focused && m_relativeMode ) {
+			ForceHide();
+		} else if ( !m_focused ) {
+			ForceShow();
+		}
 
 		if ( IsVisible() ) {
 			SDL_ShowCursor();

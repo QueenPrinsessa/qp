@@ -47,29 +47,23 @@ namespace qp {
 		}
 
 		switch ( event.type ) {
-			case SDL_EVENT_WINDOW_FOCUS_GAINED: {
-				break;
-			}
-			case SDL_EVENT_WINDOW_FOCUS_LOST: {
-				break;
-			}
 			case SDL_EVENT_WINDOW_RESIZED: {
 				QP_ASSERT_RELEASE( IsThisWindow( event.window.windowID ) );
 				m_width = event.window.data1;
 				m_height = event.window.data2;
-				break;
+				return true;
 			}
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED: {
 				QP_ASSERT_RELEASE( IsThisWindow( event.window.windowID ) );
 				m_clientWidth = event.window.data1;
 				m_clientHeight = event.window.data2;
-				break;
+				return true;
 			}
 			case SDL_EVENT_QUIT: {
 				if ( m_destroyCallback ) {
 					m_destroyCallback();
 				}
-				break;
+				return true;
 			}
 		}
 
