@@ -6,7 +6,7 @@ cppdialect "C++20"
 staticruntime "Off"
 
 debugdir(gamedir)
-targetdir (bindir .."/" .. outputdir .. "%{prj.name}")
+targetdir (bindir .."/%{prj.name}/" .. outputdir)
 objdir (tempdir .. "/" .. outputdir .. "/%{prj.name}")
 
 game_src_dir = codedir .. "game/"

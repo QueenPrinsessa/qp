@@ -112,7 +112,7 @@ workspace "qp"
     filter {}
 
 slnDir = "%{wks.location}/"
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.platform}-%{cfg.buildcfg}"
 codedir = slnDir .. "code/"
 bindir = slnDir .. "bin/"
 tempdir = slnDir .. "temp/"

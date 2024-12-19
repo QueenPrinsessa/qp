@@ -5,7 +5,7 @@ language "C++"
 cppdialect "C++20"
 staticruntime "Off"
 
-targetdir (bindir .. "/" .. outputdir .. "/%{prj.name}")
+targetdir (bindir .. "/%{prj.name}/" .. outputdir)
 objdir (tempdir .. "/" .. outputdir .. "/%{prj.name}")
 
 pchheader ( "engine.pch.h" )
